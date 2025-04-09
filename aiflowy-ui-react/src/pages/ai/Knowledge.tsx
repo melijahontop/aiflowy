@@ -179,7 +179,7 @@ const Knowledge: React.FC<{ paramsToUrl: boolean }> = () => {
                           return [
                               <MenuUnfoldOutlined title="文档列表" onClick={() => {
                                   // window.open(`/ai/knowledge/${item.slug || item.id}`)
-                                  window.open(`/ai/DocumentCopy/${item.slug || item.id}`)
+                                  window.open(`/ai/Document/${item.slug || item.id}`)
                               }}/>,
 
                               <SearchOutlined title="向量检索" onClick={() => {

@@ -11,8 +11,6 @@ const Content: React.FC<ContentProps> = ({ selectedMenu }) => {
             return <FileManagement />;
         case 'file-import':
             return <FileImport />;
-        case 'material-management':
-            return <MaterialManagement />;
         case 'search-test':
             return <SearchTest />;
         case 'configuration':
@@ -37,12 +35,6 @@ const FileImport: React.FC = () => (
     </div>
 );
 
-const MaterialManagement: React.FC = () => (
-    <div className="content">
-        <h2>素材管理</h2>
-        <p>这里是素材管理的内容。</p>
-    </div>
-);
 
 const SearchTest: React.FC = () => (
     <div className="content">
