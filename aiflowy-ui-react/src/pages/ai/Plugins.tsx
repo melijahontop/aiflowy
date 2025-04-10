@@ -23,7 +23,9 @@ const columnsConfig: ColumnsConfig<any> = [
         },
         dataIndex: "pluginName",
         title: "插件名称",
-        key: "pluginName"
+        key: "pluginName",
+        supportSearch: true,
+        placeholder: "请输入插件名称",
     },
 
     {
