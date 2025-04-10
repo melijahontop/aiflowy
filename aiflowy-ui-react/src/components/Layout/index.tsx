@@ -27,7 +27,7 @@ const Layout: React.FC = () => {
     return (
         <CheckLogin>
             <LayoutContext.Provider value={{options, setOptions}}>
-                <AntdLayout style={{minHeight: '100vh'}}>
+                <AntdLayout style={{minHeight: '100vh',display: 'flex',alignItems:'stretch'}}>
                     {options.showLeftMenu && <LeftMenu collapsed={options.leftMenuCollapsed ?? false}/>}
                     <AntdLayout>
                         <Header collapsed={options.leftMenuCollapsed ?? false}/>
