@@ -24,4 +24,8 @@ npm install
 https://aiflowy.tech (官网正在备案，还未上线)
 
 
+## Star 用户专属交流群
+
+Star 本项目后，截图发给微信： fuh99888, 拉您进群，讨论 AIFlowy 技术以及场景落地等话题。
+
 
