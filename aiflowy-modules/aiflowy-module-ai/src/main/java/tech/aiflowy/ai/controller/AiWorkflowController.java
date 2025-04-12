@@ -95,7 +95,7 @@ public class AiWorkflowController extends BaseCurdController<AiWorkflowService, 
                         }
                         documentStore.setEmbeddingModel(aiLlm.toLlm());
                         SearchWrapper wrapper = new SearchWrapper();
-                        wrapper.setMaxResults(Integer.valueOf(10));
+                        wrapper.setMaxResults(Integer.valueOf(limit));
                         wrapper.setText(keyword);
                         StoreOptions options = StoreOptions.ofCollectionName(aiKnowledge.getVectorStoreCollection());
 
