@@ -72,6 +72,6 @@ const Logs: React.FC<{ paramsToUrl: boolean }> = ({paramsToUrl}) => {
 };
 
 export default {
-    path: "/system/logs",
+    path: "/sys/logs",
     element: Logs
 };

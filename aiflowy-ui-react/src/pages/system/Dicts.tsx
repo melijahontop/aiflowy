@@ -150,6 +150,6 @@ const Dicts: React.FC = () => {
 };
 
 export default {
-    path: "/system/dicts",
+    path: "/sys/dicts",
     element: Dicts,
 };
