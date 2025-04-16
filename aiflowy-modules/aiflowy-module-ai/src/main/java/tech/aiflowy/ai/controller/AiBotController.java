@@ -151,80 +151,99 @@ public class AiBotController extends BaseCurdController<AiBotService, AiBot> {
 
         final Boolean[] needClose = {true};
 
-        ServletRequestAttributes sra = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (!humanMessage.getFunctions().isEmpty()) {
+            try {
+                AiMessageResponse aiMessageResponse = llm.chat(historiesPrompt);
+                function_call(aiMessageResponse, emitter, needClose, historiesPrompt, llm, prompt);
+            } catch (Exception e) {
+                emitter.completeWithError(e);
+            }
 
-        llm.chatStream(historiesPrompt, new StreamResponseListener() {
-            @Override
-            public void onMessage(ChatContext context, AiMessageResponse response) {
-                try {
-                    RequestContextHolder.setRequestAttributes(sra, true);
-                    String content = response.getMessage().getContent();
-                    Object messageContent = response.getMessage();
-                    if (StringUtil.hasText(content)) {
-                        String jsonResult = JSON.toJSONString(messageContent);
-                        emitter.send(jsonResult);
+            if (needClose[0]) {
+                System.out.println("function chat complete");
+                emitter.complete();
+            }
+        } else {
+
+            llm.chatStream(historiesPrompt, new StreamResponseListener() {
+                @Override
+                public void onMessage(ChatContext context, AiMessageResponse response) {
+                    try {
+
+                        function_call(response, emitter, needClose, historiesPrompt, llm, prompt);
+                    } catch (Exception e) {
+                        emitter.completeWithError(e);
                     }
-                    List<FunctionCaller> functionCallers = response.getFunctionCallers();
-                    if (CollectionUtil.hasItems(functionCallers)) {
-                        needClose[0] = false;
-                        for (FunctionCaller functionCaller : functionCallers) {
-                            Object result = functionCaller.call();
-                            if (ObjectUtil.isNotEmpty(result)) {
+                }
 
-                                String newPrompt = "请根据以下内容回答用户，内容是:\n" + result + "\n 用户的问题是：" + prompt;
-                                historiesPrompt.addMessageTemporary(new HumanMessage(newPrompt));
-
-                                llm.chatStream(historiesPrompt, new StreamResponseListener() {
-                                    @Override
-                                    public void onMessage(ChatContext context, AiMessageResponse response) {
-                                        needClose[0] = true;
-                                        String content = response.getMessage().getContent();
-                                        Object messageContent = response.getMessage();
-                                        if (StringUtil.hasText(content)) {
-                                            String jsonResult = JSON.toJSONString(messageContent);
-                                            emitter.send(jsonResult);
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onStop(ChatContext context) {
-                                        if (needClose[0]) {
-                                            System.out.println("function chat complete");
-                                            emitter.complete();
-                                        }
-                                        historiesPrompt.clearTemporaryMessages();
-                                    }
-
-                                    @Override
-                                    public void onFailure(ChatContext context, Throwable throwable) {
-                                        emitter.completeWithError(throwable);
-                                    }
-                                });
-                            }
-                        }
+                @Override
+                public void onStop(ChatContext context) {
+                    if (needClose[0]) {
+                        System.out.println("normal chat complete");
+                        emitter.complete();
                     }
-                } catch (Exception e) {
-                    emitter.completeWithError(e);
                 }
-            }
 
-            @Override
-            public void onStop(ChatContext context) {
-                if (needClose[0]) {
-                    System.out.println("normal chat complete");
-                    emitter.complete();
+                @Override
+                public void onFailure(ChatContext context, Throwable throwable) {
+                    emitter.completeWithError(throwable);
                 }
-            }
-
-            @Override
-            public void onFailure(ChatContext context, Throwable throwable) {
-                emitter.completeWithError(throwable);
-            }
-        });
+            });
+        }
 
         return emitter;
     }
 
+
+    private void function_call(AiMessageResponse aiMessageResponse, MySseEmitter emitter, Boolean[] needClose, HistoriesPrompt historiesPrompt, Llm llm, String prompt) {
+        ServletRequestAttributes sra = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        RequestContextHolder.setRequestAttributes(sra, true);
+        String content = aiMessageResponse.getMessage().getContent();
+        Object messageContent = aiMessageResponse.getMessage();
+        if (StringUtil.hasText(content)) {
+            String jsonResult = JSON.toJSONString(messageContent);
+            emitter.send(jsonResult);
+        }
+        List<FunctionCaller> functionCallers = aiMessageResponse.getFunctionCallers();
+        if (CollectionUtil.hasItems(functionCallers)) {
+            needClose[0] = false;
+            for (FunctionCaller functionCaller : functionCallers) {
+                Object result = functionCaller.call();
+                if (ObjectUtil.isNotEmpty(result)) {
+
+                    String newPrompt = "请根据以下内容回答用户，内容是:\n" + result + "\n 用户的问题是：" + prompt;
+                    historiesPrompt.addMessageTemporary(new HumanMessage(newPrompt));
+
+                    llm.chatStream(historiesPrompt, new StreamResponseListener() {
+                        @Override
+                        public void onMessage(ChatContext context, AiMessageResponse response) {
+                            needClose[0] = true;
+                            String content = response.getMessage().getContent();
+                            Object messageContent = response.getMessage();
+                            if (StringUtil.hasText(content)) {
+                                String jsonResult = JSON.toJSONString(messageContent);
+                                emitter.send(jsonResult);
+                            }
+                        }
+
+                        @Override
+                        public void onStop(ChatContext context) {
+                            if (needClose[0]) {
+                                System.out.println("function chat complete");
+                                emitter.complete();
+                            }
+                            historiesPrompt.clearTemporaryMessages();
+                        }
+
+                        @Override
+                        public void onFailure(ChatContext context, Throwable throwable) {
+                            emitter.completeWithError(throwable);
+                        }
+                    });
+                }
+            }
+        }
+    }
 
     private void appendWorkflowFunctions(BigInteger botId, HumanMessage humanMessage) {
         QueryWrapper queryWrapper = QueryWrapper.create().eq(AiBotWorkflow::getBotId, botId);
