@@ -32,7 +32,9 @@ public class S3FileStorageServiceImpl implements FileStorageService {
     @EventListener(ApplicationReadyEvent.class)
     public void init() {
         StorageConfig instance = StorageConfig.getInstance();
-        client = new OssClient(instance);
+        if (!"local".equals(instance.getType())){
+            client = new OssClient(instance);
+        }
     }
 
 
