@@ -38,7 +38,7 @@ export default defineConfig({
 
         nav: [
             {text: '开发文档', link: '/zh/development/getting-started/getting-started'},
-            {text: '产品文档', link: '/zh/product/info/what-is-aiflowy'},
+            {text: '产品手册', link: '/zh/product/info/what-is-aiflowy'},
             {text: '价格', link: '/zh/product/pricing'},
             {text: '更新记录', link: '/zh/product/changes'},
         ],
