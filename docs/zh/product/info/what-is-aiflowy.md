@@ -6,7 +6,7 @@ AIFlowy 是一个使用 Java 开发的 AI 产品的底座和基石，对标字�
 
 
 - 开源地址：https://gitee.com/aiflowy/aiflowy
-- 官网：https://aiflowy.tech 
+- 官网：https://aiflowy.tech
 
 ## 关于团队
 我们是一支小而精悍、充满激情与创造力的团队。在推出 AIFlowy 之前，我们已经成功打造了多个备受认可的开源项目， 包括 Agents-Flex 、Tinyflow 和 AIEditor 。
