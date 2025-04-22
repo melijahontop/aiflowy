@@ -42,11 +42,7 @@ npm install
 npm run dev
 ```
 
-**环境要求**
-- JDK 1.8+
-- Node.js 20.0+
-- MySQL 8.0+
-
+详细文档请参考： https://aiflowy.tech/zh/development/getting-started/getting-started.html
 
 
 ## 开发及产品文档
