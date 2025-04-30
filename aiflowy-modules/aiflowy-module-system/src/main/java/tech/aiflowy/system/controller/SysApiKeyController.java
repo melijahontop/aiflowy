@@ -25,8 +25,8 @@ import java.util.Date;
  */
 @RestController
 @RequestMapping("/api/v1/sysApiKey")
-public class AiBotApiKeyController extends BaseCurdController<SysApiKeyService, SysApiKey> {
-    public AiBotApiKeyController(SysApiKeyService service) {
+public class SysApiKeyController extends BaseCurdController<SysApiKeyService, SysApiKey> {
+    public SysApiKeyController(SysApiKeyService service) {
         super(service);
     }
 
