@@ -82,7 +82,7 @@ public class AiOllamaServiceImpl implements AiOllamaService {
         for (int i = 0; i < modelsJsonArray.size(); i++) {
             JSONObject modalJsonObject = modelsJsonArray.getJSONObject(i);
             OllamaModel ollamaModel = modalJsonObject.toJavaObject(OllamaModel.class);
-            ollamaModel.setApiUrl(tempUrl);
+            ollamaModel.setApiUrl(ollamaApiUrl);
             OllamaModel ollamaModel1 = hasJoinModel(aiLlms, ollamaModel);
             // 如果不为空就是条件查询
             if (StringUtils.isNotEmpty(modelName)){
