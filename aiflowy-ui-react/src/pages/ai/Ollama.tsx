@@ -29,7 +29,9 @@ const Ollama: React.FC = () => {
         doAddAiLlm({
             params:{
                 title: record.name,
-                llmEndpoint: record.apiUrl
+                llmEndpoint: record.apiUrl,
+                llmModel: record.name,
+                brand: 'ollama'
             }
         })
         doGet()
