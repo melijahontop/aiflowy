@@ -293,7 +293,7 @@ token ：使用token认证，默认为空，为空则不使用token认证
 
 ## Elasticsearch 向量数据库
 
-一、配置示例
+## 一、 Elasticsearch 知识库配置样例
 
 如果没有设置账号和密码，不用添加账号和密码的配置
 ![img.png](resource/elastic_search_config.png)
@@ -301,3 +301,26 @@ token ：使用token认证，默认为空，为空则不使用token认证
 此外  Elasticsearch 还支持更多配置参数
 apiKey ：使用apiKey认证，默认为空，为空则不使用apiKey认证
 
+## OpenSearch 向量数据库
+
+## 一、安装OpenSearch
+
+docker 安装参考地址
+
+https://docs.opensearch.org/docs/latest/install-and-configure/install-opensearch/docker/#windows-settings
+
+docker 使用如下如下命令一键设置密码并安装
+
+```cmd
+docker run -d -p 9200:9200 -p 9600:9600 -e "discovery.type=single-node" -e "OPENSEARCH_INITIAL_ADMIN_PASSWORD=yourPassword" opensearchproject/opensearch:2.19.1
+```
+
+浏览器向 9200 端口发送请求。默认用户名为 admin ，密码为您设置的密码。
+
+出现以下内容则表示成功
+
+![oepn_search_success.png](resource/oepn_search_success.png)
+
+## 二、OpenSearch 知识库配置样例
+
+![open_search_config.png](resource/open_search_config.png)
