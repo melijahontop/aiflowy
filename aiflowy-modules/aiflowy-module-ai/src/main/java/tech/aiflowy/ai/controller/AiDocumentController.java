@@ -183,6 +183,7 @@ public class AiDocumentController extends BaseCurdController<AiDocumentService, 
                          @RequestParam(name="chunkSize", required = false) Integer chunkSize,
                          @RequestParam(name="overlapSize", required = false) Integer overlapSize,
                          @RequestParam(name="regex", required = false) String regex,
+                         @RequestParam(name="rowsPerChunk", required = false) Integer rowsPerChunk,
                          @RequestParam(name="userWillSave") boolean userWillSave
     ) throws IOException {
         if (file.getOriginalFilename() == null){
@@ -209,7 +210,7 @@ public class AiDocumentController extends BaseCurdController<AiDocumentService, 
         if (!userWillSave){
             List<AiDocumentChunk> previewList = new ArrayList<>();
             // 设置分割器 todo 未来可以通过参数来指定分割器，不同的文档使用不同的分割器效果更好
-            DocumentSplitter documentSplitter = getDocumentSplitter(splitterName, chunkSize, overlapSize, regex, 2);
+            DocumentSplitter documentSplitter = getDocumentSplitter(splitterName, chunkSize, overlapSize, regex, rowsPerChunk);
             Document document = Document.of(aiDocument.getContent());
             List<Document> documents = documentSplitter.split(document);
             int sort = 1;
@@ -222,7 +223,7 @@ public class AiDocumentController extends BaseCurdController<AiDocumentService, 
             }
             // 删除本地文件
             AiDocumentServiceImpl.deleteFile(getRootPath() + path);
-            Map res = new HashMap();
+            Map<String, Object> res = new HashMap<>();
             res.put("data", previewList);
             res.put("userWillSave", false);
             // 返回分割效果给用户
@@ -250,7 +251,7 @@ public class AiDocumentController extends BaseCurdController<AiDocumentService, 
         aiDocument.setTitle(StringUtil.removeFileExtension(file.getOriginalFilename()));
 
         super.save(aiDocument);
-        return storeDocument(aiDocument, splitterName, chunkSize, overlapSize, regex);
+        return storeDocument(aiDocument, splitterName, chunkSize, overlapSize, regex, rowsPerChunk);
     }
 
 
@@ -301,7 +302,7 @@ public class AiDocumentController extends BaseCurdController<AiDocumentService, 
      * @param overlapSize 分段重叠大小
      * @param regex 正则表达式
      */
-    protected Result storeDocument(AiDocument entity, String splitterName, int chunkSize, int overlapSize, String regex) {
+    protected Result storeDocument(AiDocument entity, String splitterName, int chunkSize, int overlapSize, String regex, Integer rowsPerChunk) {
         entity = service.getById(entity.getId());
         AiKnowledge knowledge = knowledgeService.getById(entity.getKnowledgeId());
         if (knowledge == null) {
@@ -343,7 +344,7 @@ public class AiDocumentController extends BaseCurdController<AiDocumentService, 
         }
 
         // 设置分割器 todo 未来可以通过参数来指定分割器，不同的文档使用不同的分割器效果更好
-        documentStore.setDocumentSplitter(getDocumentSplitter(splitterName, chunkSize, overlapSize, regex, 2));
+        documentStore.setDocumentSplitter(getDocumentSplitter(splitterName, chunkSize, overlapSize, regex, rowsPerChunk));
 
         AiDocument finalEntity = entity;
         AtomicInteger sort  = new AtomicInteger(1);
