@@ -143,3 +143,12 @@
         font-size: 54px;
     }
 }
+
+
+.medium-zoom-overlay {
+    z-index: 30;
+}
+
+.medium-zoom-image {
+    z-index: 31;
+}
