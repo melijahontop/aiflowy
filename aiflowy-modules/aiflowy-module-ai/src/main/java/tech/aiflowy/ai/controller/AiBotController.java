@@ -2,6 +2,7 @@ package tech.aiflowy.ai.controller;
 
 import cn.dev33.satoken.annotation.SaIgnore;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import com.agentsflex.core.llm.ChatContext;
 import com.agentsflex.core.llm.Llm;
 import com.agentsflex.core.llm.StreamResponseListener;
@@ -152,7 +153,9 @@ public class AiBotController extends BaseCurdController<AiBotService, AiBot> {
                 aiBotConversationMessageService);
 
         final HistoriesPrompt historiesPrompt = new HistoriesPrompt();
-        historiesPrompt.setSystemMessage(SystemMessage.of((String) llmOptions.get("systemPrompt")));
+        if (llmOptions.get("systemPrompt") != null){
+            historiesPrompt.setSystemMessage(SystemMessage.of((String) llmOptions.get("systemPrompt")));
+        }
         historiesPrompt.setMemory(memory);
 
         HumanMessage humanMessage = new HumanMessage(prompt);
@@ -269,7 +272,9 @@ public class AiBotController extends BaseCurdController<AiBotService, AiBot> {
         Llm llm = aiLlm.toLlm();
         AiBotExternalMessageMemory messageMemory = new AiBotExternalMessageMemory(messages);
         HistoriesPrompt historiesPrompt = new HistoriesPrompt();
-        historiesPrompt.setSystemMessage(SystemMessage.of((String) llmOptions.get("systemPrompt")));
+        if (llmOptions.get("systemPrompt") != null){
+            historiesPrompt.setSystemMessage(SystemMessage.of((String) llmOptions.get("systemPrompt")));
+        }
         historiesPrompt.setMemory(messageMemory);
 
         String prompt = messages.get(messages.size() - 1).getContent();
@@ -277,7 +282,6 @@ public class AiBotController extends BaseCurdController<AiBotService, AiBot> {
 
         // 添加插件、工作流、知识库相关的 Function Calling
         appendPluginToolFunction(botId, humanMessage);
-//        appendPluginFunctions(botId, humanMessage);
         appendWorkflowFunctions(botId, humanMessage);
         appendKnowledgeFunctions(botId, humanMessage);
 
@@ -288,7 +292,6 @@ public class AiBotController extends BaseCurdController<AiBotService, AiBot> {
             MySseEmitter emitter = new MySseEmitter((long) (1000 * 60 * 2));
             final Boolean[] needClose = {true};
 
-//            if (humanMessage.getFunctions() != null && !humanMessage.getFunctions().isEmpty()) {
             if (humanMessage.getFunctions() != null && !humanMessage.getFunctions().isEmpty()) {
                 try {
                     AiMessageResponse aiMessageResponse = llm.chat(historiesPrompt);
