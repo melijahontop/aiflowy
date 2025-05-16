@@ -6,20 +6,21 @@ import {Avatar, List} from "antd";
  * 手风琴面板项
  */
 export type AccordionItemType = {
+    icon?: string,
     title: string,
     description: string,
     children?: React.ReactNode,
     isActive?: boolean|false,
     clickItem: () => void
 }
-const AccordionItem: React.FC<AccordionItemType> = ({ title,description, children, isActive, clickItem }) => {
+const AccordionItem: React.FC<AccordionItemType> = ({ icon,title,description, children, isActive, clickItem }) => {
     return (
         <div className={`accordion-item ${isActive ? 'active' : ''}`}>
             <div className="accordion-header" onClick={clickItem}>
                 <List style={{width: "100%"}}>
                     <List.Item>
                         <List.Item.Meta
-                            avatar={<Avatar src={`https://api.dicebear.com/7.x/miniavs/svg?seed=${1}`} />}
+                            avatar={<Avatar src={icon || "/favicon.png"} />}
                             title={title}
                             description={description}
                         />

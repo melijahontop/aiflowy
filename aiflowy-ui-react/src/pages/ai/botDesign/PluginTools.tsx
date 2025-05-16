@@ -79,6 +79,7 @@ export const PluginTools: React.FC<PluginToolsProps> = (props) => {
                                 return (
                                     <AccordionItem
                                         key={index}
+                                        icon={item.icon}
                                         title={item.name}
                                         description={item.description}
                                         isActive={selectedIndex == index}
