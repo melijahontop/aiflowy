@@ -149,9 +149,11 @@ function sidebarDevelopment(): DefaultTheme.SidebarItem[] {
                 {text: '知识库', link: '/ai/knowledge'},
                 {text: 'apiKey', link: '/ai/apiKey'},
                 {text: 'Ollama', link: '/ai/ollama'},
-                {text: '工作流', collapsed: false, items: [
-                    {text: '自定义节点', link: '/ai/custom-node'},
-                    ]},
+                {
+                    text: '工作流', collapsed: false, items: [
+                        {text: '自定义节点', link: '/ai/custom-node'},
+                    ]
+                },
             ]
         },
     ]
@@ -192,8 +194,8 @@ function sidebarProduct(): DefaultTheme.SidebarItem[] {
             collapsed: false,
             items: [
                 {text: '什么是知识库', link: 'knowledge/what-is-knowledge'},
-                {text: '创建知识库', link: 'knowledge/create-knowledge'} ,
-                {text: '管理知识库', link: 'knowledge/management-knowledge'} ,
+                {text: '创建知识库', link: 'knowledge/create-knowledge'},
+                {text: '管理知识库', link: 'knowledge/management-knowledge'},
                 {text: '文档分片', link: 'knowledge/splitter'},
                 {text: 'Embedding 模型', link: 'knowledge/embedding'},
                 {text: '向量数据库', link: 'knowledge/vector-database'}
@@ -207,7 +209,8 @@ function sidebarProduct(): DefaultTheme.SidebarItem[] {
                 {text: '快速开始', link: 'workflow/quick_start'},
                 {text: '执行条件', link: 'workflow/execute-condition'},
                 {text: '节点上下文', link: 'workflow/node-context'},
-                {text: '节点配置', collapsed: false, items: [
+                {
+                    text: '节点配置', collapsed: false, items: [
                         {text: '循环', link: 'workflow/nodes/loop'},
                         {text: '大模型', link: 'workflow/nodes/llm'},
                         {text: '知识库', link: 'workflow/nodes/knowledge'},
@@ -217,7 +220,8 @@ function sidebarProduct(): DefaultTheme.SidebarItem[] {
                         {text: '文件内容提取', link: 'workflow/nodes/doc-content'},
                         {text: '文件生成', link: 'workflow/nodes/file-generator'},
                         {text: '插件', link: 'workflow/nodes/plugin'},
-                    ]},
+                    ]
+                },
             ]
         },
         {
@@ -233,7 +237,18 @@ function sidebarProduct(): DefaultTheme.SidebarItem[] {
             text: '本地模型',
             collapsed: false,
             items: [
-                {text: 'ollama', link: '/localLlm/ollama.md'},
+                {
+                    text: 'ollama', link: 'localLlm/ollama.md'
+                },
+                {
+                    text: 'vLlm', link: 'localLlm/vllm.md'
+                },
+                {
+                    text: 'SGLang', link: 'localLlm/sgLang.md'
+                },
+                {
+                    text: '接入本地模型', link: 'localLlm/addLocalLlm.md',
+                }
             ]
         },
     ]

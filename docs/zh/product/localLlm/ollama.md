@@ -27,6 +27,25 @@ Ollama 是一个开源工具，专注于在本地运行、部署和管理大型�
 ## ollama 安装
 参考官网 https://ollama.com 或 github https://github.com/ollama/ollama
 
-## 在 AiFlowy 中接入本地模型
-部署好本地大模型完成后按照[模型接入](../llm/addLlm.md)步骤添加即可
-> 如果供应商列表中没有已部署的大模型供应商，可参考[添加供应商](../llm/llmSuppliers.md)添加
+此处以docker安装为例
+1. 拉取镜像
+```
+docker pull ollama/ollama:latest
+```
+2. 运行容器
+```
+docker run -d \
+  --name ollama \
+  -p 11434:11434 \
+  -v your_data_dir:/root/.ollama \
+  ollama/ollama:latest
+```
+3. 进入容器拉取模型
+  1. 进入容器 `docker exec -it ollama bash`
+  2. 拉取模型: `ollama pull <模型名称>`
+
+4. 测试结果
+```
+curl "http://localhost:11434/api/generate" -d '{"model": "<模型名称>","prompt": "你好","stream": false}'
+```
+
