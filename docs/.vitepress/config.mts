@@ -176,6 +176,8 @@ function sidebarProduct(): DefaultTheme.SidebarItem[] {
                 {text: '挂载知识库', link: 'bot-application/mount-knowledge'},
                 {text: '挂载插件', link: 'bot-application/mount-plugins'},
                 {text: '挂载工作流', link: 'bot-application/mount-workflow'},
+                {text: 'Web 客户端', link: 'bot-application/bot-web-client'},
+                {text: '通过 API 请求', link: 'bot-application/bot-api-key'},
             ]
         },
         {
