@@ -50,5 +50,17 @@ public class AiBotMessageServiceImpl extends ServiceImpl<AiBotMessageMapper, AiB
         return Result.success(messages);
     }
 
+    @Override
+    public Result removeMsg(String botId, String sessionId, int isExternalMsg) {
+        QueryWrapper queryWrapper =  QueryWrapper.create()
+                 .select("*")
+                 .from("tb_ai_bot_message")
+                 .where("bot_id = ? ", botId)
+                 .where("session_id = ? ", sessionId)
+                 .where("is_external_msg = ? ", isExternalMsg);
+        aiBotMessageMapper.deleteByQuery(queryWrapper);
+        return Result.success();
+    }
+
 
 }

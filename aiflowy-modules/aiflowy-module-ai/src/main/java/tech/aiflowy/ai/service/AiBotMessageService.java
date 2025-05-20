@@ -17,4 +17,5 @@ public interface AiBotMessageService extends IService<AiBotMessage> {
 
     Result messageList(String botId, String sessionId, int isExternalMsg);
 
+    Result removeMsg(String botId, String sessionId, int isExternalMsg);
 }

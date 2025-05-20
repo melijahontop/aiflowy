@@ -31,6 +31,7 @@ export type AiProChatProps = {
     helloMessage?: string;
     botAvatar?: string;
     request: (messages: ChatMessage[]) => Promise<Response>;
+    clearMessage?: () => void;
 };
 
 export const AiProChat = ({
@@ -42,6 +43,7 @@ export const AiProChat = ({
                               helloMessage = '欢迎使用 AIFlowy',
                               botAvatar = `${logo}`,
                               request,
+                              clearMessage
                           }: AiProChatProps) => {
     const isControlled = parentChats !== undefined && parentOnChatsChange !== undefined;
     const [internalChats, setInternalChats] = useState<ChatMessage[]>([]);
@@ -112,7 +114,7 @@ export const AiProChat = ({
                     setChats?.((prev: ChatMessage[]) => {
                         const newChats = [...(prev || [])];
                         const lastMsg = newChats[newChats.length - 1];
-                        if (lastMsg.role === 'assistant') {
+                        if (lastMsg?.role === 'assistant') {
                             lastMsg.loading = false;
                             lastMsg.content = currentContent;
                             lastMsg.updateAt = Date.now();
@@ -335,7 +337,15 @@ export const AiProChat = ({
                     loading={sendLoading || isStreaming}
                     actions={(_, info) => (
                         <Space size="small">
-                            <info.components.ClearButton onClick={() => setContent('')}/>
+                            <info.components.ClearButton
+                                disabled={false}  // 强制不禁用
+                                title="删除对话记录"
+                                style={{ fontSize: 20 }}
+                                onClick={(e) => {
+                                    e.preventDefault();  // 阻止默认行为（如果有）
+                                    clearMessage?.();
+                                }}
+                            />
                             <info.components.SendButton
                                 type="primary"
                                 icon={<OpenAIOutlined/>}

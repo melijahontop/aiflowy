@@ -1,6 +1,6 @@
 package tech.aiflowy.ai.controller;
 
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import tech.aiflowy.ai.entity.AiBotMessage;
 import tech.aiflowy.ai.service.AiBotMessageService;
 import tech.aiflowy.common.domain.Result;
@@ -9,9 +9,6 @@ import tech.aiflowy.common.satoken.util.SaTokenUtil;
 import com.agentsflex.core.util.Maps;
 import com.agentsflex.core.util.StringUtil;
 import com.mybatisflex.core.query.QueryWrapper;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import tech.aiflowy.common.web.jsonbody.JsonBody;
 
 import java.math.BigInteger;
@@ -83,6 +80,15 @@ public class AiBotMessageController extends BaseCurdController<AiBotMessageServi
                               ) {
 
         return aiBotMessageService.messageList(botId, sessionId, isExternalMsg);
+    }
+
+    @PostMapping("removeMsg")
+    public Result removeMsg(  @JsonBody(value = "botId", required = true) String botId,
+                              @JsonBody(value = "sessionId", required = true) String sessionId,
+                              @JsonBody(value = "isExternalMsg", required = true) int isExternalMsg
+    ) {
+
+        return aiBotMessageService.removeMsg(botId, sessionId, isExternalMsg);
     }
 
 

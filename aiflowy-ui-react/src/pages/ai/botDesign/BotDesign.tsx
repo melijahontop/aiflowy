@@ -196,7 +196,7 @@ const BotDesign: React.FC = () => {
     const {result} = useGet("/api/v1/aiLlm/list", {supportFunctionCalling: true});
 
     const {start: startChat} = useSse("/api/v1/aiBot/chat");
-
+    const {doPost: doRemoveMsg} = usePostManual('/api/v1/aiBotMessage/removeMsg')
     const [chats, setChats] = useState<ChatMessage[]>([]);
     const {result: messageResult} = useList("aiBotMessage", {
         botId: params.id,
@@ -211,7 +211,17 @@ const BotDesign: React.FC = () => {
             setPluginToolData(r?.data?.data)
         })
     }, []);
-
+    const clearMessage : () => void = () => {
+            doRemoveMsg({data:{
+                    botId: params.id,
+                    sessionId: getSessionId(),
+                    isExternalMsg: 0
+                }}).then(res => {
+                if (res.data.errorCode === 0){
+                    setChats([])
+                }
+            })
+    }
 
     return (
         <>
@@ -502,6 +512,7 @@ const BotDesign: React.FC = () => {
                                 onChatsChange={setChats} // 确保正确传递 onChatsChange
                                 // style={{ height: '600px' }}
                                 helloMessage={detail?.data?.options?.welcomeMessage}
+                                clearMessage={clearMessage}
                                 request={async (messages) => {
                                     const readableStream = new ReadableStream({
                                         async start(controller) {
