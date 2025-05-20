@@ -58,6 +58,7 @@ public class AiBotMessageServiceImpl extends ServiceImpl<AiBotMessageMapper, AiB
                  .where("bot_id = ? ", botId)
                  .where("session_id = ? ", sessionId)
                  .where("is_external_msg = ? ", isExternalMsg);
+
         aiBotMessageMapper.deleteByQuery(queryWrapper);
         return Result.success();
     }
