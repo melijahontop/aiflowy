@@ -180,20 +180,22 @@ public class AiBotController extends BaseCurdController<AiBotService, AiBot> {
             @Override
             public void onMessage(ChatContext context, AiMessageResponse response) {
                 try {
-
-                    // 检查是否需要触发 Function Calling
-                    if (CollectionUtil.hasItems(response.getFunctionCallers())) {
-                        needClose[0] = false;
-                        function_call(response, emitter, needClose, historiesPrompt, llm, prompt, false);
-                    } else {
-                        // 强制流式返回，即使有 Function Calling 也先返回部分结果
-                        if (response.getMessage() != null) {
-                            String content = response.getMessage().getContent();
-                            if (StringUtil.hasText(content)) {
-                                emitter.send(JSON.toJSONString(response.getMessage()));
+                    if (response != null){
+                        // 检查是否需要触发 Function Calling
+                        if (response.getFunctionCallers() != null && CollectionUtil.hasItems(response.getFunctionCallers())) {
+                            needClose[0] = false;
+                            function_call(response, emitter, needClose, historiesPrompt, llm, prompt, false);
+                        } else {
+                            // 强制流式返回，即使有 Function Calling 也先返回部分结果
+                            if (response.getMessage() != null) {
+                                String content = response.getMessage().getContent();
+                                if (StringUtil.hasText(content)) {
+                                    emitter.send(JSON.toJSONString(response.getMessage()));
+                                }
                             }
                         }
                     }
+
 
                 } catch (Exception e) {
                     emitter.completeWithError(e);
