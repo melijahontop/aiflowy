@@ -231,6 +231,7 @@ public class AiPluginFunction  implements Function {
         allParams.addAll(queryParams);
         allParams.addAll(bodyParams);
         allParams.addAll(headerParams);
+        allParams.addAll(params);
 
         // 发送请求
         JSONObject result = PluginHttpClient.sendRequest(url, method, headersMap, allParams);
