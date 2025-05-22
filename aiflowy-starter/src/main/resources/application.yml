@@ -76,3 +76,11 @@ jetcache:
       port: 6379
       password: pwd
       database: 0
+
+logging:
+  file:
+    path: .logs/
+    name: aiflowy.log
+  level:
+    root: info
+    tech.aiflowy.ai: debug
