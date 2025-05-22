@@ -1,5 +1,6 @@
 package tech.aiflowy.ai.node;
 import com.agentsflex.core.chain.Chain;
+import com.agentsflex.core.chain.Parameter;
 import com.agentsflex.core.chain.node.BaseNode;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,6 +14,7 @@ import net.sf.jsqlparser.statement.select.Select;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
+import tech.aiflowy.common.util.Maps;
 import tech.aiflowy.common.web.exceptions.BusinessException;
 
 import java.util.*;
@@ -41,7 +43,9 @@ public class SqlNode extends BaseNode {
 
         Map<String, Object> map = chain.getParameterValues(this);
         Map<String, Object> res = new HashMap<>();
-        Map<String, Object> formatSqlMap = formatSql(sql);
+
+
+        Map<String, Object> formatSqlMap = formatSql(sql,map);
         String formatSql = (String)formatSqlMap.get("replacedSql");
 
         Statement statement = null;
@@ -68,46 +72,91 @@ public class SqlNode extends BaseNode {
 
         List<Row> rows = Db.selectListBySql(formatSql, paramValues.toArray());
 
-        res.put("queryData", rows);
+        if (rows == null || rows.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        res.put("queryData",rows);
         return res;
     }
 
-    private Map<String,Object> formatSql(String sql) {
+    private Map<String, Object> formatSql(String rawSql, Map<String, Object> paramMap) {
 
-        if (!StringUtils.hasLength(sql)){
+        if (!StringUtils.hasLength(rawSql)) {
             logger.error("sql解析报错：sql为空");
             throw new BusinessException("sql 不能为空！");
         }
 
-        // 用来提取参数名
-        Pattern pattern = Pattern.compile("\\{\\{([^}]+)}}");
-        Matcher matcher = pattern.matcher(sql);
+        // 匹配 {{?...}} 表示可用占位符的参数
+        Pattern paramPattern = Pattern.compile("\\{\\{\\?([^}]+)}}");
+
+        // 匹配 {{...}} 表示直接替换的参数（非占位符）
+        Pattern directPattern = Pattern.compile("\\{\\{([^}?][^}]*)}}");
 
         List<String> paramNames = new ArrayList<>();
+        StringBuffer sqlBuffer = new StringBuffer();
 
-        // 构建替换后的 SQL
-        StringBuffer replacedSql = new StringBuffer();
-        while (matcher.find()) {
-            paramNames.add(matcher.group(1)); // 获取 {{...}} 中的内容
-            matcher.appendReplacement(replacedSql, "?");
+        // 替换 {{?...}}  ->  ?
+        Matcher paramMatcher = paramPattern.matcher(rawSql);
+        while (paramMatcher.find()) {
+            String paramName = paramMatcher.group(1).trim();
+            paramNames.add(paramName);
+            paramMatcher.appendReplacement(sqlBuffer, "?");
         }
+        paramMatcher.appendTail(sqlBuffer);
+        String intermediateSql = sqlBuffer.toString();
 
-        matcher.appendTail(replacedSql);
-        HashMap<String, Object> formatSqlMap = new HashMap<>();
-        String formatSql = replacedSql.toString();
+        // 替换 {{...}}  -> 实际值（用于表名/列名等）
+        sqlBuffer = new StringBuffer(); // 清空 buffer 重新处理
+        Matcher directMatcher = directPattern.matcher(intermediateSql);
+        while (directMatcher.find()) {
+            String key = directMatcher.group(1).trim();
+            Object value = paramMap.get(key);
+            if (value == null) {
+                logger.error("未找到参数：" + key);
+                throw new BusinessException("sql解析失败，请确保sql语法正确！");
+            }
 
-        if (formatSql.endsWith(";") || formatSql.endsWith("；")) {
-            formatSql = formatSql.substring(0, formatSql.length() - 1);
+            String safeValue = value.toString();
+
+            directMatcher.appendReplacement(sqlBuffer, Matcher.quoteReplacement(safeValue));
         }
+        directMatcher.appendTail(sqlBuffer);
 
-        formatSql =  formatSql.replace("“" ,"\"").replace("”","\"");
+        String finalSql = sqlBuffer.toString().trim();
 
-        logger.info("Replaced SQL: {}", replacedSql);
-        logger.info("Parameter names: {}", paramNames);
-        formatSqlMap.put("replacedSql",formatSql );
-        formatSqlMap.put("paramNames", paramNames);
-        return   formatSqlMap;
+        // 清理末尾分号与中文引号
+        if (finalSql.endsWith(";") || finalSql.endsWith("；")) {
+            finalSql = finalSql.substring(0, finalSql.length() - 1);
+        }
+        finalSql = finalSql.replace("“", "\"").replace("”", "\"");
+
+        logger.info("Final SQL: {}", finalSql);
+        logger.info("Param names: {}", paramNames);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("replacedSql", finalSql);
+        result.put("paramNames", paramNames);
+        return result;
     }
 
 
+
+    @Override
+    public String toString() {
+        return "SqlNode{" +
+                "sql='" + sql + '\'' +
+                ", outputDefs=" + outputDefs +
+                ", parameters=" + parameters +
+                ", id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", async=" + async +
+                ", inwardEdges=" + inwardEdges +
+                ", outwardEdges=" + outwardEdges +
+                ", condition=" + condition +
+                ", memory=" + memory +
+                ", nodeStatus=" + nodeStatus +
+                '}';
+    }
 }
