@@ -18,13 +18,13 @@
 
 ![branches-demo.png](resource/branches-demo.png)
 
-点击分支 1 的连接线，会弹出边属性设置的输入框：
+点击分支一的连接线，会弹出边属性设置的输入框：
 
 ![branch-one.png](resource/branch-one.png)
 
-我们将分支 1 的执行条件设置为 `input=="1"`
+我们将分支一的执行条件设置为 `input=="1"`
 
-再将分支 2 的执行条件设置为 `input=="2"`
+再将分支二的执行条件设置为 `input=="2"`
 
 然后点击 `试运行`，输入 `2`，可以看执行结果为 `branch_two`：
 
