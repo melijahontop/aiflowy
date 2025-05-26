@@ -288,6 +288,10 @@ function sidebarProduct(): DefaultTheme.SidebarItem[] {
                     link: 'system/data_dictionary.md',
                 },
                 {
+                    text: '定时任务',
+                    link: 'system/job.md',
+                },
+                {
                     text: '系统设置',
                     link: 'system/settings.md',
                 },
