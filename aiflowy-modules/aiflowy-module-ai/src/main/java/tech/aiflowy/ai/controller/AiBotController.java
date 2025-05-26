@@ -360,9 +360,15 @@ public class AiBotController extends BaseCurdController<AiBotService, AiBot> {
         AiBotExternalMsgJsonResult messageResult = new AiBotExternalMsgJsonResult();
         messageResult.setCreated(new Date().getTime());
         AiBotExternalMsgJsonResult.Usage usage = new AiBotExternalMsgJsonResult.Usage();
-        usage.setTotalTokens(aiMessage.getTotalTokens());
-        usage.setCompletionTokens(aiMessage.getCompletionTokens());
-        usage.setPromptTokens(aiMessage.getPromptTokens());
+        if (aiMessage.getTotalTokens() != null){
+            usage.setTotalTokens(aiMessage.getTotalTokens());
+        }
+        if (aiMessage.getCompletionTokens() != null){
+            usage.setCompletionTokens(aiMessage.getCompletionTokens());
+        }
+        if (aiMessage.getPromptTokens() != null){
+            usage.setPromptTokens(aiMessage.getPromptTokens());
+        }
         messageResult.setUsage(usage);
         AiBotExternalMsgJsonResult.Choice choice = new AiBotExternalMsgJsonResult.Choice();
         AiBotExternalMsgJsonResult.Message message = new AiBotExternalMsgJsonResult.Message();
