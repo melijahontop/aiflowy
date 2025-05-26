@@ -1,5 +1,7 @@
 package tech.aiflowy.ai.entity;
 
+import com.agentsflex.llm.deepseek.DeepseekConfig;
+import com.agentsflex.llm.deepseek.DeepseekLlm;
 import tech.aiflowy.ai.entity.base.AiLlmBase;
 import tech.aiflowy.common.util.PropertiesUtil;
 import tech.aiflowy.common.util.StringUtil;
@@ -92,6 +94,8 @@ public class AiLlm extends AiLlmBase {
                 return qwenLlm();
             case "gitee":
                 return giteeLlm();
+            case "deepseek":
+                return deepseekLlm();
             default:
                 return null;
         }
@@ -142,10 +146,17 @@ public class AiLlm extends AiLlmBase {
         return new OpenAILlm(openAiLlmConfig);
     }
 
-
     private Llm sparkLlm() {
         SparkLlmConfig sparkLlmConfig = PropertiesUtil.propertiesTextToEntity(getLlmExtraConfig(), SparkLlmConfig.class);
         sparkLlmConfig.setApiKey(getLlmApiKey());
         return new SparkLlm(sparkLlmConfig);
+    }
+
+    private Llm deepseekLlm() {
+        DeepseekConfig config = new DeepseekConfig();
+        config.setModel(getLlmModel());
+        config.setEndpoint(getLlmEndpoint());
+        config.setApiKey(getLlmApiKey());
+        return new DeepseekLlm(config);
     }
 }
