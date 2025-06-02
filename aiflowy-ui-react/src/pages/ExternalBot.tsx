@@ -92,6 +92,13 @@ const useStyle = createStyles(({ token, css }) => {
 });
 
 export const ExternalBot: React.FC = () => {
+    const params = useParams();
+    var tempUserId = localStorage.getItem("tempUserId");
+    if (!tempUserId){
+        localStorage.setItem("tempUserId", uuid().toString() + params.id)
+        console.log('重新设置了')
+    }
+
     const urlParams = new URLSearchParams(location.search);
     const [isExternalIFrame, setIsExternalIFrame] = useState<boolean>(false);
     const isExternalIFrameRef = useRef(isExternalIFrame);
@@ -133,8 +140,7 @@ export const ExternalBot: React.FC = () => {
     const [conversationsItems, setConversationsItems] = React.useState<{ key: string; label: string }[]>([]);
     const [activeKey, setActiveKey] = React.useState('');
     const [open, setOpen] = useState(false);
-    const params = useParams();
-    const { doGet: doGetBotInfo, result: botInfo} =useGetManual("/api/v1/aiBot/detail")
+    const { doGet: doGetBotInfo, result: botInfo} =useGetManual("/api/v1/aiBot/getDetail")
     const { start: startChat } = useSse("/api/v1/aiBot/chat");
     // 查询会话列表的数据
     const { doGet: getConversationManualGet } = useGetManual('/api/v1/conversation/externalList');
@@ -204,7 +210,7 @@ export const ExternalBot: React.FC = () => {
          }
             if (chats.length === 2 && chats[1].content.length < 1){
                 getConversationManualGet({
-                    params:  { "botId": params?.id }
+                    params:  { "botId": params?.id, "tempUserId": localStorage.getItem("tempUserId") }
                 }).then((r: any) => {
                     setConversationsItems(getConversations(r?.data?.data?.cons));
                 });
@@ -227,7 +233,7 @@ export const ExternalBot: React.FC = () => {
         updateExternalSessionId(uuid())
         getConversationManualGet(
             {
-                params:  { "botId": params?.id }
+                params:  { "botId": params?.id, "tempUserId": localStorage.getItem("tempUserId") }
             }
         ).then((r: any) => {
             setActiveKey(getExternalSessionId());
@@ -250,7 +256,8 @@ export const ExternalBot: React.FC = () => {
                 sessionId: key,
                 botId: params?.id,
                 // 是externalBot页面提交的消息记录
-                isExternalMsg: 1
+                isExternalMsg: 1,
+                tempUserId: localStorage.getItem("tempUserId")
             },
         }).then((r: any) => {
             setChats(r?.data.data);
@@ -359,7 +366,8 @@ export const ExternalBot: React.FC = () => {
                                         botId: params.id,
                                         sessionId: getExternalSessionId(),
                                         prompt: messages[messages.length - 1].content as string,
-                                        isExternalMsg: 1
+                                        isExternalMsg: 1,
+                                        tempUserId: localStorage.getItem("tempUserId")
                                     },
                                     onMessage: (msg) => {
                                         controller.enqueue(encoder.encode(msg));
@@ -377,7 +385,6 @@ export const ExternalBot: React.FC = () => {
         </div>
     );
 };
-
 export default {
     path: "/ai/externalBot/:id",
     element: ExternalBot,

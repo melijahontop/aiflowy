@@ -73,7 +73,7 @@ const routers: RouteObject[] = [
         element: <Login/>,
     },
     {
-        path: "/ai/externalBot",
+        path: "/ai/externalBot/:id",
         element: <ExternalBot/>,
     },
     {

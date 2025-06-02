@@ -2,6 +2,7 @@ package tech.aiflowy.ai.service;
 
 import tech.aiflowy.ai.entity.AiBot;
 import com.mybatisflex.core.service.IService;
+import tech.aiflowy.common.domain.Result;
 
 /**
  *  服务层。
@@ -11,4 +12,5 @@ import com.mybatisflex.core.service.IService;
  */
 public interface AiBotService extends IService<AiBot> {
 
+    Result getDetail(String id);
 }

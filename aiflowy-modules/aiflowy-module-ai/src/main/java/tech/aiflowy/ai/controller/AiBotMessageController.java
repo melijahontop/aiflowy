@@ -1,5 +1,6 @@
 package tech.aiflowy.ai.controller;
 
+import cn.dev33.satoken.annotation.SaIgnore;
 import org.springframework.web.bind.annotation.*;
 import tech.aiflowy.ai.entity.AiBotMessage;
 import tech.aiflowy.ai.service.AiBotMessageService;
@@ -74,12 +75,15 @@ public class AiBotMessageController extends BaseCurdController<AiBotMessageServi
 
 
     @GetMapping("messageList")
+    @SaIgnore
     public Result messageList(@RequestParam(value = "botId") String botId,
                               @RequestParam(value = "sessionId") String sessionId,
-                              @RequestParam(value = "isExternalMsg") int isExternalMsg
+                              @RequestParam(value = "isExternalMsg") int isExternalMsg,
+                              @RequestParam(value = "tempUserId", required = false) String tempUserId,
+                              @RequestParam(value = "tempUserSession", required = false) String tempUserSessionId
                               ) {
 
-        return aiBotMessageService.messageList(botId, sessionId, isExternalMsg);
+        return aiBotMessageService.messageList(botId, sessionId, isExternalMsg, tempUserId, tempUserSessionId);
     }
 
     @PostMapping("removeMsg")

@@ -1,6 +1,7 @@
 package tech.aiflowy.ai.controller;
 
 import cn.dev33.satoken.annotation.SaIgnore;
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.agentsflex.core.llm.ChatContext;
 import com.agentsflex.core.llm.Llm;
@@ -16,12 +17,15 @@ import com.agentsflex.core.prompt.ToolPrompt;
 import com.agentsflex.core.util.CollectionUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializeConfig;
-import com.jfinal.template.stat.ast.Break;
+import com.alicp.jetcache.Cache;
 import com.mybatisflex.core.query.QueryWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,6 +35,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import tech.aiflowy.ai.entity.*;
 import tech.aiflowy.ai.mapper.AiBotConversationMessageMapper;
 import tech.aiflowy.ai.service.*;
+import tech.aiflowy.ai.utils.AiBotMessageIframeMemory;
 import tech.aiflowy.common.ai.ChatManager;
 import tech.aiflowy.common.ai.MySseEmitter;
 import tech.aiflowy.common.domain.Result;
@@ -46,10 +51,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.math.BigInteger;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 /**
  * 控制层。
@@ -71,6 +73,12 @@ public class AiBotController extends BaseCurdController<AiBotService, AiBot> {
     private AiBotConversationMessageService aiBotConversationMessageService;
     @Resource
     private AiBotConversationMessageMapper aiBotConversationMessageMapper;
+    @Resource
+    private AiBotService aiBotService;
+
+    @Autowired
+    @Qualifier("defaultCache") // 指定 Bean 名称
+    private Cache<String, Object> cache;
 
     private static final Logger logger = LoggerFactory.getLogger(AiBotController.class);
 
@@ -129,13 +137,55 @@ public class AiBotController extends BaseCurdController<AiBotService, AiBot> {
      * @return
      */
     @PostMapping("chat")
+    @SaIgnore
     public SseEmitter chat(@JsonBody(value = "prompt", required = true) String prompt,
                            @JsonBody(value = "botId", required = true) BigInteger botId,
                            @JsonBody(value = "sessionId", required = true) String sessionId,
                            @JsonBody(value = "isExternalMsg") int isExternalMsg,
+                           @JsonBody(value = "tempUserId") String tempUserId,
                            HttpServletResponse response) {
         response.setContentType("text/event-stream");
         AiBot aiBot = service.getById(botId);
+        boolean login = StpUtil.isLogin();
+        if (!login) {
+            List<AiBotConversationMessage> result = (List<AiBotConversationMessage>)cache.get(tempUserId + botId);
+            AiBotMessage aiBotMessage = new AiBotMessage();
+            aiBotMessage.setBotId(botId);
+            aiBotMessage.setRole("user");
+            aiBotMessage.setContent(prompt);
+            aiBotMessage.setCreated(new Date());
+            List<AiBotMessage> messages = new ArrayList<>();
+            messages.add(aiBotMessage);
+            // 设置会话标题记录, 每个会话记录对应着相应的bot消息记录
+            List<AiBotConversationMessage> consversations = new ArrayList<>();
+            AiBotConversationMessage aiBotConversationMessage = new AiBotConversationMessage();
+            aiBotConversationMessage.setSessionId(sessionId);
+            aiBotConversationMessage.setTitle(prompt);
+            aiBotConversationMessage.setCreated(new Date());
+            aiBotConversationMessage.setAiBotMessageList(messages);
+            consversations.add(aiBotConversationMessage);
+            if (result == null) {
+                cache.put(tempUserId + botId, consversations);
+            } else {
+                AtomicInteger flag = new AtomicInteger();
+                result.forEach(consversation -> {
+                    if(consversation.getSessionId().equals(sessionId)){
+                        flag.set(1);
+                        List<AiBotMessage> aiBotMessageList = consversation.getAiBotMessageList();
+                        aiBotMessageList.add(aiBotMessage);
+                    }
+                });
+                // 意味着这是新的会话
+                if (flag.get() == 0){
+                    result.addAll(consversations);
+                    cache.put(tempUserId + botId, result);
+                } else {
+                    cache.put(tempUserId + botId, result);
+                }
+
+            }
+        }
+
         if (aiBot == null) {
             return ChatManager.getInstance().sseEmitterForContent("机器人不存在");
         }
@@ -153,17 +203,24 @@ public class AiBotController extends BaseCurdController<AiBotService, AiBot> {
         if (llm == null) {
             return ChatManager.getInstance().sseEmitterForContent("LLM获取为空");
         }
-
-        AiBotMessageMemory memory = new AiBotMessageMemory(botId, SaTokenUtil.getLoginAccount().getId(),
-                sessionId, isExternalMsg, aiBotMessageService, aiBotConversationMessageMapper,
-                aiBotConversationMessageService);
-
         final HistoriesPrompt historiesPrompt = new HistoriesPrompt();
         if (systemPrompt != null) {
             historiesPrompt.setSystemMessage(SystemMessage.of(systemPrompt));
         }
+        if (StpUtil.isLogin()){
+            AiBotMessageMemory memory = new AiBotMessageMemory(botId, SaTokenUtil.getLoginAccount().getId(),
+                    sessionId, isExternalMsg, aiBotMessageService, aiBotConversationMessageMapper,
+                    aiBotConversationMessageService);
+            historiesPrompt.setMemory(memory);
 
-        historiesPrompt.setMemory(memory);
+        } else {
+            AiBotMessageIframeMemory memory = new AiBotMessageIframeMemory(botId, tempUserId, sessionId, cache);
+            historiesPrompt.setMemory(memory);
+
+        }
+
+
+
 
         HumanMessage humanMessage = new HumanMessage(prompt);
 
@@ -474,6 +531,12 @@ public class AiBotController extends BaseCurdController<AiBotService, AiBot> {
         });
 
         return JSON.toJSONString(messageContent);
+    }
+
+    @GetMapping("getDetail")
+    @SaIgnore
+    public Result getDetail(String id) {
+        return aiBotService.getDetail(id);
     }
 
     private Map<String, Object> errorRespnseMsg(int errorCode, String message) {
