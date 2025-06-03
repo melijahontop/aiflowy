@@ -9,11 +9,14 @@ import com.mybatisflex.spring.service.impl.ServiceImpl;
 import org.eclipse.jetty.util.ajax.JSON;
 import org.springframework.stereotype.Service;
 import tech.aiflowy.ai.entity.AiPlugin;
+import tech.aiflowy.ai.entity.AiPluginFunction;
 import tech.aiflowy.ai.entity.AiPluginTool;
 import tech.aiflowy.ai.mapper.AiBotPluginsMapper;
 import tech.aiflowy.ai.mapper.AiPluginMapper;
 import tech.aiflowy.ai.mapper.AiPluginToolMapper;
 import tech.aiflowy.ai.service.AiPluginToolService;
+import tech.aiflowy.common.ai.util.PluginParam;
+import tech.aiflowy.common.ai.util.PluginParamConverter;
 import tech.aiflowy.common.domain.Result;
 
 import javax.annotation.Resource;
@@ -115,6 +118,15 @@ public class AiPluginToolServiceImpl extends ServiceImpl<AiPluginToolMapper, AiP
         // 查询当前bots对应的有哪些pluginTool
         List<AiPluginTool> aiPluginTools = aiPluginToolMapper.selectListByIds(pluginToolIds);
         return Result.success(aiPluginTools);
+    }
+
+    @Override
+    public Result pluginToolTest(String inputData, BigInteger pluginToolId) {
+        AiPluginTool aiPluginTool = new AiPluginTool();
+        aiPluginTool.setId(pluginToolId);
+        aiPluginTool.setInputData(inputData);
+        AiPluginFunction aiPluginFunction = new AiPluginFunction(aiPluginTool);
+        return Result.success(aiPluginFunction.runPluginTool(null, inputData, pluginToolId));
     }
 
     public static String switchParams(String paramString) {
