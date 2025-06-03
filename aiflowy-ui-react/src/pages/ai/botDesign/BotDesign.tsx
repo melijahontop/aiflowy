@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 
 import {useLayout} from '../../../hooks/useLayout.tsx';
 import {Row} from 'antd/lib/index';
-import {App, Avatar, Button, Col, Collapse, Form, Input, Modal, Select, Space, Tooltip} from 'antd';
+import {App, Avatar, Button, Col, Collapse, Form, Input, Modal, Select, Space, Switch, Tooltip} from 'antd';
 import Title from 'antd/es/typography/Title';
 import {DeleteOutlined, PlusOutlined} from "@ant-design/icons";
 import {
@@ -177,6 +177,7 @@ const BotDesign: React.FC = () => {
         setWelcomeMessage(detail?.data?.options?.welcomeMessage)
         // 转换后端数据为新的格式
         setPresetQuestions(detail?.data?.options?.presetQuestions || [])
+        setAnonymousEnabled(detail?.data?.options?.anonymousEnabled)
     }, [detail]);
 
     const {result: workflowResult, doGet: doGetWorkflow} = useList("aiBotWorkflow", {"botId": params.id});
@@ -231,11 +232,16 @@ const BotDesign: React.FC = () => {
     // 创建表单实例
     const [form] = Form.useForm();
 
+    const [anonymousEnabled,setAnonymousEnabled] = useState<boolean>(false)
+    const [anonymousSwitchLoading,setAnonymousSwitchLoading] = useState<boolean>(false)
+
     return (
         <>
             <WorkflowsModal open={workflowOpen} onClose={() => setWorkflowOpen(false)}
                             onCancel={() => setWorkflowOpen(false)}
                             goToPage={"/ai/workflow"}
+                            addedItems={workflowResult?.data || []}
+                            addedItemsKeyField={"workflowId"}
                             onSelectedItem={item => {
                                 setWorkflowOpen(false)
                                 doSaveWorkflow({
@@ -288,6 +294,8 @@ const BotDesign: React.FC = () => {
             <KnowledgeModal open={knowledgeOpen} onClose={() => setKnowledgeOpen(false)}
                             onCancel={() => setKnowledgeOpen(false)}
                             goToPage={"/ai/knowledge"}
+                            addedItems={knowledgeResult?.data || []}
+                            addedItemsKeyField={"knowledgeId"}
                             onSelectedItem={item => {
                                 setKnowledgeOpen(false)
                                 doSaveKnowledge({
@@ -367,50 +375,68 @@ const BotDesign: React.FC = () => {
                                 label: <CollapseLabel text="工作流" onClick={() => {
                                     setWorkflowOpen(true)
                                 }}/>,
-                                children: <div>
-                                    {workflowResult?.data?.map((item: any) => {
-                                        return <ListItem key={item.id} title={item.workflow.title}
-                                                         description={item.workflow.description}
-                                                         icon={item.workflow.icon}
-                                                         onButtonClick={() => {
-                                                             Modal.confirm({
-                                                                 title: '确定要删除该工作流吗？',
-                                                                 content: '删除后，该工作流将不再关联该机器人，但工作流本身不会被删除。',
-                                                                 onOk: () => {
-                                                                     doRemoveAiBotWorkflow({
-                                                                         data: {id: item.id}
-                                                                     }).then(doGetWorkflow)
-                                                                 }
-                                                             })
-                                                         }}
-                                        />
-                                    })}
-                                </div>,
+                                children:
+                                    <div>
+                                    {workflowResult?.data?.length ?
+                                        workflowResult?.data?.map((item: any) => {
+                                            return <ListItem key={item.id} title={item.workflow.title}
+                                                             description={item.workflow.description}
+                                                             icon={item.workflow.icon}
+                                                             onButtonClick={() => {
+                                                                 Modal.confirm({
+                                                                     title: '确定要删除该工作流吗？',
+                                                                     content: '删除后，该工作流将不再关联该机器人，但工作流本身不会被删除。',
+                                                                     onOk: () => {
+                                                                         doRemoveAiBotWorkflow({
+                                                                             data: {id: item.id}
+                                                                         }).then(doGetWorkflow)
+                                                                     }
+                                                                 })
+                                                             }}
+                                            />
+                                        }):(
+                                            <div style={{ color: '#999', textAlign: 'center', padding: '8px 0' }}>
+                                                未绑定工作流，点击右上角"+"添加
+                                            </div>
+                                        )
+
+                                    }
+                                </div>
+                                ,
                             },
                             {
                                 key: 'knowledge',
                                 label: <CollapseLabel text="知识库" onClick={() => {
                                     setKnowledgeOpen(true)
                                 }}/>,
-                                children: <div>
-                                    {knowledgeResult?.data?.map((item: any) => {
-                                        return <ListItem key={item.id} title={item.knowledge.title}
-                                                         description={item.knowledge.description}
-                                                         icon={item.knowledge.icon}
-                                                         onButtonClick={() => {
-                                                             Modal.confirm({
-                                                                 title: '确定要删除该知识库吗？',
-                                                                 content: '删除后，该知识库将不再关联该机器人，但知识库本身不会被删除。',
-                                                                 onOk: () => {
-                                                                     doRemoveAiBotKnowledge({
-                                                                         data: {id: item.id}
-                                                                     }).then(doGetKnowledge)
-                                                                 }
-                                                             })
-                                                         }}
-                                        />
-                                    })}
-                                </div>,
+                                children:
+                                    <div>
+                                    {knowledgeResult?.data.length ?
+                                        knowledgeResult?.data?.map((item: any) => {
+                                            return <ListItem key={item.id} title={item.knowledge.title}
+                                                             description={item.knowledge.description}
+                                                             icon={item.knowledge.icon}
+                                                             onButtonClick={() => {
+                                                                 Modal.confirm({
+                                                                     title: '确定要删除该知识库吗？',
+                                                                     content: '删除后，该知识库将不再关联该机器人，但知识库本身不会被删除。',
+                                                                     onOk: () => {
+                                                                         doRemoveAiBotKnowledge({
+                                                                             data: {id: item.id}
+                                                                         }).then(doGetKnowledge)
+                                                                     }
+                                                                 })
+                                                             }}
+                                            />
+                                        }):
+                                        (
+                                            <div style={{ color: '#999', textAlign: 'center', padding: '8px 0' }}>
+                                                未绑定知识库，点击右上角"+"添加
+                                            </div>
+                                        )
+                                    }
+                                </div>
+                                ,
                             },
                             {
                                 key: 'plugins',
@@ -419,28 +445,37 @@ const BotDesign: React.FC = () => {
                                 }}/>,
                                 children:
                                     <div>
-                                        {pluginToolData?.map((item: any) => {
-                                            return <ListItem key={item.id} title={item?.name}
-                                                             description={item.description}
-                                                             icon={item?.icon}
-                                                             onButtonClick={() => {
-                                                                 Modal.confirm({
-                                                                     title: '确定要删除该插件吗？',
-                                                                     content: '删除后，该插件将不再关联该机器人，但插件本身不会被删除。',
-                                                                     onOk: () => {
-                                                                         doRemovePluginTool({
-                                                                             data: {pluginToolId: item.id, botId: params.id}
-                                                                         }).then(() =>{
-                                                                             doPostPluginTool({data: {botId: params.id}})
-                                                                                 .then(r =>{
-                                                                                     setPluginToolData(r?.data?.data)
-                                                                                 })
-                                                                         })
-                                                                     }
-                                                                 })
-                                                             }}
-                                            />
-                                        })}
+                                        {pluginToolData?. length ?
+                                            (
+                                                    pluginToolData.map((item:any) => {
+                                                        return <ListItem key={item.id} title={item?.name}
+                                                                         description={item.description}
+                                                                         icon={item?.icon}
+                                                                         onButtonClick={() => {
+                                                                             Modal.confirm({
+                                                                                 title: '确定要删除该插件吗？',
+                                                                                 content: '删除后，该插件将不再关联该机器人，但插件本身不会被删除。',
+                                                                                 onOk: () => {
+                                                                                     doRemovePluginTool({
+                                                                                         data: {pluginToolId: item.id, botId: params.id}
+                                                                                     }).then(() =>{
+                                                                                         doPostPluginTool({data: {botId: params.id}})
+                                                                                             .then(r =>{
+                                                                                                 setPluginToolData(r?.data?.data)
+                                                                                             })
+                                                                                     })
+                                                                                 }
+                                                                             })
+                                                                         }}
+                                                        />
+                                                    })
+                                                ) :
+                                                (
+                                                    <div style={{ color: '#999', textAlign: 'center', padding: '8px 0' }}>
+                                                        未绑定插件，点击右上角"+"添加
+                                                    </div>
+                                                )
+                                        }
                                     </div>
                                 ,
                             },
@@ -537,6 +572,28 @@ const BotDesign: React.FC = () => {
                                 label: <CollapseLabel text="嵌入" onClick={() => {
                                 }} plusDisabled/>,
                                 children: <div>
+                                    <div style={{display:'flex',justifyContent:'space-between'}}>
+                                        <span>启用匿名访问</span>
+                                        <Switch
+                                            checked={anonymousEnabled}
+                                            loading={anonymousSwitchLoading}
+                                            onChange={async (checked) => {
+                                                setAnonymousSwitchLoading(true)
+                                                const resp = await updateBotOptions({
+                                                    data: {
+                                                        options: {anonymousEnabled: checked},
+                                                        id: params.id,
+                                                    }
+                                                })
+                                                if (resp?.data?.errorCode === 0){
+                                                    const reGetResp = await reGetDetail();
+                                                    setAnonymousEnabled(reGetResp.data?.data?.options.anonymousEnabled)
+                                                }
+
+                                                setAnonymousSwitchLoading(false)
+                                            }}
+                                        />
+                                    </div>
                                     <div>
                                         <span>
                                             外部访问地址 <a
