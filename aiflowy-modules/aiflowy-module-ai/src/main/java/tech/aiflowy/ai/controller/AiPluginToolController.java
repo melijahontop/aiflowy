@@ -93,6 +93,16 @@ public class AiPluginToolController extends BaseCurdController<AiPluginToolServi
         return Result.success(nodeData);
     }
 
+    /**
+     * 插件试运行接口
+     * @return
+     */
+    @PostMapping("/test")
+    public Result pluginToolTest(@JsonBody(value = "inputData", required = true) String inputData,
+                                 @JsonBody(value = "pluginToolId", required = true) BigInteger pluginToolId){
+        return aiPluginToolService.pluginToolTest(inputData, pluginToolId);
+    }
+
     private void handleArray(JSONArray array) {
         for (Object o : array) {
             JSONObject obj = (JSONObject) o;

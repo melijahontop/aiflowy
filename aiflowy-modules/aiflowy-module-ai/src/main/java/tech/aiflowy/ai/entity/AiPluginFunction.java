@@ -42,7 +42,7 @@ public class AiPluginFunction  implements Function {
         this.name = aiPluginTool.getName();
         this.description = aiPluginTool.getDescription();
         this.pluginToolId = aiPluginTool.getId();
-        this.parameters = getDefaultParameters();
+        this.parameters = getDefaultParameters(aiPluginTool.getInputData());
     }
 
     public BigInteger getPluginToolId() {
@@ -75,14 +75,19 @@ public class AiPluginFunction  implements Function {
         return aiPlugin1;
     }
 
-    private Parameter[] getDefaultParameters() {
+    private Parameter[] getDefaultParameters(String inputData) {
         AiPluginToolService pluginToolService = SpringContextUtil.getBean(AiPluginToolService.class);
         QueryWrapper queryAiPluginToolWrapper = QueryWrapper.create()
                 .select("*")
                 .from("tb_ai_plugin_tool")
                 .where("id = ? ", this.pluginToolId);
         AiPluginTool aiPluginTool = pluginToolService.getMapper().selectOneByQuery(queryAiPluginToolWrapper);
-        List<Map<String, Object>> dataList = getDataList(aiPluginTool.getInputData());
+        List<Map<String, Object>> dataList = null;
+        if (aiPluginTool == null || aiPluginTool.getInputData() == null){
+            dataList = getDataList(inputData);
+        } else {
+            dataList = getDataList(aiPluginTool.getInputData());
+        }
         Parameter[] params = new Parameter[dataList.size()];
         for (int i = 0; i < dataList.size(); i++) {
             Map<String, Object> item = dataList.get(i);
@@ -131,11 +136,15 @@ public class AiPluginFunction  implements Function {
 
     @Override
     public Object invoke(Map<String, Object> argsMap) {
+     return runPluginTool(argsMap, null, this.pluginToolId);
+    }
+
+    public Object runPluginTool(Map<String, Object> argsMap, String inputData, BigInteger pluginId){
         AiPluginToolService pluginToolService = SpringContextUtil.getBean(AiPluginToolService.class);
         QueryWrapper queryAiPluginToolWrapper = QueryWrapper.create()
                 .select("*")
                 .from("tb_ai_plugin_tool")
-                .where("id = ? ", this.pluginToolId);
+                .where("id = ? ", pluginId);
         AiPluginTool aiPluginTool = pluginToolService.getMapper().selectOneByQuery(queryAiPluginToolWrapper);
         String method = aiPluginTool.getRequestMethod().toUpperCase();
         AiPlugin aiPlugin = getAiPlugin(aiPluginTool.getPluginId());
@@ -168,14 +177,21 @@ public class AiPluginFunction  implements Function {
                 params.add(pluginParam);
             }
         }
-        List<PluginParam> pluginParams = PluginParamConverter.convertFromJson(aiPluginTool.getInputData());
-        Map<String, Object> nestedParams = NestedParamConverter.convertToNestedParamMap(pluginParams);
+        List<PluginParam> pluginParams = null;
+        // 前端点击试运行传过来的参数
+        if (inputData != null && !inputData.isEmpty()){
+            pluginParams = PluginParamConverter.convertFromJson(inputData);
+            // 大模型命中funcation_call 调用参数
+        } else {
+            pluginParams = PluginParamConverter.convertFromJson(aiPluginTool.getInputData());
+        }
 
         // 准备存放不同位置的参数
         List<PluginParam> queryParams = new ArrayList<>();
         List<PluginParam> bodyParams = new ArrayList<>();
         List<PluginParam> headerParams = new ArrayList<>();
         List<PluginParam> pathParams = new ArrayList<>();
+        Map<String, Object> nestedParams = NestedParamConverter.convertToNestedParamMap(pluginParams);
 
         // 遍历嵌套参数
         for (Map.Entry<String, Object> entry : nestedParams.entrySet()) {
