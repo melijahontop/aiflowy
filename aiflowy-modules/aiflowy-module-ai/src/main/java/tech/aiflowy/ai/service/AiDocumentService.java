@@ -24,8 +24,6 @@ public interface AiDocumentService extends IService<AiDocument> {
 
     boolean removeDoc(String id);
 
-    ResponseEntity<?> previewFile(String documentId) throws IOException;
-
     Result textSplit(BigInteger knowledgeIdm, MultipartFile file, String splitterName, Integer chunkSize, Integer overlapSize, String regex, Integer rowsPerChunk);
 
     Result saveTextResult(BigInteger knowledgeId, String previewList, String aiDocument);
