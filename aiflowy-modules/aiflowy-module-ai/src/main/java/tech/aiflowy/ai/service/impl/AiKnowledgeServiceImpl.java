@@ -84,7 +84,7 @@ public class AiKnowledgeServiceImpl extends ServiceImpl<AiKnowledgeMapper, AiKno
             if (documentChunk == null){
                 continue;
             }
-            documentChunk.setVectorSimilarityScore(similarity.doubleValue());
+            documentChunk.setSimilarityScore(similarity.doubleValue());
             chunks.add(documentChunk);
         }
 
