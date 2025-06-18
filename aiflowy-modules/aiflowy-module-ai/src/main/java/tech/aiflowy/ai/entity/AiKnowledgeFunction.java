@@ -1,5 +1,6 @@
 package tech.aiflowy.ai.entity;
 
+import com.agentsflex.core.document.Document;
 import tech.aiflowy.ai.service.AiKnowledgeService;
 import tech.aiflowy.common.domain.Result;
 import tech.aiflowy.common.util.SpringContextUtil;
@@ -52,10 +53,10 @@ public class AiKnowledgeFunction extends BaseFunction {
         if (result.isSuccess()) {
             StringBuilder sb = new StringBuilder();
             //noinspection unchecked
-            List<AiDocumentChunk> chunks = (List<AiDocumentChunk>) result.data();
-            if (chunks != null) {
-                for (AiDocumentChunk chunk : chunks) {
-                    sb.append(chunk.getContent());
+            List<Document> documents = (List<Document>) result.data();
+            if (documents != null) {
+                for (Document document : documents) {
+                    sb.append(document.getContent());
                 }
             }
             return sb.toString();

@@ -141,6 +141,33 @@ const columnsColumns: ColumnsConfig<any> = [
             },
             rules: [{required: true, message: '请选择向量模型'}]
         }
+    },
+    {
+        title: '是否启用搜索引擎',
+        dataIndex: 'searchEnginesEnable',
+        key: 'searchEnginesEnable',
+        form: {
+            type: 'Switch'
+        }
+    },
+    {
+        title: '重排模型',
+        dataIndex: 'rerankLlmId',
+        key: 'rerankLlmId',
+        dict: '/api/v1/aiLlm/list?supportReranker=true',
+        form: {
+            type: 'select',
+            attrs: {
+                fieldNames: {
+                    label: 'title',
+                    value: 'id'
+                },
+            },
+            rules: [   ({ getFieldValue }: { getFieldValue: (name: string) => any }) => ({
+                required: getFieldValue('searchEnginesEnable') === true,
+                message: '请选择重排模型'
+            })]
+        }
     }
 ];
 

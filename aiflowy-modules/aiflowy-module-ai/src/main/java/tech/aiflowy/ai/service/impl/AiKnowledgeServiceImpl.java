@@ -1,6 +1,11 @@
 package tech.aiflowy.ai.service.impl;
 
-import com.agentsflex.store.elasticsearch.ElasticSearchVectorStore;
+
+import com.agentsflex.rerank.DefaultRerankModel;
+import com.agentsflex.search.engine.service.DocumentSearcher;
+import org.springframework.beans.factory.annotation.Autowired;
+import tech.aiflowy.ai.config.AiEsConfig;
+import tech.aiflowy.ai.config.SearcherFactory;
 import tech.aiflowy.ai.entity.AiDocumentChunk;
 import tech.aiflowy.ai.entity.AiKnowledge;
 import tech.aiflowy.ai.entity.AiLlm;
@@ -13,17 +18,15 @@ import com.agentsflex.core.document.Document;
 import com.agentsflex.core.store.DocumentStore;
 import com.agentsflex.core.store.SearchWrapper;
 import com.agentsflex.core.store.StoreOptions;
-import com.agentsflex.core.util.Maps;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
-import tech.aiflowy.test.ElasticsearchUtil;
 
 import javax.annotation.Resource;
-import java.io.IOException;
-import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.math.RoundingMode;
 import java.util.*;
+import java.util.stream.Collectors;
+
+import static tech.aiflowy.ai.config.RagRerankModelUtil.getRerankModel;
 
 /**
  * 服务层实现。
@@ -39,6 +42,10 @@ public class AiKnowledgeServiceImpl extends ServiceImpl<AiKnowledgeMapper, AiKno
 
     @Resource
     private AiDocumentChunkService chunkService;
+
+    @Autowired
+    private SearcherFactory searcherFactory;
+
 
     @Override
     public Result search(BigInteger id, String keyword) {
@@ -65,51 +72,49 @@ public class AiKnowledgeServiceImpl extends ServiceImpl<AiKnowledgeMapper, AiKno
 
         StoreOptions options = StoreOptions.ofCollectionName(knowledge.getVectorStoreCollection());
         options.setIndexName(knowledge.getVectorStoreCollection());
-        List<Document> results = documentStore.search(wrapper, options);
+        // 检索向量知识库返回的结果
+        List<Document> vectorDocuments = documentStore.search(wrapper, options);
 
-        if (results == null || results.isEmpty()) {
+        if (vectorDocuments == null || vectorDocuments.isEmpty()) {
             return Result.success();
         }
 
-        List<AiDocumentChunk> chunks = new ArrayList<>();
-
-        for (Document result : results) {
-            Object resultId = result.getId();
-            Double similarityScore = result.getScore();
-            // 计算相似度并保留 4 位小数
-            BigDecimal similarity = BigDecimal.valueOf(similarityScore)
-                    .setScale(4, RoundingMode.HALF_UP); // 四舍五入
-            AiDocumentChunk documentChunk = chunkService.getMapper().selectOneWithRelationsByMap(
-                    Maps.of("id", resultId));
-            if (documentChunk == null){
-                continue;
-            }
-            documentChunk.setSimilarityScore(similarity.doubleValue());
-            chunks.add(documentChunk);
+        // 判断是否配置了搜索引擎相关配置，如果该知识库没有配置搜索引擎则不进行重排,直接返回向量化的数据结果
+        if (!knowledge.getSearchEnginesEnable()){
+            return Result.success(vectorDocuments);
         }
 
-//        ElasticsearchUtil elasticsearchUtil = new ElasticsearchUtil();
-//        List<AiDocumentChunk> elasticSearchChunks = null;
-//        try {
-//            elasticSearchChunks = elasticsearchUtil.search("knowledge-base", keyword);
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
-//        // 去重后的集合
-//        List<AiDocumentChunk> aiDocumentChunks = mergeAndDeduplicate(chunks, elasticSearchChunks);
-//        // 加权计算得分
-//        aiDocumentChunks.forEach(aiDocumentChunk -> {
-//            if (aiDocumentChunk.getVectorSimilarityScore() != null && aiDocumentChunk.getElasticSimilarityScore() != null) {
-//                aiDocumentChunk.setSimilarityScore(aiDocumentChunk.getVectorSimilarityScore()*0.5 + aiDocumentChunk.getElasticSimilarityScore()*0.5);
-//            } else if (aiDocumentChunk.getVectorSimilarityScore() != null && aiDocumentChunk.getElasticSimilarityScore() == null) {
-//                aiDocumentChunk.setSimilarityScore(aiDocumentChunk.getVectorSimilarityScore()*0.5);
-//            }else if (aiDocumentChunk.getVectorSimilarityScore() == null && aiDocumentChunk.getElasticSimilarityScore() != null) {
-//                aiDocumentChunk.setSimilarityScore(aiDocumentChunk.getElasticSimilarityScore()*0.5);
-//            }
-//        });
-//        aiDocumentChunks.sort(Comparator.comparingDouble((AiDocumentChunk chunk) -> -chunk.getSimilarityScore()));
-//        return Result.success(aiDocumentChunks);
-        return Result.success(chunks);
+        AiLlm aiLlmRerank = llmService.getById(knowledge.getRerankLlmId());
+        if (aiLlmRerank == null){
+            return Result.success(vectorDocuments);
+        }
+        // 配置重排模型
+        DefaultRerankModel rerankModel = getRerankModel(aiLlmRerank);
+        if (rerankModel == null){
+            return Result.fail(4, "重排模型配置失败");
+        }
+
+        // 通过搜索引擎检索
+        // 配置搜索引擎
+        if (searcherFactory.getSearcher() == null){
+            return Result.success(vectorDocuments);
+        }
+        DocumentSearcher searcher = searcherFactory.getSearcher();
+        // 搜索引擎返回的结果
+        List<Document> searcherDocuments = searcher.searchDocuments(keyword);
+        // 合并两个List，并按id去重（保留第一个出现的Document）
+        // 使用LinkedHashMap保持插入顺序
+        Map<String, Document> uniqueDocs = new LinkedHashMap<>();
+        vectorDocuments.forEach(doc -> uniqueDocs.putIfAbsent(doc.getId().toString(), doc));
+        searcherDocuments.forEach(doc -> uniqueDocs.putIfAbsent(doc.getId().toString(), doc));
+
+        List<Document> needRerankDocuments = new ArrayList<>(uniqueDocs.values());
+        needRerankDocuments.forEach(item ->item.setScore(null));
+        List<Document> rerank = rerankModel.rerank(keyword, needRerankDocuments);
+        List<Document> filteredList = rerank.stream()
+                .filter(doc -> doc.getScore() >= 0.001)  // 保留score≥0.01的文档
+                .collect(Collectors.toList());
+        return Result.success(filteredList);
     }
 
     /**

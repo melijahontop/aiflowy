@@ -8,12 +8,16 @@ import com.agentsflex.core.document.splitter.RegexDocumentSplitter;
 import com.agentsflex.core.document.splitter.SimpleDocumentSplitter;
 import com.agentsflex.core.document.splitter.SimpleTokenizeSplitter;
 import com.agentsflex.core.llm.embedding.EmbeddingOptions;
+import com.agentsflex.search.engine.service.DocumentSearcher;
 import com.alibaba.fastjson.JSON;
 import com.mybatisflex.core.keygen.impl.FlexIDKeyGenerator;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import tech.aiflowy.ai.config.AiEsConfig;
+import tech.aiflowy.ai.config.SearcherFactory;
 import tech.aiflowy.ai.controller.AiDocumentController;
 import tech.aiflowy.ai.entity.AiDocument;
 import tech.aiflowy.ai.entity.AiDocumentChunk;
@@ -40,14 +44,11 @@ import tech.aiflowy.common.domain.Result;
 import tech.aiflowy.common.filestorage.FileStorageService;
 import tech.aiflowy.common.util.StringUtil;
 import tech.aiflowy.core.utils.JudgeFileTypeUtil;
-import tech.aiflowy.test.ElasticsearchUtil;
 
 import javax.annotation.Resource;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
-import java.nio.file.*;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -59,11 +60,12 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @Service("AiService")
 public class AiDocumentServiceImpl extends ServiceImpl<AiDocumentMapper, AiDocument> implements AiDocumentService {
+    protected Logger Log = LoggerFactory.getLogger(AiDocumentServiceImpl.class);
 
-    @javax.annotation.Resource
+    @Resource
     private AiDocumentMapper aiDocumentMapper;
 
-    @javax.annotation.Resource
+    @Resource
     private AiDocumentChunkMapper aiDocumentChunkMapper;
 
 
@@ -82,8 +84,10 @@ public class AiDocumentServiceImpl extends ServiceImpl<AiDocumentMapper, AiDocum
     @Resource
     private  AiDocumentChunkService documentChunkService;
 
+    @Autowired
+    private SearcherFactory searcherFactory;
 
-    @Override
+        @Override
     public Page<AiDocument> getDocumentList(String knowledgeId, int pageSize, int pageNum, String fileName) {
         // 构建 QueryWrapper
         QueryWrapper queryWrapper = QueryWrapper.create()
@@ -141,7 +145,12 @@ public class AiDocumentServiceImpl extends ServiceImpl<AiDocumentMapper, AiDocum
         QueryWrapper queryWrapper = QueryWrapper.create()
                 .select("id").from("tb_ai_document_chunk").where("document_id = ?", id);
         List<BigInteger> chunkIds =  aiDocumentChunkMapper.selectListByQueryAs(queryWrapper, BigInteger.class);
-        StoreResult deleteResult =  documentStore.delete(chunkIds, options);
+        documentStore.delete(chunkIds, options);
+        // 删除搜索引擎中的数据
+        if (searcherFactory.getSearcher() != null){
+            DocumentSearcher searcher = searcherFactory.getSearcher();
+            chunkIds.forEach(searcher::deleteDocument);
+        }
         int ck = aiDocumentChunkMapper.deleteByQuery(where);
         if (ck < 0){
             return false;
@@ -166,11 +175,11 @@ public class AiDocumentServiceImpl extends ServiceImpl<AiDocumentMapper, AiDocum
         AiDocument aiDocument = new AiDocument();
         List<AiDocumentChunk> previewList = new ArrayList<>();
         DocumentSplitter documentSplitter = getDocumentSplitter(splitterName, chunkSize, overlapSize, regex, rowsPerChunk);
-        com.agentsflex.core.document.Document document = null;
+        Document document = null;
         if (documentParser != null) {
             document = documentParser.parse(inputStream);
         }
-        List<com.agentsflex.core.document.Document> documents = documentSplitter.split(document);
+        List<Document> documents = documentSplitter.split(document);
         FlexIDKeyGenerator flexIDKeyGenerator = new FlexIDKeyGenerator();
         int sort = 1;
         for (Document value : documents) {
@@ -209,14 +218,6 @@ public class AiDocumentServiceImpl extends ServiceImpl<AiDocumentMapper, AiDocum
         List<AiDocumentChunk> aiDocumentChunks = JSON.parseArray(previewListStr, AiDocumentChunk.class);
         Result result = storeDocument(aiDocument, aiDocumentChunks);
         if (result.isSuccess()) {
-//            ElasticsearchUtil esUtil = new ElasticsearchUtil();
-//            aiDocumentChunks.forEach(item ->{
-//                    try {
-//                        boolean success = esUtil.indexDocument("knowledge-base", item.getId().toString(), JSON.toJSONString(item));
-//                    } catch (IOException e) {
-//                        throw new RuntimeException(e);
-//                    }
-//                });
             this.getMapper().insert(aiDocument);
             AtomicInteger sort = new AtomicInteger(1);
             aiDocumentChunks.forEach(item ->{
@@ -267,6 +268,14 @@ public class AiDocumentServiceImpl extends ServiceImpl<AiDocumentMapper, AiDocum
             LoggerFactory.getLogger(AiDocumentController.class).error("DocumentStore.store failed: " + result);
             return Result.fail();
         }
+
+        if (knowledge.getSearchEnginesEnable()){
+            // 获取搜索引擎
+            DocumentSearcher searcher = searcherFactory.getSearcher();
+            // 添加到搜索引擎
+            documents.forEach(searcher::addDocument);
+        }
+
         AiKnowledge aiKnowledge = new AiKnowledge();
         aiKnowledge.setId(entity.getKnowledgeId());
         // CanUpdateEmbedLlm false: 不能修改知识库的大模型 true: 可以修改

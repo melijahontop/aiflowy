@@ -22,6 +22,7 @@ import javax.annotation.Resource;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -102,9 +103,11 @@ public class AiDocumentChunkController extends BaseCurdController<AiDocumentChun
         Llm embeddingModel = aiLlm.toLlm();
         documentStore.setEmbeddingModel(embeddingModel);
         StoreOptions options = StoreOptions.ofCollectionName(knowledge.getVectorStoreCollection());
-        ArrayList deleteList = new ArrayList<>();
+        List<BigInteger> deleteList = new ArrayList<>();
         deleteList.add(chunkId);
-        StoreResult deleteResult = documentStore.delete(deleteList, options);
+        documentStore.delete(deleteList, options);
+        aiDocumentChunkService.removeChunk(knowledge, chunkId);
+
         return super.remove(chunkId);
     }
 }

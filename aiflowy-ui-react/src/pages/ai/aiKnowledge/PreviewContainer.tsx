@@ -7,7 +7,7 @@ import '../style/PreviewContainer.less'; // 引入样式文件
 interface PreviewItem {
     sorting: string;
     content: string;
-    similarityScore: string;
+    score: string;
 }
 
 interface PreviewContainerProps {
@@ -56,7 +56,7 @@ const PreviewContainer: React.FC<PreviewContainerProps> = ({
                                     avatar={<div className="segment-badge">{index + 1}</div>}
                                     title={
                                         isSearching ? (
-                                            <a>{`相似度 ${item?.similarityScore ?? 'N/A'}`}</a>
+                                            <a>{`相似度 ${item?.score ?? 'N/A'}`}</a>
                                         ) : undefined
                                     }
                                     description={<div style={{ whiteSpace:'normal' }}>

@@ -81,7 +81,19 @@ jetcache:
       port: 6379
       password: pwd
       database: 0
-
+# 多路召回搜索引擎配置
+rag:
+  searcher:
+    # 搜索方式 默认lucene
+    # type : elasticSearch / lucene
+    type: elasticSearch
+    lucene:
+      indexDirPath: ./luceneKnowledge
+    elastic:
+      host: https://127.0.0.1:9200
+      userName: elastic
+      password: elastic
+      indexName: aiflowy
 logging:
   file:
     path: .logs/
@@ -89,3 +101,6 @@ logging:
   level:
     root: info
     tech.aiflowy.ai: debug
+
+
+
