@@ -7,6 +7,7 @@ type StartParams = {
     onMessage: (message: string) => void,
     onError?: (err?: Error) => void,
     onFinished: () => void,
+    onEvent?:(event?:any) => void,
 }
 
 const baseUrl = `${import.meta.env.VITE_APP_SERVER_ENDPOINT}/`;
@@ -54,6 +55,10 @@ export const useSse = (url: string, headers?: any, options?: any) => {
                 try {
                     let msgEvents = events(res, ctrl.signal);
                     for await (let event of msgEvents) {
+                        if (event.event){
+                            params.onEvent?.(event)
+                            continue;
+                        }
                         if (event.data && "[DONE]" !== event.data.trim()) {
                             if (options === 'ollamaInstall'){
                                 params.onMessage(event.data)
