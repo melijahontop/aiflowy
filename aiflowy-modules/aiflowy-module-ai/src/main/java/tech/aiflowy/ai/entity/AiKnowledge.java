@@ -50,6 +50,14 @@ public class AiKnowledge extends AiKnowledgeBase {
         return null;
     }
 
+    public boolean isVectorStoreEnable() {
+        return this.getVectorStoreEnable() != null && this.getVectorStoreEnable();
+    }
+
+    public boolean isSearchEngineEnable() {
+        return this.getSearchEngineEnable() != null && this.getSearchEngineEnable();
+    }
+
 
     private DocumentStore redisStore() {
         RedisVectorStoreConfig redisVectorStoreConfig = getStoreConfig(RedisVectorStoreConfig.class);
