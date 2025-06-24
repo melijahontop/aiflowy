@@ -53,7 +53,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- *  服务层实现。
+ * 服务层实现。
  *
  * @author michael
  * @since 2024-08-23
@@ -68,26 +68,22 @@ public class AiDocumentServiceImpl extends ServiceImpl<AiDocumentMapper, AiDocum
     @Resource
     private AiDocumentChunkMapper aiDocumentChunkMapper;
 
-
-    @Value("${aiflowy.storage.local.root}")
-    private  String fileUploadPath;
+    @Resource
+    private AiKnowledgeService knowledgeService;
 
     @Resource
-    private  AiKnowledgeService knowledgeService;
-
-    @Resource
-    private  AiLlmService aiLlmService;
+    private AiLlmService aiLlmService;
 
     @Resource(name = "default")
     FileStorageService storageService;
 
     @Resource
-    private  AiDocumentChunkService documentChunkService;
+    private AiDocumentChunkService documentChunkService;
 
     @Autowired
     private SearcherFactory searcherFactory;
 
-        @Override
+    @Override
     public Page<AiDocument> getDocumentList(String knowledgeId, int pageSize, int pageNum, String fileName) {
         // 构建 QueryWrapper
         QueryWrapper queryWrapper = QueryWrapper.create()
@@ -108,7 +104,8 @@ public class AiDocumentServiceImpl extends ServiceImpl<AiDocumentMapper, AiDocum
     }
 
     /**
-     *  根据文档id删除文件
+     * 根据文档id删除文件
+     *
      * @param id 文档id
      * @return
      */
@@ -116,7 +113,7 @@ public class AiDocumentServiceImpl extends ServiceImpl<AiDocumentMapper, AiDocum
     public boolean removeDoc(String id) {
         // 查询该文档对应哪些分割的字段，先删除
         QueryWrapper where = QueryWrapper.create().where("document_id = ? ", id);
-        QueryWrapper aiDocumentWapper =  QueryWrapper.create().where("id = ? ", id);
+        QueryWrapper aiDocumentWapper = QueryWrapper.create().where("id = ? ", id);
         AiDocument oneByQuery = aiDocumentMapper.selectOneByQuery(aiDocumentWapper);
         AiKnowledge knowledge = knowledgeService.getById(oneByQuery.getKnowledgeId());
         if (knowledge == null) {
@@ -144,15 +141,15 @@ public class AiDocumentServiceImpl extends ServiceImpl<AiDocumentMapper, AiDocum
         // 查询文本分割表tb_ai_document_chunk中对应的有哪些数据，找出来删除
         QueryWrapper queryWrapper = QueryWrapper.create()
                 .select("id").from("tb_ai_document_chunk").where("document_id = ?", id);
-        List<BigInteger> chunkIds =  aiDocumentChunkMapper.selectListByQueryAs(queryWrapper, BigInteger.class);
+        List<BigInteger> chunkIds = aiDocumentChunkMapper.selectListByQueryAs(queryWrapper, BigInteger.class);
         documentStore.delete(chunkIds, options);
         // 删除搜索引擎中的数据
-        if (searcherFactory.getSearcher() != null){
+        if (searcherFactory.getSearcher() != null) {
             DocumentSearcher searcher = searcherFactory.getSearcher();
             chunkIds.forEach(searcher::deleteDocument);
         }
         int ck = aiDocumentChunkMapper.deleteByQuery(where);
-        if (ck < 0){
+        if (ck < 0) {
             return false;
         }
         // 再删除指定路径下的文件
@@ -220,7 +217,7 @@ public class AiDocumentServiceImpl extends ServiceImpl<AiDocumentMapper, AiDocum
         if (result.isSuccess()) {
             this.getMapper().insert(aiDocument);
             AtomicInteger sort = new AtomicInteger(1);
-            aiDocumentChunks.forEach(item ->{
+            aiDocumentChunks.forEach(item -> {
                 item.setKnowledgeId(aiDocument.getKnowledgeId());
                 item.setSorting(sort.get());
                 item.setDocumentId(aiDocument.getId());
@@ -231,13 +228,14 @@ public class AiDocumentServiceImpl extends ServiceImpl<AiDocumentMapper, AiDocum
         }
         return Result.fail(1, "保存失败");
     }
+
     protected Result storeDocument(AiDocument entity, List<AiDocumentChunk> aiDocumentChunks) {
         AiKnowledge knowledge = knowledgeService.getById(entity.getKnowledgeId());
         if (knowledge == null) {
             return Result.fail(1, "知识库不存在");
         }
         DocumentStore documentStore = knowledge.toDocumentStore();
-        if (documentStore == null){
+        if (documentStore == null) {
             return Result.fail(2, "向量数据库类型未设置");
         }
         // 设置向量模型
@@ -256,7 +254,7 @@ public class AiDocumentServiceImpl extends ServiceImpl<AiDocumentMapper, AiDocum
         options.setEmbeddingOptions(embeddingOptions);
         options.setIndexName(options.getCollectionName());
         List<Document> documents = new ArrayList<>();
-        aiDocumentChunks.forEach(item ->{
+        aiDocumentChunks.forEach(item -> {
                     Document document = new Document();
                     document.setId(item.getId());
                     document.setContent(item.getContent());
@@ -265,11 +263,11 @@ public class AiDocumentServiceImpl extends ServiceImpl<AiDocumentMapper, AiDocum
         );
         StoreResult result = documentStore.store(documents, options);
         if (!result.isSuccess()) {
-            LoggerFactory.getLogger(AiDocumentController.class).error("DocumentStore.store failed: " + result);
+            Log.error("DocumentStore.store failed: " + result);
             return Result.fail();
         }
 
-        if (knowledge.getSearchEngineEnable() != null && knowledge.getSearchEngineEnable()){
+        if (knowledge.isSearchEngineEnable()) {
             // 获取搜索引擎
             DocumentSearcher searcher = searcherFactory.getSearcher();
             // 添加到搜索引擎
@@ -280,8 +278,8 @@ public class AiDocumentServiceImpl extends ServiceImpl<AiDocumentMapper, AiDocum
         aiKnowledge.setId(entity.getKnowledgeId());
         // CanUpdateEmbedLlm false: 不能修改知识库的大模型 true: 可以修改
         AiKnowledge knowledge1 = knowledgeService.getById(entity.getKnowledgeId());
-        Map<String, Object> knowledgeoptions =  new HashMap<>();
-        if (knowledge1.getOptions() == null){
+        Map<String, Object> knowledgeoptions = new HashMap<>();
+        if (knowledge1.getOptions() == null) {
             knowledgeoptions.put("canUpdateEmbedding", false);
         } else {
             knowledgeoptions = knowledge.getOptions();
@@ -292,7 +290,7 @@ public class AiDocumentServiceImpl extends ServiceImpl<AiDocumentMapper, AiDocum
         return Result.success();
     }
 
-    public DocumentSplitter getDocumentSplitter (String splitterName, int chunkSize, int overlapSize, String regex, int excelRows){
+    public DocumentSplitter getDocumentSplitter(String splitterName, int chunkSize, int overlapSize, String regex, int excelRows) {
 
         if (StringUtil.noText(splitterName)) {
             return null;
@@ -303,7 +301,7 @@ public class AiDocumentServiceImpl extends ServiceImpl<AiDocumentMapper, AiDocum
             case "RegexDocumentSplitter":
                 return new RegexDocumentSplitter(regex);
             case "SimpleTokenizeSplitter":
-                if (overlapSize == 0){
+                if (overlapSize == 0) {
                     return new SimpleTokenizeSplitter(chunkSize);
                 } else {
                     return new SimpleTokenizeSplitter(chunkSize, overlapSize);

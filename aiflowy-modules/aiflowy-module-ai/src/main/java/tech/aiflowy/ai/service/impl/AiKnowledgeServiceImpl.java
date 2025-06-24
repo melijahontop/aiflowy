@@ -2,6 +2,7 @@ package tech.aiflowy.ai.service.impl;
 
 
 import com.agentsflex.rerank.DefaultRerankModel;
+import com.agentsflex.search.engine.service.DocumentSearcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import tech.aiflowy.ai.config.SearcherFactory;
 import tech.aiflowy.ai.entity.AiKnowledge;
@@ -78,10 +79,12 @@ public class AiKnowledgeServiceImpl extends ServiceImpl<AiKnowledgeMapper, AiKno
         );
 
         CompletableFuture<List<Document>> searcherFuture = CompletableFuture.supplyAsync(() -> {
-            if (knowledge.getSearchEngineEnable() == null || !knowledge.getSearchEngineEnable() || searcherFactory.getSearcher() == null || searcherFactory.getSearcher().searchDocuments(keyword) == null) {
-                return Collections.emptyList(); // 如果未启用搜索引擎，返回空列表
+            DocumentSearcher searcher = searcherFactory.getSearcher();
+            if (searcher == null || !knowledge.isSearchEngineEnable()) {
+                return Collections.emptyList();
             }
-            return searcherFactory.getSearcher().searchDocuments(keyword);
+            List<Document> documents = searcher.searchDocuments(keyword);
+            return documents == null ? Collections.emptyList() : documents;
         });
 
         // 合并两个查询结果
