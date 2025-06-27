@@ -15,8 +15,8 @@ spring:
   web:
     resources:
       # 示例：windows【file: C:\aiflowy\file】 linux【file: /www/aiflowy/file】
-#      static-locations: file:C:\aiflowy\file
-      static-locations: file:/Users/michael/Desktop/test
+      static-locations: file:C:\aiflowy\file
+#      static-locations: file:/Users/michael/Desktop/test
   mvc:
     static-path-pattern: /static/**
   quartz:
@@ -47,11 +47,11 @@ aiflowy:
       prefix: public
     local:
       # 示例：windows【C:\aiflowy\file】 linux【/www/aiflowy/file】
-#      root: 'C:\aiflowy\file'
-      root: /Users/michael/Desktop/test
+      root: 'C:\aiflowy\file'
+#      root: /Users/michael/Desktop/test
       # 后端接口地址
-#      prefix: 'http://localhost:8080/static'
-      prefix: http://aiflowy.s7.tunnelfrp.com/static
+      prefix: 'http://localhost:8080/static'
+#      prefix: http://aiflowy.s7.tunnelfrp.com/static
   ollama:
     host: http://127.0.0.1:11434
   login:
