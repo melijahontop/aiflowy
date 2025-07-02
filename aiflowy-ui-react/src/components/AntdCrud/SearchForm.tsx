@@ -4,7 +4,6 @@ import {
     Col,
     Form,
     Row,
-    theme,
 } from 'antd';
 import {ColumnConfig, ColumnsConfig} from "./index";
 import {CaretDownOutlined, CaretUpOutlined} from "@ant-design/icons";
@@ -33,13 +32,11 @@ const SearchForm: React.FC<{
           columns, colSpan
       }) => {
 
-    const {token} = theme.useToken();
     const [form] = Form.useForm();
     const [showAll, setShowAll] = useState(false);
 
     const formStyle = {
         maxWidth: 'none',
-        background: token.colorFillAlter,
         padding: 24,
         marginBottom: '20px'
     };
