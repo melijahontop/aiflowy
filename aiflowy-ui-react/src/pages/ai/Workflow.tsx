@@ -181,24 +181,24 @@ const Workflow: React.FC<{ paramsToUrl: boolean }> = () => {
                           }}
                           customActions={(item, existNodes) => {
                               return [
-                                  <Space>
-                                      <NodeIndexOutlined title="设计工作流" onClick={() => {
-                                          window.open(`/ai/workflow/design/${item.id}`, "_blank")
-                                      }}/>
+                                  <Space onClick={() => {
+                                      window.open(`/ai/workflow/design/${item.id}`, "_blank")
+                                  }}>
+                                      <NodeIndexOutlined title="设计工作流"/>
                                       <span>设计</span>
                                   </Space>
                                   ,
-                                  <Space>
-                                      <DownloadOutlined title="导出工作流" onClick={() => {
-                                          exportWorkflow(item)
-                                      }} />
+                                  <Space onClick={() => {
+                                      exportWorkflow(item)
+                                  }}>
+                                      <DownloadOutlined title="导出工作流"  />
                                       <span>导出</span>
                                   </Space>
                                  ,
-                                  <Space>
-                                      <PlayCircleOutlined title="外部地址" onClick={() => {
-                                          window.open(window.location.href.substring(0, window.location.href.indexOf('/ai')) + '/ai/workflow/external/' + item.id, "_blank")
-                                      }}/>
+                                  <Space onClick={() => {
+                                      window.open(window.location.href.substring(0, window.location.href.indexOf('/ai')) + '/ai/workflow/external/' + item.id, "_blank")
+                                  }}>
+                                      <PlayCircleOutlined title="外部地址"/>
                                       <span>运行</span>
                                   </Space>
                                  ,

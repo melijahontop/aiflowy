@@ -73,16 +73,16 @@ const Bots: React.FC<{ paramsToUrl: boolean }> = () => {
 
                       customActions={(item, existNodes) => {
                           return [
-                              <Space>
-                                  <SettingOutlined  onClick={() => {
-                                      window.open(`/ai/bot/design/${item.id}`, "_blank")
-                                  }}/>
+                              <Space onClick={() => {
+                                  window.open(`/ai/bot/design/${item.id}`, "_blank")
+                              }}>
+                                  <SettingOutlined/>
                                   <span>设置</span>
                               </Space>,
-                              <Space>
-                                  <PlayCircleOutlined onClick={() => {
-                                      window.open(window.location.href.substring(0, window.location.href.indexOf('/ai')) + '/ai/externalBot/' + item.id, "_blank")
-                                  }}/>
+                              <Space  onClick={() => {
+                                  window.open(window.location.href.substring(0, window.location.href.indexOf('/ai')) + '/ai/externalBot/' + item.id, "_blank")
+                              }}>
+                                  <PlayCircleOutlined/>
                                   <span>运行</span>
                               </Space>,
                               ...existNodes
