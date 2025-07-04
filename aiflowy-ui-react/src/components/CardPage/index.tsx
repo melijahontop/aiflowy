@@ -1,4 +1,4 @@
-import React, {forwardRef, useEffect, useImperativeHandle, useState} from 'react';
+import React, {forwardRef, ReactNode, useEffect, useImperativeHandle, useState} from 'react';
 import {ColumnsConfig} from "../AntdCrud";
 import {
     Avatar,
@@ -30,6 +30,8 @@ import {useUrlParams} from "../../hooks/useUrlParams.ts";
 import addCardIcon from "../../../src/assets/addCardIcon.png"
 import "../../pages/commons/commonStyle.less"
 import CustomDeleteIcon from "../CustomIcon/CustomDeleteIcon.tsx";
+import {useCheckPermission} from "../../hooks/usePermissions.tsx";
+
 export type CardPageProps = {
     ref?: any,
     tableAlias: string,
@@ -43,7 +45,7 @@ export type CardPageProps = {
     titleKey?: string,
     descriptionKey?: string,
     customActions?: (data: any, existNodes: React.ReactNode[]) => React.ReactNode[],
-    customHandleButton?:() => React.ReactNode[],
+    customHandleButton?: () => React.ReactNode[],
     addCardTitle?: string,
     optionsText?: {
         addCardTitle?: string, // 新增按钮的文本
@@ -68,8 +70,8 @@ const CardPage: React.FC<CardPageProps> = forwardRef(({
                                                           , customActions = (_data: any, existNodes: any) => existNodes
                                                           , customHandleButton = () => []
                                                           , optionsText = {}
-                                                          , optionIconPath={},
-                                                      },ref) => {
+                                                          , optionIconPath = {},
+                                                      }, ref) => {
 
     useImperativeHandle(ref, () => ({
         refresh: () => {
@@ -136,6 +138,71 @@ const CardPage: React.FC<CardPageProps> = forwardRef(({
     }, [localPageNumber, searchParams])
 
 
+    const editPermission = useCheckPermission(`/api/v1/${tableAlias}/save`);
+    const removePermission = useCheckPermission(`/api/v1/${tableAlias}/remove`);
+
+    const buildActions = (item:any) => {
+
+        const actionsArr:ReactNode[] = [];
+
+        const editNode = (
+            editPermission ?
+                <Space onClick={() => {
+                    setEditData(item)
+                    setIsEditOpen(true)
+                }}>
+
+                    <EditOutlined key="edit"/>
+                    <span>编辑</span>
+                </Space> : null
+        )
+
+        if (editNode){
+            actionsArr.push(editNode)
+        }
+
+        const dropDownNode = (
+            removePermission ?
+            <Dropdown  menu={{
+                items: [
+                    ...(
+                            [{
+                                key: 'delete',
+                                label: '删除',
+                                icon: <CustomDeleteIcon/>,
+                                onClick: () => {
+                                    Modal.confirm({
+                                        title: '确定要删除吗?',
+                                        content: '此操作不可逆，请谨慎操作。',
+                                        onOk() {
+                                            doRemove({data: {id: item.id}}).then(doGet)
+                                        },
+                                        onCancel() {
+                                        },
+                                    });
+                                },
+                            }]
+                    )
+                ],
+            }}>
+                <EllipsisOutlined key="ellipsis" title="更多操作"/>
+            </Dropdown> : null
+        )
+
+
+
+        if (dropDownNode){
+            actionsArr.push(dropDownNode)
+        }
+
+        return [
+            ...customActions(item,
+                actionsArr
+            ),
+        ] as ReactNode[]
+    }
+
+
     return (
         <>
             <EditPage modalTitle={editModalTitle || ""}
@@ -161,7 +228,8 @@ const CardPage: React.FC<CardPageProps> = forwardRef(({
 
                 <Row className={"card-row"} gutter={[16, 16]}>
                     {
-                        result?.data?.records?.length > 0 &&   <Col span={6} key={"add-card"} xs={24} sm={12} md={8} lg={6} >
+                        (result?.data?.records?.length > 0 && useCheckPermission(`/api/v1/${tableAlias}/save`)) &&
+                        <Col span={6} key={"add-card"} xs={24} sm={12} md={8} lg={6}>
                             <Card
                                 style={{
                                     height: '100%',
@@ -192,7 +260,10 @@ const CardPage: React.FC<CardPageProps> = forwardRef(({
                                         marginRight: '10px'
                                     }}
                                 />
-                                <span style={{fontSize: '16px', color: '#0066FF '}}>{optionsText.addCardTitle || "添加"}</span>
+                                <span style={{
+                                    fontSize: '16px',
+                                    color: '#0066FF '
+                                }}>{optionsText.addCardTitle || "添加"}</span>
                             </Card>
                         </Col>
                     }
@@ -208,48 +279,13 @@ const CardPage: React.FC<CardPageProps> = forwardRef(({
                             <Card
                                 hoverable={true}
                                 className={"card-hover"}
-                                actions={[
-                                    ...customActions(item, [
-                                        <Space onClick={() => {
-                                            setEditData(item)
-                                            setIsEditOpen(true)
-                                        }}>
-                                        <EditOutlined key="edit" />
-                                            <span>编辑</span>
-                                        </Space>,
-                                        <Dropdown menu={{
-                                            items: [
-                                                {
-                                                    key: 'delete',
-                                                    label: '删除',
-                                                    icon: <CustomDeleteIcon />,
-                                                    onClick: () => {
-                                                        Modal.confirm({
-                                                            title: '确定要删除吗?',
-                                                            content: '此操作不可逆，请谨慎操作。',
-                                                            onOk() {
-                                                                doRemove({
-                                                                    data: {
-                                                                        id: item.id
-                                                                    }
-                                                                }).then(doGet)
-                                                            },
-                                                            onCancel() {
-                                                            },
-                                                        });
-                                                    },
-                                                }
-                                            ],
-                                        }}>
-                                            <EllipsisOutlined key="ellipsis" title="更多操作"/>
-                                        </Dropdown>,
-                                    ]),
-                                ]}>
+                                actions={buildActions(item)}>
                                 <Card.Meta
-                                    avatar={<Avatar src={item[avatarKey] || defaultAvatarSrc} style={{width: '48px', height: '48px'}}/>}
+                                    avatar={<Avatar src={item[avatarKey] || defaultAvatarSrc}
+                                                    style={{width: '48px', height: '48px'}}/>}
                                     title={item[titleKey]}
                                     description={
-                                        <Tooltip title={item[descriptionKey] || "暂无描述"} placement="top" >
+                                        <Tooltip title={item[descriptionKey] || "暂无描述"} placement="top">
                                             <div style={{
                                                 display: '-webkit-box',
                                                 WebkitLineClamp: 1,
@@ -275,12 +311,17 @@ const CardPage: React.FC<CardPageProps> = forwardRef(({
                                 </Typography.Text>
                             }
                         >
-                            <Button  style={{borderColor: '#0066FF', color: '#0066FF', width: '195px', height: '48px'}}
-                                     onClick={() => {
-                                         setIsEditOpen(true)
-                                     }}>
-                                {optionsText.noDataAddButtonText || "创建"}
-                            </Button>
+
+                            {useCheckPermission(`/api/v1/${tableAlias}/save`) && (
+                                <Button
+                                    style={{borderColor: '#0066FF', color: '#0066FF', width: '195px', height: '48px'}}
+                                    onClick={() => {
+                                        setIsEditOpen(true)
+                                    }}>
+                                    {optionsText.noDataAddButtonText || "创建"}
+                                </Button>
+                            )}
+
                         </Empty>
 
                     </>)}

@@ -4,13 +4,14 @@ import {DebouncedInput} from "../../../components/DebouncedInput";
 import {useEffect, useState} from "react";
 import {useDebouncedCallback} from "use-debounce";
 
-export const LlmSlider = ({title, defaultValue = 0, step = 1, min = 0, max = 100, onChange}: {
+export const LlmSlider = ({title, defaultValue = 0, step = 1, min = 0, max = 100, onChange,disabled = false}: {
     title: string,
     defaultValue?: number,
     step?: number,
     min?: number,
     max?: number
-    onChange?: (value: number) => void
+    onChange?: (value: number) => void,
+    disabled?:boolean
 }) => {
 
     const [value, setValue] = useState(defaultValue)
@@ -51,7 +52,7 @@ export const LlmSlider = ({title, defaultValue = 0, step = 1, min = 0, max = 100
         <Row style={{alignItems: "center"}}>
             <Col span={6}>{title}</Col>
             <Col span={12} style={{paddingRight: "10px"}}>
-                <Slider min={min} max={max} step={step}
+                <Slider disabled={disabled}  min={min} max={max} step={step}
                         onChange={(value) => {
                             changeHandler(value)
                         }}
@@ -59,7 +60,7 @@ export const LlmSlider = ({title, defaultValue = 0, step = 1, min = 0, max = 100
                 />
             </Col>
             <Col span={6}>
-                <DebouncedInput size="small" prefix={<MinusOutlined onClick={minus}/>}
+                <DebouncedInput disabled={disabled} size="small" prefix={<MinusOutlined onClick={minus}/>}
                                 suffix={<PlusOutlined onClick={plus}/>}
                                 styles={{
                                     input: {textAlign: "center"},

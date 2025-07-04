@@ -1,9 +1,10 @@
 import {Button, Divider, Input, message, Modal, Pagination} from "antd";
 import {ModalProps} from "antd/es/modal/interface";
-import React, {useEffect, useState} from "react";
+import React, { useState} from "react";
 import {SearchOutlined} from "@ant-design/icons";
-import {usePage} from "../../../hooks/useApis.ts";
 import {useNavigate} from "react-router-dom";
+import {useCheckPermission} from "../../../hooks/usePermissions.tsx";
+import {useGetManual} from "../../../hooks/useApis.ts";
 
 
 export type BotDataItemProps = {
@@ -11,7 +12,9 @@ export type BotDataItemProps = {
     description?: string,
     icon?: string,
     isAdded?: boolean, //
-    onButtonClick?: () => void
+    onButtonClick?: () => void,
+
+
 }
 
 export const BotDataItem: React.FC<BotDataItemProps> = ({title, description, icon = "/favicon.png", onButtonClick,isAdded = false, }) => {
@@ -72,7 +75,14 @@ export const BotModal: React.FC<BotModalProps> = (props) => {
     const [total, setTotal] = useState<number>(0)
     const [loading, setLoading] = useState<boolean>(false)
 
-    const {result, doGet} = usePage(props.tableAlias, {pageSize});
+    const queryPermission = useCheckPermission(`/api/v1/${props.tableAlias}/query`);
+
+
+    const {
+        doGet
+    } = useGetManual(`/api/v1/${props.tableAlias}/page`);
+
+    // const {result, doGet} = usePage(props.tableAlias, {pageSize});
     const navigate = useNavigate();
 
     const isItemAdded = (item: any) => {
@@ -83,6 +93,12 @@ export const BotModal: React.FC<BotModalProps> = (props) => {
 
     // 获取数据的通用方法
     const fetchData = (page: number = currentPage, searchKeyword: string = keyword) => {
+
+        
+        if (!queryPermission){
+            return ;
+        }
+
         setLoading(true)
         const params: any = {
             pageSize,
@@ -111,18 +127,6 @@ export const BotModal: React.FC<BotModalProps> = (props) => {
         })
     }
 
-    // 初始化数据
-    useEffect(() => {
-        fetchData(1, '')
-    }, [])
-
-    // 处理原有的 result 数据（保持兼容性）
-    useEffect(() => {
-        if (result?.data?.records) {
-            setItems(result.data.records)
-            setTotal(result.data.totalRow || 0)
-        }
-    }, [result]);
 
     // 搜索处理
     const searchHandler = () => {
@@ -149,6 +153,12 @@ export const BotModal: React.FC<BotModalProps> = (props) => {
             footer={null}
             {...restProps}
             width={"800px"}
+            afterOpenChange={(open) => {
+                if (open && !items) {
+                    fetchData(currentPage,'')
+                }
+
+            }}
             height={"700px"} // 增加高度以容纳分页器
         >
             <div style={{display: "flex", gap: "20px", marginTop: "20px", height: "580px"}}>
@@ -228,7 +238,7 @@ export const BotModal: React.FC<BotModalProps> = (props) => {
                                 <BotDataItem
                                     key={item.id}
                                     onButtonClick={() => props.onSelectedItem?.(item)}
-                                    title={item.title}
+                                    title={item.title || item.name}
                                     description={item.description}
                                     icon={item.icon}
                                     isAdded={isItemAdded(item)}

@@ -4,10 +4,10 @@ import {useLayout} from '../../../hooks/useLayout.tsx';
 import {Row} from 'antd/lib/index';
 import {App, Avatar, Badge, Button, Col, Collapse, Form, Input, Modal, Select, Space, Switch, Tooltip} from 'antd';
 import Title from 'antd/es/typography/Title';
-import {DeleteOutlined, PlusOutlined,} from "@ant-design/icons";
+import {DeleteOutlined, PlusOutlined} from "@ant-design/icons";
 import {
     useDetail,
-    useGet,
+    useGetManual,
     useList,
     usePost,
     usePostManual,
@@ -26,6 +26,7 @@ import {AiProChat, ChatMessage} from "../../../components/AiProChat/AiProChat";
 import {PluginTools} from "./PluginTools.tsx";
 import { processArray} from "../../../libs/parseAnswerUtil.tsx";
 import {useSseWithEvent} from "../../../hooks/useSseWithEvent.ts";
+import {useCheckPermission} from "../../../hooks/usePermissions.tsx";
 
 const colStyle: React.CSSProperties = {
     background: '#fafafa',
@@ -199,6 +200,7 @@ const BotDesign: React.FC = () => {
     const {doRemove: doRemoveAiBotWorkflow} = useRemove("aiBotWorkflow");
     const [workflowOpen, setWorkflowOpen] = useState(false)
 
+    const pluginToolPermission = useCheckPermission("/api/v1/aiPluginTool/list");
     const {doPost: doPostPluginTool} = usePost('/api/v1/aiPluginTool/tool/list')
 
     const {doPost: doRemovePluginTool} = usePostManual('/api/v1/aiBotPlugins/doRemove')
@@ -211,7 +213,11 @@ const BotDesign: React.FC = () => {
     const [knowledgeOpen, setKnowledgeOpen] = useState(false)
 
 
-    const {result} = useGet("/api/v1/aiLlm/list", {supportFunctionCalling: true});
+    const llmQueryPermission = useCheckPermission("/api/v1/aiLlm/query")
+
+    const botSavePermission = useCheckPermission("/api/v1/aiBot/save")
+    const botRemovePermission = useCheckPermission("/api/v1/aiBot/remove")
+    const {result: llmResult, doGet: getLlmLst} = useGetManual("/api/v1/aiLlm/list",);
 
     const {start: startChat} = useSseWithEvent("/api/v1/aiBot/chat");
     const {doPost: doRemoveMsg} = usePostManual('/api/v1/aiBotMessage/removeMsg')
@@ -234,20 +240,38 @@ const BotDesign: React.FC = () => {
 
     }, [messageResult]);
     useEffect(() => {
-        doPostPluginTool({data: {botId: params.id}}).then(r => {
-            setPluginToolData(r?.data?.data)
-        })
-    }, []);
-    const clearMessage : () => void = () => {
-            doRemoveMsg({data:{
-                    botId: params.id,
-                    sessionId: getSessionId(),
-                    isExternalMsg: 0
-                }}).then(res => {
-                if (res.data.errorCode === 0){
-                    setChats([])
-                }
+
+        if (pluginToolPermission){
+            doPostPluginTool({data: {botId: params.id}}).then(r => {
+                setPluginToolData(r?.data?.data)
             })
+        }
+
+
+    }, [pluginToolPermission]);
+
+
+    useEffect(() => {
+        if (llmQueryPermission) {
+            getLlmLst({
+                params: {supportFunctionCalling: true}
+            }).then();
+        }
+    }, [llmQueryPermission]);
+
+
+    const clearMessage: () => void = () => {
+        doRemoveMsg({
+            data: {
+                botId: params.id,
+                sessionId: getSessionId(),
+                isExternalMsg: 0
+            }
+        }).then(res => {
+            if (res.data.errorCode === 0) {
+                setChats([])
+            }
+        })
     }
     const handleProblemCancel = () =>{
         setIsOpenProblemPreset(false)
@@ -266,6 +290,12 @@ const BotDesign: React.FC = () => {
                             addedItems={workflowResult?.data || []}
                             addedItemsKeyField={"workflowId"}
                             onSelectedItem={item => {
+
+                                if (!botSavePermission) {
+                                    message.warning("你没有配置bot的权限！")
+                                    return;
+                                }
+
                                 setWorkflowOpen(false)
                                 doSaveWorkflow({
                                     data: {
@@ -282,7 +312,19 @@ const BotDesign: React.FC = () => {
                 open={pluginOpen} onClose={() => setPluginOpen(false)}
                 onCancel={() => setPluginOpen(false)}
                 onSelectedItem={item => {
+
+                    if (!botSavePermission) {
+                        message.warning("你没有配置bot的权限！")
+                        return;
+                    }
+
                     setPluginOpen(false)
+
+                    if (!botSavePermission) {
+                        message.warning("你没有配置bot的权限！")
+                        return;
+                    }
+
                     doSavePlugin({
                         data: {
                             botId: params.id,
@@ -302,6 +344,13 @@ const BotDesign: React.FC = () => {
                 }}
                 onRemoveItem={(item) => {
                     setPluginOpen(false)
+
+
+                    if (!botSavePermission || !botRemovePermission) {
+                        message.warning("你没有配置bot的权限！")
+                        return;
+                    }
+
                     doRemovePlugin({data: {pluginToolId: item.id, botId: params.id}}).then(res => {
                         if (res?.data?.errorCode === 0){
                             message.success('删除成功')
@@ -322,6 +371,12 @@ const BotDesign: React.FC = () => {
                             addedItems={knowledgeResult?.data || []}
                             addedItemsKeyField={"knowledgeId"}
                             onSelectedItem={item => {
+
+                                if (!botSavePermission) {
+                                    message.warning("你没有配置bot的权限！")
+                                    return;
+                                }
+
                                 setKnowledgeOpen(false)
                                 doSaveKnowledge({
                                     data: {
@@ -336,9 +391,20 @@ const BotDesign: React.FC = () => {
                         <Title level={5}>系统提示词（System Prompt）</Title>
                         <DebouncedTextArea value={systemPrompt} style={{height: "calc(100% - 30px)"}} autoSize={false}
                                            onChangeImmediately={(e) => {
+
+                                               if (!botSavePermission) {
+                                                   message.warning("你没有配置bot的权限！")
+                                                   return;
+                                               }
+
                                                setSystemPrompt(e.target.value)
                                            }}
                                            onChange={e => {
+
+                                               if (!botSavePermission) {
+                                                   return;
+                                               }
+
                                                doUpdateBotLLMOptions({systemPrompt: e.target.value})
                                            }}/>
                     </Col>
@@ -356,37 +422,38 @@ const BotDesign: React.FC = () => {
                                 style={{width: "100%"}}
                                 placeholder="请选择大模型"
                                 allowClear
+                                disabled={!llmQueryPermission || !botSavePermission}
                                 fieldNames={{label: 'title', value: 'id'}}
                                 options={[
-                                    ...result?.data || []
+                                    ...llmResult?.data || []
                                 ]}
-                                value={detail?.data?.llmId}
+                                value={llmQueryPermission ? detail?.data?.llmId : "无权配置"}
                                 onChange={(value: any) => {
                                     value = value || ''
                                     updateBot({llmId: value})
                                 }}
                             />
-                            <LlmSlider title="温度" min={0.1} max={1} step={0.1}
+                            <LlmSlider disabled={!botSavePermission} title="温度" min={0.1} max={1} step={0.1}
                                        defaultValue={detail?.data?.llmOptions?.temperature || 0.7}
                                        onChange={(value: number) => {
                                            doUpdateBotLLMOptions({temperature: value})
                                        }}/>
-                            <LlmSlider title="TopK" min={1} max={10} step={1}
+                            <LlmSlider disabled={!botSavePermission} title="TopK" min={1} max={10} step={1}
                                        defaultValue={detail?.data?.llmOptions?.topK || 4}
                                        onChange={(value: number) => {
                                            doUpdateBotLLMOptions({topK: value})
                                        }}/>
-                            <LlmSlider title="TopP" min={0.1} max={1} step={0.1}
+                            <LlmSlider disabled={!botSavePermission} title="TopP" min={0.1} max={1} step={0.1}
                                        defaultValue={detail?.data?.llmOptions?.topP || 0.7}
                                        onChange={(value: number) => {
                                            doUpdateBotLLMOptions({topP: value})
                                        }}/>
-                            <LlmSlider title="最大回复长度" min={1024} max={10000}
+                            <LlmSlider disabled={!botSavePermission} title="最大回复长度" min={1024} max={10000}
                                        defaultValue={detail?.data?.llmOptions?.maxReplyLength || 2048}
                                        onChange={(value: number) => {
                                            doUpdateBotLLMOptions({maxReplyLength: value})
                                        }}/>
-                            <LlmSlider title="携带历史条数" min={1} max={10} step={1}
+                            <LlmSlider disabled={!botSavePermission} title="携带历史条数" min={1} max={10} step={1}
                                        defaultValue={detail?.data?.llmOptions?.maxMessageCount || 3}
                                        onChange={(value: number) => {
                                            doUpdateBotLLMOptions({maxMessageCount: value})
@@ -397,109 +464,133 @@ const BotDesign: React.FC = () => {
                         <Collapse items={[
                             {
                                 key: 'workflow',
-                                label: <CollapseLabel text="工作流" badgeCount={workflowResult?.data?.length ?? 0}  onClick={() => {
-                                    setWorkflowOpen(true)
-                                }}/>,
+                                label: <CollapseLabel text="工作流" badgeCount={workflowResult?.data?.length ?? 0}
+                                                      onClick={() => {
+                                                          setWorkflowOpen(true)
+                                                      }}/>,
                                 children:
                                     <div>
-                                    {workflowResult?.data?.length ?
-                                        workflowResult?.data?.map((item: any) => {
-                                            return <ListItem key={item.id} title={item.workflow.title}
-                                                             description={item.workflow.description}
-                                                             icon={item.workflow.icon}
-                                                             onButtonClick={() => {
-                                                                 Modal.confirm({
-                                                                     title: '确定要删除该工作流吗？',
-                                                                     content: '删除后，该工作流将不再关联该机器人，但工作流本身不会被删除。',
-                                                                     onOk: () => {
-                                                                         doRemoveAiBotWorkflow({
-                                                                             data: {id: item.id}
-                                                                         }).then(doGetWorkflow)
-                                                                     }
-                                                                 })
-                                                             }}
-                                            />
-                                        }):(
-                                            <div style={{ color: '#999', textAlign: 'center', padding: '8px 0' }}>
-                                                未绑定工作流，点击右上角"+"添加
-                                            </div>
-                                        )
+                                        {workflowResult?.data?.length ?
+                                            workflowResult?.data?.map((item: any) => {
+                                                return <ListItem key={item.id} title={item.workflow.title}
+                                                                 description={item.workflow.description}
+                                                                 icon={item.workflow.icon}
+                                                                 onButtonClick={() => {
 
-                                    }
-                                </div>
+                                                                     if (!botSavePermission || !botRemovePermission) {
+                                                                         message.warning("你没有配置bot的权限！")
+                                                                         return;
+                                                                     }
+
+                                                                     Modal.confirm({
+                                                                         title: '确定要删除该工作流吗？',
+                                                                         content: '删除后，该工作流将不再关联该机器人，但工作流本身不会被删除。',
+                                                                         onOk: () => {
+                                                                             doRemoveAiBotWorkflow({
+                                                                                 data: {id: item.id}
+                                                                             }).then(doGetWorkflow)
+                                                                         }
+                                                                     })
+                                                                 }}
+                                                />
+                                            }) : (
+                                                <div style={{color: '#999', textAlign: 'center', padding: '8px 0'}}>
+                                                    未绑定工作流，点击右上角"+"添加
+                                                </div>
+                                            )
+
+                                        }
+                                    </div>
                                 ,
                             },
                             {
                                 key: 'knowledge',
-                                label: <CollapseLabel text="知识库" badgeCount={knowledgeResult?.data?.length ?? 0} onClick={() => {
-                                    setKnowledgeOpen(true)
-                                }}/>,
+                                label: <CollapseLabel text="知识库" badgeCount={knowledgeResult?.data?.length ?? 0}
+                                                      onClick={() => {
+                                                          setKnowledgeOpen(true)
+                                                      }}/>,
                                 children:
                                     <div>
-                                    {knowledgeResult?.data.length ?
-                                        knowledgeResult?.data?.map((item: any) => {
-                                            return <ListItem key={item.id} title={item.knowledge.title}
-                                                             description={item.knowledge.description}
-                                                             icon={item.knowledge.icon}
-                                                             onButtonClick={() => {
-                                                                 Modal.confirm({
-                                                                     title: '确定要删除该知识库吗？',
-                                                                     content: '删除后，该知识库将不再关联该机器人，但知识库本身不会被删除。',
-                                                                     onOk: () => {
-                                                                         doRemoveAiBotKnowledge({
-                                                                             data: {id: item.id}
-                                                                         }).then(doGetKnowledge)
+                                        {knowledgeResult?.data.length ?
+                                            knowledgeResult?.data?.map((item: any) => {
+                                                return <ListItem key={item.id} title={item.knowledge.title}
+                                                                 description={item.knowledge.description}
+                                                                 icon={item.knowledge.icon}
+                                                                 onButtonClick={() => {
+
+                                                                     if (!botSavePermission || !botRemovePermission) {
+                                                                         message.warning("你没有配置bot的权限！")
+                                                                         return;
                                                                      }
-                                                                 })
-                                                             }}
-                                            />
-                                        }):
-                                        (
-                                            <div style={{ color: '#999', textAlign: 'center', padding: '8px 0' }}>
-                                                未绑定知识库，点击右上角"+"添加
-                                            </div>
-                                        )
-                                    }
-                                </div>
+
+                                                                     Modal.confirm({
+                                                                         title: '确定要删除该知识库吗？',
+                                                                         content: '删除后，该知识库将不再关联该机器人，但知识库本身不会被删除。',
+                                                                         onOk: () => {
+                                                                             doRemoveAiBotKnowledge({
+                                                                                 data: {id: item.id}
+                                                                             }).then(doGetKnowledge)
+                                                                         }
+                                                                     })
+                                                                 }}
+                                                />
+                                            }) :
+                                            (
+                                                <div style={{color: '#999', textAlign: 'center', padding: '8px 0'}}>
+                                                    未绑定知识库，点击右上角"+"添加
+                                                </div>
+                                            )
+                                        }
+                                    </div>
                                 ,
                             },
                             {
                                 key: 'plugins',
-                                label: <CollapseLabel text="插件" badgeCount={pluginToolData?.length ?? 0} onClick={() => {
-                                    setPluginOpen(true)
-                                }}/>,
+                                label: <CollapseLabel text="插件" badgeCount={pluginToolData?.length ?? 0}
+                                                      onClick={() => {
+                                                          setPluginOpen(true)
+                                                      }}/>,
                                 children:
                                     <div>
-                                        {pluginToolData?. length ?
+                                        {pluginToolData?.length ?
                                             (
-                                                    pluginToolData.map((item:any) => {
-                                                        return <ListItem key={item.id} title={item?.name}
-                                                                         description={item.description}
-                                                                         icon={item?.icon}
-                                                                         onButtonClick={() => {
-                                                                             Modal.confirm({
-                                                                                 title: '确定要删除该插件吗？',
-                                                                                 content: '删除后，该插件将不再关联该机器人，但插件本身不会被删除。',
-                                                                                 onOk: () => {
-                                                                                     doRemovePluginTool({
-                                                                                         data: {pluginToolId: item.id, botId: params.id}
-                                                                                     }).then(() =>{
-                                                                                         doPostPluginTool({data: {botId: params.id}})
-                                                                                             .then(r =>{
-                                                                                                 setPluginToolData(r?.data?.data)
-                                                                                             })
-                                                                                     })
-                                                                                 }
-                                                                             })
-                                                                         }}
-                                                        />
-                                                    })
-                                                ) :
-                                                (
-                                                    <div style={{ color: '#999', textAlign: 'center', padding: '8px 0' }}>
-                                                        未绑定插件，点击右上角"+"添加
-                                                    </div>
-                                                )
+                                                pluginToolData.map((item: any) => {
+                                                    return <ListItem key={item.id} title={item?.name}
+                                                                     description={item.description}
+                                                                     icon={item?.icon}
+                                                                     onButtonClick={() => {
+
+                                                                         if (!botSavePermission || !botRemovePermission) {
+                                                                             message.warning("你没有配置bot的权限！")
+                                                                             return;
+                                                                         }
+
+                                                                         Modal.confirm({
+                                                                             title: '确定要删除该插件吗？',
+                                                                             content: '删除后，该插件将不再关联该机器人，但插件本身不会被删除。',
+                                                                             onOk: () => {
+                                                                                 doRemovePluginTool({
+                                                                                     data: {
+                                                                                         pluginToolId: item.id,
+                                                                                         botId: params.id
+                                                                                     }
+                                                                                 }).then(() => {
+                                                                                     doPostPluginTool({data: {botId: params.id}})
+                                                                                         .then(r => {
+                                                                                             setPluginToolData(r?.data?.data)
+                                                                                         })
+                                                                                 })
+                                                                             }
+                                                                         })
+                                                                     }}
+                                                    />
+                                                })
+                                            ) :
+                                            (
+                                                <div style={{color: '#999', textAlign: 'center', padding: '8px 0'}}>
+                                                    未绑定插件，点击右上角"+"添加
+                                                </div>
+                                            )
                                         }
                                     </div>
                                 ,
@@ -511,17 +602,18 @@ const BotDesign: React.FC = () => {
                         <Collapse items={[
                             {
                                 key: 'questions',
-                                label: <CollapseLabel text="问题预设" badgeCount={presetQuestions.length ?? 0} onClick={() => {
-                                    setIsOpenProblemPreset(true)
-                                    // reGetDetail().then(res =>{
-                                    //     setPresetQuestions(res?.data?.data?.options.presetQuestions)
-                                    //
-                                    // })
-                                }}/>,
+                                label: <CollapseLabel text="问题预设" badgeCount={presetQuestions.length ?? 0}
+                                                      onClick={() => {
+                                                          setIsOpenProblemPreset(true)
+                                                          // reGetDetail().then(res =>{
+                                                          //     setPresetQuestions(res?.data?.data?.options.presetQuestions)
+                                                          //
+                                                          // })
+                                                      }}/>,
                                 children: (
-                                    <div style={{ padding: '0' }}>
+                                    <div style={{padding: '0'}}>
                                         {presetQuestions.length > 0 ? (
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                            <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
                                                 {presetQuestions.map((question, index) => (
                                                     <div
                                                         key={index}
@@ -574,12 +666,25 @@ const BotDesign: React.FC = () => {
                                 }} plusDisabled/>,
                                 children: <div>
                                     <DebouncedTextArea
+                                        disabled={!botSavePermission}
                                         value={welcomeMessage}
                                         onChange={(value) => {
-                                            doUpdateBotOptions({welcomeMessage: value.target.value.length ? value.target.value :  defaultWelcomeMessage})
+
+                                            if (!botSavePermission) {
+                                                message.warning("你没有配置bot的权限！")
+                                                return;
+                                            }
+
+                                            doUpdateBotOptions({welcomeMessage: value.target.value.length ? value.target.value : defaultWelcomeMessage})
                                         }}
                                         onChangeImmediately={(event) => {
-                                            setWelcomeMessage(event.target.value? event.target.value : defaultWelcomeMessage)
+
+                                            if (!botSavePermission) {
+                                                message.warning("你没有配置bot的权限！")
+                                                return;
+                                            }
+
+                                            setWelcomeMessage(event.target.value ? event.target.value : defaultWelcomeMessage)
                                         }}
                                         placeholder="请输入欢迎语"
                                         autoSize={{minRows: 2, maxRows: 6}}
@@ -597,12 +702,25 @@ const BotDesign: React.FC = () => {
                                 label: <CollapseLabel text="嵌入" onClick={() => {
                                 }} plusDisabled/>,
                                 children: <div>
-                                    <div style={{display:'flex',justifyContent:'space-between',marginBottom:'10px'}}>
+                                    <div style={{
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        marginBottom: '10px'
+                                    }}>
                                         <span>启用匿名访问</span>
                                         <Switch
                                             checked={anonymousEnabled}
                                             loading={anonymousSwitchLoading}
                                             onChange={async (checked) => {
+
+                                                if (!botSavePermission) {
+                                                    message.warning("你没有配置bot的权限！")
+                                                    setAnonymousEnabled(false)
+                                                    return;
+                                                }
+
+                                                console.log(1)
+
                                                 setAnonymousSwitchLoading(true)
                                                 const resp = await updateBotOptions({
                                                     data: {
@@ -705,8 +823,16 @@ const BotDesign: React.FC = () => {
                 }}
             >
                 <Form layout="vertical" form={form}
+                      disabled={!botSavePermission}
                       onFinish={(values: Record<string, string>) => {
-                    // 将表单值转换为 PresetQuestion[] 类型
+
+                          if (!botSavePermission) {
+                              message.warning("你没有配置bot的权限!")
+                              return;
+
+                          }
+
+                          // 将表单值转换为 PresetQuestion[] 类型
                           const questions = Object.entries(values)
                               .filter(([_key, value]) => value) // 过滤空值
                               .map(([_key, value], index) => ({
@@ -714,15 +840,20 @@ const BotDesign: React.FC = () => {
                                   description: value,
                                   // icon: '<ProductOutlined />',
                               }));
-                    updateBotOptions({data: {options:{presetQuestions: questions}, id: params.id}}).then((res) => {
-                        if (res.data.errorCode === 0){
-                            setIsOpenProblemPreset(false);
-                            reGetDetail()
-                        } else {
-                            message.error('保存失败')
-                        }
-                    });
-                }}>
+                          updateBotOptions({
+                              data: {
+                                  options: {presetQuestions: questions},
+                                  id: params.id
+                              }
+                          }).then((res) => {
+                              if (res.data.errorCode === 0) {
+                                  setIsOpenProblemPreset(false);
+                                  reGetDetail()
+                              } else {
+                                  message.error('保存失败')
+                              }
+                          });
+                      }}>
                     {[1, 2, 3, 4, 5].map((num) => (
                         <Form.Item
                             key={num}
@@ -744,7 +875,8 @@ const BotDesign: React.FC = () => {
                 </Form>
             </Modal>
         </>
-    );
+    )
+        ;
 };
 
 export default {
