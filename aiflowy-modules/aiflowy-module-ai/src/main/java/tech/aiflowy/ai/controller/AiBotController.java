@@ -616,6 +616,14 @@ public class AiBotController extends BaseCurdController<AiBotService, AiBot> {
         return emitter;
     }
 
+
+    @PostMapping("updateLlmId")
+    @SaCheckPermission("/api/v1/aiBot/save")
+    public Result updateBotLlmId(@RequestBody AiBot aiBot) {
+        service.updateBotLlmId(aiBot);
+        return Result.success();
+    }
+
     /**
      * 外部用户调用智能体进行对话
      * 需要用户传 apiKey 对用户进行身份验证

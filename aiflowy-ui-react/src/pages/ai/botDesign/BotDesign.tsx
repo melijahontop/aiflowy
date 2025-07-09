@@ -13,7 +13,6 @@ import {
     usePostManual,
     useRemove,
     useSave,
-    useUpdate
 } from "../../../hooks/useApis.ts";
 import {useParams} from "react-router-dom";
 import {WorkflowsModal} from "./Workflows.tsx";
@@ -148,18 +147,31 @@ const BotDesign: React.FC = () => {
         }
     }, [detail]);
 
-    const {doUpdate} = useUpdate("aiBot");
+    // const {doUpdate} = useUpdate("aiBot");
+
+    const {doPost:updateBotLlmId} = usePost("/api/v1/aiBot/updateLlmId")
 
     const updateBot = (values: any) => {
-        doUpdate({
-            data: {
-                ...values,
-                id: params.id,
-            }
+
+        updateBotLlmId({
+                data: {
+                    ...values,
+                    id: params.id,
+                }
         }).then(reGetDetail)
             .then(() => {
                 message.success("保存成功")
             })
+
+        // doUpdate({
+        //     data: {
+        //         ...values,
+        //         id: params.id,
+        //     }
+        // }).then(reGetDetail)
+        //     .then(() => {
+        //         message.success("保存成功")
+        //     })
     }
 
     const {doPost: updateBotLLMOptions} = usePostManual("/api/v1/aiBot/updateLlmOptions")
@@ -433,6 +445,9 @@ const BotDesign: React.FC = () => {
 
                                 value={llmQueryPermission ? detail?.data?.llmId : "no_access"}
                                 onChange={(value: any) => {
+
+                                    console.log(value)
+
                                     value = value || ''
                                     updateBot({ llmId: value === 'no_access' ? '' : value || '' });
                                 }}
