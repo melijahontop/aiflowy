@@ -237,6 +237,7 @@ function sidebarProduct(): DefaultTheme.SidebarItem[] {
                         {text: '文件生成', link: 'workflow/nodes/file-generator'},
                         {text: '插件', link: 'workflow/nodes/plugin'},
                         {text: 'sql 查询', link: 'workflow/nodes/sql-node'},
+                        {text: '素材同步', link: 'workflow/nodes/download-node'},
                     ]
                 },
             ]
