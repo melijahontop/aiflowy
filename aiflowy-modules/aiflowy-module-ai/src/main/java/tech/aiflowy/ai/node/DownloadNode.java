@@ -1,5 +1,6 @@
 package tech.aiflowy.ai.node;
 
+import cn.hutool.core.io.FileTypeUtil;
 import cn.hutool.core.util.IdUtil;
 import com.agentsflex.core.chain.Chain;
 import com.agentsflex.core.chain.Parameter;
@@ -15,6 +16,7 @@ import tech.aiflowy.common.entity.LoginAccount;
 import tech.aiflowy.common.filestorage.FileStorageService;
 import tech.aiflowy.common.util.SpringContextUtil;
 
+import java.io.ByteArrayInputStream;
 import java.math.BigInteger;
 import java.util.Date;
 import java.util.HashMap;
@@ -37,8 +39,14 @@ public class DownloadNode extends BaseNode {
         Map<String, Object> res = new HashMap<>();
 
         String originUrl = map.get("originUrl").toString();
-        String suffix = DocUtil.getSuffix(originUrl);
+
         byte[] bytes = DocUtil.downloadFile(originUrl);
+
+        String suffix = FileTypeUtil.getType(new ByteArrayInputStream(bytes));
+
+        if (suffix == null) {
+            suffix = "unknown";
+        }
 
         String fileName = IdUtil.simpleUUID() + "." + suffix;
         String resourceUrl = fileStorageService.save(new CustomFile(fileName, bytes));
@@ -56,7 +64,7 @@ public class DownloadNode extends BaseNode {
         resource.setTenantId(account.getTenantId());
         resource.setResourceType(this.resourceType);
         resource.setResourceName(DocUtil.getFileNameByUrl(resourceUrl).split("\\.")[0]);
-        resource.setSuffix(DocUtil.getSuffix(resourceUrl));
+        resource.setSuffix(suffix);
         resource.setResourceUrl(resourceUrl);
         resource.setOrigin(EnumResourceOriginType.GENERATE.getCode());
         resource.setCreated(new Date());
