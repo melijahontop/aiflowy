@@ -137,87 +137,123 @@ export const AiProChat = ({
     const currentEventType = useRef<string | null>(null);
     const eventContent = useRef<string>(''); // 当前事件累积的内容
 
+
+    // 设置每次播放尝试合并的音频片段数量
+    const CHUNK_SIZE = 20;
+    // 存储所有 sessionId 对应的 base64 音频片段队列
     const voiceMapRef = useRef<Map<string, string[]>>(new Map());
+    // 当前正在播放的 sessionId，用于多会话控制
     const currentSessionIdRef = useRef<string | null>(null);
+    // 当前是否处于播放状态
     const isPlayingRef = useRef<boolean>(false);
+    // 音频上下文 AudioContext 实例
     const audioPlayContextRef = useRef<AudioContext | null>(null);
+    // 当前正在播放的音频源（用于手动停止）
     const currentAudioSourceRef = useRef<AudioBufferSourceNode | null>(null);
 
-    const playAudioQueue = async (sessionId:string) => {
-
+    // 播放指定 sessionId 的音频片段队列
+    const playAudioQueue = async (sessionId: string) => {
         const voiceMap = voiceMapRef.current;
         const queue = voiceMap.get(sessionId);
 
         if (!queue || queue.length === 0) return;
 
-        const audioContext = audioContextRef.current ?? new AudioContext();
-        audioContextRef.current = audioContext;
+        // 创建或复用 AudioContext
+        const audioContext = audioPlayContextRef.current ?? new AudioContext();
+        audioPlayContextRef.current = audioContext;
 
         currentSessionIdRef.current = sessionId;
         isPlayingRef.current = true;
 
-        let i = 0;
-        while (i < queue.length) {
-            if (currentSessionIdRef.current !== sessionId) {
-                return;
+        let playIndex = 0; // 当前播放起始片段索引
+
+        while (playIndex < queue.length) {
+            // 如果 sessionId 被切换，终止当前播放
+            if (currentSessionIdRef.current !== sessionId) return;
+
+            let chunkCount = CHUNK_SIZE;
+            let audioBuffer: AudioBuffer | null = null;
+
+            // 动态尝试从当前位置起合并 chunkCount 个片段进行解码
+            while (playIndex + chunkCount <= queue.length) {
+                const base64List = queue.slice(playIndex, playIndex + chunkCount);
+                const mergedBuffer = mergeBase64Buffers(base64List);
+                try {
+                    audioBuffer = await audioContext.decodeAudioData(mergedBuffer);
+                    break; // 解码成功退出循环
+                } catch (e) {
+                    chunkCount += 1; // 解码失败，增加片段数继续尝试
+                }
             }
 
-            const base64 = queue[i];
-            try {
-                await playSingleBase64(base64, audioContext);
-                i++; // 正常播放，继续下一个
-            } catch (err) {
-                console.warn(`⚠️ 播放失败，已跳过 index=${i}`, err);
+            // 如果解码失败且不足 CHUNK_SIZE，则尝试将剩余部分拼接解码
+            if (!audioBuffer && playIndex < queue.length) {
+                const base64List = queue.slice(playIndex);
+                const mergedBuffer = mergeBase64Buffers(base64List);
+                try {
+                    audioBuffer = await audioContext.decodeAudioData(mergedBuffer);
+                    chunkCount = queue.length - playIndex;
+                } catch (e) {
+                    console.warn("解码失败，跳过剩余段", e);
+                    break; // 解码失败终止播放
+                }
+            }
 
-                // 移除出错的项
-                queue.splice(i, 1); // 不递增 i，继续尝试播放当前位置
+            if (!audioBuffer) break;
+
+            try {
+                // 播放解码成功的音频
+                await playAudioBuffer(audioBuffer, audioContext);
+                playIndex += chunkCount; // 播放成功推进指针
+            } catch (e) {
+                console.warn(`播放失败，跳过 index=${playIndex}`, e);
+                playIndex += chunkCount; // 出错也推进，防止死循环
             }
         }
 
         isPlayingRef.current = false;
+    };
 
-    }
+    // 将多个 base64 音频片段合并为一个 ArrayBuffer，供 AudioContext 解码
+    const mergeBase64Buffers = (base64List: string[]): ArrayBuffer => {
+        const binaryList = base64List.map(b64 => atob(b64)); // 解码为二进制字符串
+        const totalLength = binaryList.reduce((sum, bin) => sum + bin.length, 0);
+        const result = new Uint8Array(totalLength);
 
-    const playSingleBase64 = (base64:string,audioContext:AudioContext):Promise<void> => {
-        return new Promise((resolve, reject) => {
-
-            const binary = atob(base64);
-            const bytes = new Uint8Array(binary.length);
-
-            for (let i = 0; i < binary.length;i++){
-                bytes[i] = binary.charCodeAt(i)
+        let offset = 0;
+        for (const bin of binaryList) {
+            for (let i = 0; i < bin.length; i++) {
+                result[offset++] = bin.charCodeAt(i); // 字符转字节
             }
+        }
 
-            audioContext.decodeAudioData(bytes.buffer)
-                .then((audioBuffer) => {
-                    const source = audioContext.createBufferSource();
-                    source.buffer = audioBuffer;
-                    source.connect(audioContext.destination)
-                    source.onended = () => {
-                        resolve();
-                    };
+        return result.buffer;
+    };
 
-                    source.start();
+    // 播放解码后的 AudioBuffer 音频数据
+    const playAudioBuffer = (buffer: AudioBuffer, audioContext: AudioContext): Promise<void> => {
+        return new Promise((resolve) => {
+            const source = audioContext.createBufferSource();
+            source.buffer = buffer;
+            source.connect(audioContext.destination);
+            source.onended = () => resolve(); // 播放结束后自动 resolve
+            source.start();
+            currentAudioSourceRef.current = source; // 用于后续停止
+        });
+    };
 
-                    currentAudioSourceRef.current = source;
-                })
-                .catch(reject)
-        })
-    }
-
+    // 手动停止当前播放任务
     const stopCurrentPlayback = () => {
         const source = currentAudioSourceRef.current;
-        if (source){
+        if (source) {
             try {
                 source.stop();
-            }catch (e){
-                console.log("停止播放出错")
+            } catch (e) {
+                console.warn("停止播放出错", e);
             }
         }
-
         isPlayingRef.current = false;
-    }
-
+    };
 
     useEffect(() => {
         const webSocket = new WebSocket(`ws://localhost:8080/api/v1/aiBot/ws/chat?sessionId=${sessionId}`);
@@ -231,39 +267,36 @@ export const AiProChat = ({
         };
 
         webSocket.onmessage = (event: MessageEvent) => {
-            const voiceData: {data: string, messageSessionId: string} = JSON.parse(event.data);
-
+            const voiceData: { data: string; messageSessionId: string } = JSON.parse(event.data);
             const voiceMap = voiceMapRef.current;
 
-            if (!voiceMap.has(voiceData.messageSessionId)){
-                voiceMap.set(voiceData.messageSessionId,[])
+            // 若该 sessionId 尚未初始化队列，则创建空数组
+            if (!voiceMap.has(voiceData.messageSessionId)) {
+                voiceMap.set(voiceData.messageSessionId, []);
             }
 
-            voiceMap?.get(voiceData.messageSessionId)?.push(voiceData.data);
+            // 添加新音频片段到该 session 的队列末尾
+            voiceMap.get(voiceData.messageSessionId)!.push(voiceData.data);
 
-            if (currentSessionIdRef.current !== voiceData.messageSessionId) {
-                // 切换播放 session
+            // 若当前未播放或 session 发生切换，启动播放流程
+            const shouldStart = !isPlayingRef.current || currentSessionIdRef.current !== voiceData.messageSessionId;
+
+            if (shouldStart) {
                 stopCurrentPlayback();
                 playAudioQueue(voiceData.messageSessionId);
             }
-
-
         };
 
         const isDev = import.meta.env.DEV;
 
-        if (!isDev){
+        if (!isDev) {
             return () => {
-                if (webSocket){
-                    webSocket.close(1000,"正常关闭")
+                if (webSocket) {
+                    webSocket.close(1000, "正常关闭");
                 }
-            }
+            };
         }
-
     }, [sessionId]);
-
-
-
 
 
     useRef<string | null>(null);
