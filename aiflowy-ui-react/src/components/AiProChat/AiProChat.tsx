@@ -1,4 +1,4 @@
-import React, {useLayoutEffect, useMemo, useRef, useState} from 'react';
+import React, {useEffect, useLayoutEffect, useMemo, useRef, useState} from 'react';
 import {
     Attachments,
     AttachmentsProps,
@@ -76,6 +76,7 @@ export type AiProChatProps = {
     onCustomEvent?: EventHandler;
     onCustomEventComplete?: EventHandler;
     llmDetail?: any;
+    sessionId?: string;
 };
 
 export const RenderMarkdown: React.FC<{ content: string, fileList?: Array<string> }> = ({content, fileList}) => {
@@ -83,7 +84,7 @@ export const RenderMarkdown: React.FC<{ content: string, fileList?: Array<string
     const md = markdownit({html: true, breaks: true});
     return (
         <>
-            <div style={{display:"flex",flexDirection:"column",gap:"10px"}}>
+            <div style={{display: "flex", flexDirection: "column", gap: "10px"}}>
                 {fileList && fileList.length > 0 && fileList.map(file => {
                     return <Image height={300} src={file} key={Date.now().toString()}></Image>
                 })}
@@ -114,7 +115,8 @@ export const AiProChat = ({
                               customToolBarr,
                               onCustomEvent,
                               onCustomEventComplete,
-                              llmDetail = {}
+                              llmDetail = {},
+                              sessionId
                           }: AiProChatProps) => {
     const isControlled = parentChats !== undefined && parentOnChatsChange !== undefined;
     const [internalChats, setInternalChats] = useState<ChatMessage[]>([]);
@@ -135,6 +137,40 @@ export const AiProChat = ({
     const currentEventType = useRef<string | null>(null);
     const eventContent = useRef<string>(''); // 当前事件累积的内容
 
+
+
+    useEffect(() => {
+        const webSocket = new WebSocket(`ws://localhost:8080/api/v1/aiBot/ws/chat?sessionId=${sessionId}`);
+
+        webSocket.onopen = () => {
+            console.log("WebSocket 连接建立");
+        };
+
+        webSocket.onerror = (event: Event) => {
+            console.error("WebSocket 连接错误:", event);
+        };
+
+        webSocket.onmessage = (event: MessageEvent) => {
+            const voiceData: {data: string, messageSessionId: string} = JSON.parse(event.data);
+
+            console.log(voiceData)
+
+        };
+
+        const isDev = import.meta.env.DEV;
+
+        if (!isDev){
+            return () => {
+                if (webSocket){
+                    webSocket.close(1000,"正常关闭")
+                }
+            }
+        }
+
+    }, [sessionId]);
+
+
+
     useRef<string | null>(null);
     // 滚动到底部逻辑
     const scrollToBottom = () => {
@@ -148,6 +184,7 @@ export const AiProChat = ({
     useLayoutEffect(() => {
         scrollToBottom();
     }, []);
+
 
     // 消息更新时滚动
     useLayoutEffect(() => {
@@ -179,6 +216,7 @@ export const AiProChat = ({
             container.removeEventListener('scroll', handleScroll);
         };
     }, []);
+
 
     // 处理事件进度（事件进行中）
     const handleEventProgress = async (eventType: EventType, eventData: any): Promise<boolean> => {
@@ -864,7 +902,7 @@ export const AiProChat = ({
     const [headerOpen, setHeaderOpen] = React.useState(false);
     const [fileItems, setFileItems] = React.useState<GetProp<AttachmentsProps, 'items'>>([]);
     const [fileUrlList, setFileUrlList] = useState<Array<{ uid: string, url: string }>>([])
-    const [fileUploading,setFileUploading] = useState(false);
+    const [fileUploading, setFileUploading] = useState(false);
 
     const {doPost: uploadFile} = usePost("/api/v1/commons/uploadPrePath");
 
@@ -929,7 +967,7 @@ export const AiProChat = ({
                         setFileItems((prev) => {
                             return prev.filter(fileItem => fileItem.originFileObj?.uid !== uFile.uid);
                         })
-                    }finally {
+                    } finally {
                         setFileUploading(false)
                     }
 
@@ -1261,7 +1299,7 @@ export const AiProChat = ({
 
                         return <Space size="small">
                             <ClearButton
-                                disabled={(sendLoading || isStreaming  || recording  || fileUploading) ? true :   !fileItems.length && !chats?.length}  // 强制不禁用
+                                disabled={(sendLoading || isStreaming || recording || fileUploading) ? true : !fileItems.length && !chats?.length}  // 强制不禁用
                                 title="删除对话记录"
                                 style={{fontSize: 20}}
                                 onClick={async (e) => {
@@ -1275,14 +1313,14 @@ export const AiProChat = ({
                                 }}
                             />
                             <SpeechButton
-                                disabled={sendLoading || isStreaming  || fileUploading}
+                                disabled={sendLoading || isStreaming || fileUploading}
                             />
                             <SendButton
                                 type="primary"
                                 // onClick={() => handleSubmit(content)}
-                                disabled={inputDisabled || recording  || fileUploading}
+                                disabled={inputDisabled || recording || fileUploading}
                                 icon={<OpenAIOutlined/>}
-                                loading={sendLoading || isStreaming }
+                                loading={sendLoading || isStreaming}
                             />
                         </Space>
                     }}

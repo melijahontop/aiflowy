@@ -25,6 +25,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alicp.jetcache.Cache;
 import com.mybatisflex.core.query.QueryWrapper;
+import okhttp3.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +42,7 @@ import tech.aiflowy.ai.entity.*;
 import tech.aiflowy.ai.mapper.AiBotConversationMessageMapper;
 import tech.aiflowy.ai.message.MultimodalMessageBuilder;
 import tech.aiflowy.ai.service.*;
+import tech.aiflowy.ai.socket.handler.ChatVoiceHandler;
 import tech.aiflowy.ai.utils.AiBotChatUtil;
 import tech.aiflowy.ai.utils.AiBotMessageIframeMemory;
 import tech.aiflowy.common.ai.ChatManager;
@@ -57,12 +59,13 @@ import tech.aiflowy.system.mapper.SysApiKeyMapper;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.time.Duration;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.agentsflex.core.llm.client.OkHttpClientUtil;
 import okhttp3.OkHttpClient;
@@ -102,9 +105,6 @@ public class AiBotController extends BaseCurdController<AiBotService, AiBot> {
     @Autowired
     @Qualifier("defaultCache") // 指定 Bean 名称
     private Cache<String, Object> cache;
-
-
-    private ConcurrentHashMap<String,Integer> ttsRecords = new ConcurrentHashMap<>();
 
     private static final Logger logger = LoggerFactory.getLogger(AiBotController.class);
 
@@ -336,6 +336,30 @@ public class AiBotController extends BaseCurdController<AiBotService, AiBot> {
         builder[0].readTimeout(Duration.ofMinutes(20));
         OkHttpClientUtil.setOkHttpClientBuilder(builder[0]);
 
+        final String messageSessionId = UUID.randomUUID().toString().replace("-", "");
+        final String connectId = UUID.randomUUID().toString();
+
+
+        WebSocket webSocket = ttsService.init(connectId, messageSessionId, base64 -> {
+            logger.info("{}音频片段：{}",messageSessionId,base64);
+            ChatVoiceHandler.sendJsonVoiceMessage(sessionId,messageSessionId,base64);
+        },(result) -> {
+            logger.info("完整音频数据：{}",result);
+
+            cache.put(messageSessionId, result);
+
+            if (StringUtils.hasLength(result)) {
+                File file = new File(messageSessionId + "_" + System.currentTimeMillis() + ".mp3");
+                try (FileOutputStream fos = new FileOutputStream(file)){
+                    byte[] decode = Base64.getDecoder().decode(result);
+                    fos.write(decode);
+                }catch (IOException e) {
+                    logger.error("合并语音文件失败", e);
+                }
+            }
+
+        });
+
         reActAgent.addListener(new ReActAgentListener() {
 
             private long currentThoughtId = IdUtil.getSnowflake(1, 1).nextId();
@@ -343,21 +367,15 @@ public class AiBotController extends BaseCurdController<AiBotService, AiBot> {
             private String chunk = "";
             private boolean isFinalAnswer = false;
             private boolean parsed = false;
-            private String connectId = UUID.randomUUID().toString();
+
 
             @Override
             public void onChatResponseStream(ChatContext context, AiMessageResponse response) {
-
 
                 String reasoningContent = response.getMessage().getReasoningContent();
                 String fullReasoningContent = response.getMessage().getFullReasoningContent();
                 String content = response.getMessage().getContent();
 
-//                if (StringUtils.hasLength(content)) {
-//                    logger.info("onChatResponseStream:" + content);
-//                } else {
-//                    logger.info("onChatResponseStream:" + fullReasoningContent);
-//                }
 
                 if (StringUtils.hasLength(reasoningContent)) {
 
@@ -397,7 +415,11 @@ public class AiBotController extends BaseCurdController<AiBotService, AiBot> {
                                 AiMessage message = new AiMessage();
                                 message.setContent(finalContent);
                                 emitter.send(JSON.toJSONString(message));
-                                sendAudioEvent(emitter, finalContent, sessionId);
+                                message.setMetadataMap(Maps.of("messageSessionId",messageSessionId));
+
+
+                                ttsService.sendTTSMessage(webSocket,messageSessionId,finalContent);
+
                                 parsed = true;
                                 return;
                             }
@@ -442,6 +464,8 @@ public class AiBotController extends BaseCurdController<AiBotService, AiBot> {
                             AiMessage message = new AiMessage();
                             message.setContent(chunk);
                             emitter.send(JSON.toJSONString(message));
+
+
                             parsed = true;
                             return;
                         }
@@ -453,9 +477,12 @@ public class AiBotController extends BaseCurdController<AiBotService, AiBot> {
                         if (isFinalAnswer) {
                             // Final Answer模式：直接发送内容
                             aiMessage.setContent(content);
+                            aiMessage.setMetadataMap(Maps.of("messageSessionId",messageSessionId));
                             emitter.send(JSON.toJSONString(aiMessage));
-                            sendAudioEvent(emitter, content, sessionId);
-                            System.out.println("发送final answer:" + content);
+                            logger.info("发送final answer:" + content);
+
+                            ttsService.sendTTSMessage(webSocket,messageSessionId,content);
+
                         } else {
                             // Thought模式：发送thought事件
                             aiMessage.setFullContent(content);
@@ -476,6 +503,7 @@ public class AiBotController extends BaseCurdController<AiBotService, AiBot> {
                         }
                     }
                 }
+
             }
 
 
@@ -483,26 +511,12 @@ public class AiBotController extends BaseCurdController<AiBotService, AiBot> {
             public void onFinalAnswer(String finalAnswer) {
                 logger.info("onFinalAnswer,{}", finalAnswer);
 
-                ttsService.streamTextToSpeech("${{over}}$", (base64Audio, isComplete) -> {
-                    if (isComplete) {
-                            while (true){
-                                Integer i = ttsRecords.get(connectId);
-                                logger.info("{}当前还有{}个任务在执行",connectId,i);
-                                if (i <= 0){
-                                    emitter.complete();
-                                    break;
-                                }
-                                try {
-                                    Thread.sleep(5);
-                                } catch (InterruptedException e) {
+                RequestContextHolder.setRequestAttributes(sra, true);
 
-                                }
-                            }
-                    }
-                }, connectId).exceptionally(throwable -> {
-                    logger.error("TTS语音合成失败", throwable);
-                    return null;
-                });
+                ttsService.sendTTSMessage(webSocket,messageSessionId,"_end_");
+
+                emitter.complete();
+
 
             }
 
@@ -542,16 +556,26 @@ public class AiBotController extends BaseCurdController<AiBotService, AiBot> {
             @Override
             public void onNonActionResponseStream(ChatContext context) {
                 logger.info("onNonActionResponseStream");
-//
-//                String fullContent = context.getLastAiMessage().getFullContent();
-//                AiMessage message = new AiMessage();
-//                message.setContent(fullContent);
-//                emitter.sendAndComplete(JSON.toJSONString(message));
+                RequestContextHolder.setRequestAttributes(sra, true);
+
+                String fullContent = context.getLastAiMessage().getFullContent();
+                AiMessage message = new AiMessage();
+                message.setContent(fullContent);
+                message.setMetadataMap(Maps.of("messageSessionId", messageSessionId));
+                emitter.sendAndComplete(JSON.toJSONString(message));
+
+                ttsService.sendTTSMessage(webSocket,messageSessionId,fullContent);
+
+                ttsService.sendTTSMessage(webSocket,messageSessionId,"_end_");
+
+
             }
 
             @Override
             public void onError(Exception error) {
                 logger.error("onError:", error);
+
+
                 AiMessage aiMessage = new AiMessage();
                 aiMessage.setContent("大模型调用出错，请检查配置");
                 boolean hasUnsupportedApiError = containsUnsupportedApiError(error.getMessage());
@@ -575,7 +599,6 @@ public class AiBotController extends BaseCurdController<AiBotService, AiBot> {
                 builder[0].connectTimeout(Duration.ofSeconds(30));
                 builder[0].readTimeout(Duration.ofMinutes(20));
                 OkHttpClientUtil.setOkHttpClientBuilder(builder[0]);
-                connectId = UUID.randomUUID().toString();
 
                 currentThoughtId = IdUtil.getSnowflake(1, 1).nextId();
                 parsed = false;
@@ -641,6 +664,8 @@ public class AiBotController extends BaseCurdController<AiBotService, AiBot> {
                     throw new BusinessException("发送工具调用结果事件报错");
                 }
             }
+
+
         });
 
 
@@ -649,42 +674,6 @@ public class AiBotController extends BaseCurdController<AiBotService, AiBot> {
         return emitter;
     }
 
-
-    private void sendAudioEvent(MySseEmitter emitter, String text, String connectId) {
-
-        Integer i = ttsRecords.get(connectId);
-        if (i == null){
-            i = 0;
-        }
-        i++;
-        ttsRecords.put(connectId, i);
-        logger.info("{}当前新增任务，总任务数{}",connectId,i);
-
-        CompletableFuture<Void> ttsTask = ttsService.streamTextToSpeech(text, (base64Audio, isComplete) -> {
-            try {
-                if (!isComplete && !base64Audio.isEmpty()) {
-                    // 发送音频数据
-                    Map<String, Object> audioData = new HashMap<>();
-                    audioData.put("content", base64Audio);
-                    emitter.send(SseEmitter.event()
-                            .name("tts_audio")
-                            .data(JSON.toJSONString(audioData)));
-                }
-            } catch (IOException e) {
-                logger.error("发送TTS音频数据失败", e);
-            }
-        }, connectId).exceptionally(throwable -> {
-            logger.error("TTS语音合成失败", throwable);
-            return null;
-        });
-
-        ttsTask.whenComplete((result, throwable) -> {
-            Integer i1 = ttsRecords.get(connectId);
-            i1--;
-            ttsRecords.put(connectId, i1);
-            logger.info("{}当前完成任务，总任务数{}",connectId,i1);
-        });
-    }
 
     @PostMapping("updateLlmId")
     @SaCheckPermission("/api/v1/aiBot/save")

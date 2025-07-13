@@ -1,51 +1,28 @@
-package tech.aiflowy.ai.service.impl;
+package tech.aiflowy.ai.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import okhttp3.*;
-import okhttp3.logging.HttpLoggingInterceptor;
-import okio.ByteString;
-import org.apache.parquet.filter2.predicate.Operators;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
-import tech.aiflowy.ai.service.TtsService;
-import tech.aiflowy.common.web.exceptions.BusinessException;
-
-import java.io.*;
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Base64;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.WebSocket;
+import okhttp3.WebSocketListener;
+import okhttp3.logging.HttpLoggingInterceptor;
+import okhttp3.logging.HttpLoggingInterceptor.Level;
+import okio.ByteString;
 
 /**
- * 火山引擎双向流式TTS服务实现
+ * Author：censhengde on 2024/11/25 15:51
+ *
+ * explain：<a href="https://www.volcengine.com/docs/6561/1329505">双向流式API-支持复刻</a>
  */
-@Service("VolcTtsService")
-public class VolcTtsServiceImpl implements TtsService {
-
-    @Value("${voiceInput.volcengine.app.appId}")
-    private String appId;
-
-    @Value("${voiceInput.volcengine.app.token}")
-    private String token;
-
-    @Value("${voiceInput.volcengine.app.speaker:zh_female_shuangkuaisisi_moon_bigtts}")
-    private String speaker;
-
-    private static final String url = "wss://openspeech.bytedance.com/api/v3/tts/bidirection";
-
-    private static final Logger log = LoggerFactory.getLogger(VolcTtsServiceImpl.class);
-
+public class TTSWebsocketDemo {
 
     private static final int PROTOCOL_VERSION = 0b0001;
     private static final int DEFAULT_HEADER_SIZE = 0b0001;
@@ -69,50 +46,109 @@ public class VolcTtsServiceImpl implements TtsService {
     private static final int COMPRESSION_NO = 0b0000;
     private static final int COMPRESSION_GZIP = 0b0001;
 
+    // event
 
 
-    @Override
-    public WebSocket init(String connectId, String sessionId,Consumer<String> responseHandler,Consumer<String> sessionFinishHandler){
+    // 默认事件,对于使用事件的方案，可以通过非0值来校验事件的合法性
+    public static final int EVENT_NONE = 0;
 
-        StringBuilder sb = new StringBuilder();
+    public static final int EVENT_Start_Connection = 1;
 
+
+    // 上行Connection事件
+    public static final int EVENT_FinishConnection = 2;
+
+    // 下行Connection事件
+    public static final int EVENT_ConnectionStarted = 50; // 成功建连
+
+    public static final int EVENT_ConnectionFailed = 51; // 建连失败（可能是无法通过权限认证）
+
+    public static final int EVENT_ConnectionFinished = 52; // 连接结束
+
+    // 上行Session事件
+    public static final int EVENT_StartSession = 100;
+
+    public static final int EVENT_FinishSession = 102;
+
+    // 下行Session事件
+    public static final int EVENT_SessionStarted = 150;
+
+    public static final int EVENT_SessionFinished = 152;
+
+    public static final int EVENT_SessionFailed = 153;
+
+    // 上行通用事件
+    public static final int EVENT_TaskRequest = 200;
+
+    // 下行TTS事件
+    public static final int EVENT_TTSSentenceStart = 350;
+
+    public static final int EVENT_TTSSentenceEnd = 351;
+
+    public static final int EVENT_TTSResponse = 352;
+
+
+    public static void main(String[] args) throws IOException {
+        final String appId = "7376564606";
+        final String token = "jK1KuLGhfitieeOknj2Yam94R0bpN8ab";
+
+        String url = "wss://openspeech.bytedance.com/api/v3/tts/bidirection";
+        final String testText = "落霞与孤鹜齐飞，秋水共长天一色。东隅已逝，桑榆非晚，关山难越，谁悲失路之人？";
+        final String speaker = "zh_female_shuangkuaisisi_moon_bigtts";
+
+        final File outputFile = new File(
+                "填写输出音频文件的路径");
+        if (outputFile.exists()) {
+            outputFile.delete();
+        }
+        outputFile.createNewFile();
+        FileOutputStream fos = new FileOutputStream(outputFile);
         final Request request = new Request.Builder()
                 .url(url)
                 .header("X-Api-App-Key", appId)
                 .header("X-Api-Access-Key", token)
                 .header("X-Api-Resource-Id", "volc.service_type.10029")
-                .header("X-Api-Connect-Id", connectId)
+                .header("X-Api-Connect-Id", UUID.randomUUID().toString())
                 .build();
 
-        final OkHttpClient okHttpClient = new OkHttpClient.Builder()
+        final OkHttpClient okHttpClient = new OkHttpClient.Builder().pingInterval(50, TimeUnit.SECONDS)
                 .readTimeout(100, TimeUnit.SECONDS)
                 .writeTimeout(100, TimeUnit.SECONDS)
                 .build();
 
-       return okHttpClient.newWebSocket(request, new WebSocketListener() {
+        okHttpClient.newWebSocket(request, new WebSocketListener() {
+
+            final String sessionId = UUID.randomUUID().toString().replace("-", "");
 
             @Override
             public void onOpen(WebSocket webSocket, Response response) {
-                log.info("===>onOpen: X-Tt-Logid:" + response.header("X-Tt-Logid"));
                 startConnection(webSocket);
             }
 
             @Override
             public void onMessage(WebSocket webSocket, ByteString bytes) {
                 TTSResponse response = parserResponse(bytes.toByteArray());
-                log.info("===>response:" + response);
                 switch (response.optional.event) {
                     case EVENT_ConnectionFailed:
                     case EVENT_SessionFailed: {
-                        log.error("tts 连接失败：event{}",response.optional.event);
+                        System.exit(-1);
                     }
                     case EVENT_ConnectionStarted:
                         startTTSSession(webSocket, sessionId, speaker);
                         break;
+                    case EVENT_SessionStarted:
+                        // 多段文本
+                        String[] testTexts = new String[]{"你好，", "帮我", "合成", "一个", "音频"};
+                        for (String text : testTexts) {
+                            sendMessage(webSocket, speaker, sessionId, text);
+                        }
+                        // 单段文本
+//                        sendMessage(webSocket, speaker, sessionId, testText);
+                        // 没有要发送的文本了，finish
+                        finishSession(webSocket, sessionId);
+                        break;
                     case EVENT_TTSSentenceStart:
                     case EVENT_TTSSentenceEnd:
-                        break;
-                    case EVENT_SessionStarted:
                         break;
                     case EVENT_TTSResponse: {
                         if (response.payload == null) {
@@ -120,15 +156,23 @@ public class VolcTtsServiceImpl implements TtsService {
                         }
                         // 输出结果
                         if (response.header.message_type == AUDIO_ONLY_RESPONSE) {
-                            responseHandler.accept(Base64.getEncoder().encodeToString(response.payload));
-                            sb.append(Base64.getEncoder().encodeToString(response.payload));
+                            try {
+                                System.out.println(Base64.getEncoder().encodeToString(response.payload));
+                                fos.write(response.payload);
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
                         }
-
                         break;
                     }
                     case EVENT_ConnectionFinished:
-                        sessionFinishHandler.accept(sb.toString());
-                        break;
+                        try {
+                            fos.flush();
+                            fos.close();
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                        System.exit(0);
                     case EVENT_SessionFinished:
                         finishConnection(webSocket);
                         break;
@@ -139,82 +183,31 @@ public class VolcTtsServiceImpl implements TtsService {
 
             @Override
             public void onMessage(WebSocket webSocket, String text) {
-                log.info("===> onMessage<UNK> text:" + text);
             }
 
             public void onClosing(WebSocket webSocket, int code, String reason) {
-                log.info("===> onClosing<UNK> code:" + code + " reason:" + reason);
             }
 
             @Override
             public void onClosed(WebSocket webSocket, int code, String reason) {
-                log.info("===> onClosed<UNK> code:" + code + " reason:" + reason);
             }
 
             @Override
             public void onFailure(WebSocket webSocket, Throwable t, Response response) {
-                log.error("===> onFailure tts ", t);
+                t.printStackTrace();
+                System.exit(1000);
             }
         });
 
-
-
-
-    }
-
-    @Override
-    public void sendTTSMessage(WebSocket webSocket, String sessionId,String text){
-
-        if ("_end_".equals(text) || text == null) {
-            finishSession(webSocket,sessionId);
-            return;
+        try {
+            synchronized (Thread.currentThread()) {
+                Thread.currentThread().wait();
+            }
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
 
-
-        sendMessage(webSocket,speaker,sessionId,text);
     }
-
-
-
-
-    // event
-    // 默认事件,对于使用事件的方案，可以通过非0值来校验事件的合法性
-    private static final int EVENT_NONE = 0;
-
-    private static final int EVENT_Start_Connection = 1;
-
-
-    // 上行Connection事件
-    private static final int EVENT_FinishConnection = 2;
-
-    // 下行Connection事件
-    private static final int EVENT_ConnectionStarted = 50; // 成功建连
-
-    private static final int EVENT_ConnectionFailed = 51; // 建连失败（可能是无法通过权限认证）
-
-    private static final int EVENT_ConnectionFinished = 52; // 连接结束
-
-    // 上行Session事件
-    private static final int EVENT_StartSession = 100;
-
-    private static final int EVENT_FinishSession = 102;
-
-    // 下行Session事件
-    private static final int EVENT_SessionStarted = 150;
-
-    private static final int EVENT_SessionFinished = 152;
-
-    private static final int EVENT_SessionFailed = 153;
-
-    // 上行通用事件
-    private static final int EVENT_TaskRequest = 200;
-
-    // 下行TTS事件
-    private static final int EVENT_TTSSentenceStart = 350;
-
-    private static final int EVENT_TTSSentenceEnd = 351;
-
-    private static final int EVENT_TTSResponse = 352;
 
     static int bytesToInt(byte[] src) {
         if (src == null || (src.length != 4)) {
@@ -250,7 +243,7 @@ public class VolcTtsServiceImpl implements TtsService {
         }
 
         public Header(int protocol_version, int header_size, int message_type, int message_type_specific_flags,
-                      int serialization_method, int message_compression, int reserved) {
+                int serialization_method, int message_compression, int reserved) {
             this.protocol_version = protocol_version;
             this.header_size = header_size;
             this.message_type = message_type;
@@ -476,7 +469,6 @@ public class VolcTtsServiceImpl implements TtsService {
         response.payload = b;
         start += b.length;
         if (response.optional.event == FULL_SERVER_RESPONSE) {
-            log.info("===> payload:" + new String(b));
         }
         return start;
     }
@@ -595,7 +587,7 @@ public class VolcTtsServiceImpl implements TtsService {
      * @param text
      * @return
      */
-    public static  boolean sendMessage(WebSocket webSocket, String speaker, String sessionId, String text) {
+    static boolean sendMessage(WebSocket webSocket, String speaker, String sessionId, String text) {
         byte[] header = new Header(
                 PROTOCOL_VERSION,
                 FULL_CLIENT_REQUEST,
@@ -650,6 +642,5 @@ public class VolcTtsServiceImpl implements TtsService {
         System.arraycopy(payload, 0, requestBytes, desPos, payload.length);
         return webSocket.send(ByteString.of(requestBytes));
     }
-
 
 }
