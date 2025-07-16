@@ -36,6 +36,7 @@ export interface ChatOptions {
     messageSessionId?: string;
     botTitle?: string;
     botDescription?: string;
+    fileList?:string[];
 }
 
 export type ChatMessage = {
@@ -92,6 +93,7 @@ export const RenderMarkdown: React.FC<{ content: string, fileList?: Array<string
 
     const md = markdownit({html: true, breaks: true});
     return (
+
         <>
             <div style={{display: "flex", flexDirection: "column", gap: "10px"}}>
                 {fileList && fileList.length > 0 && fileList.map(file => {
@@ -1102,9 +1104,9 @@ export const AiProChat = ({
                             )}
 
                             {/* 🌟 渲染主要内容 */}
-                            <RenderMarkdown content={chat.content} fileList={chat.files}/>
+                            <RenderMarkdown content={chat.content} fileList={chat?.options?.fileList}/>
                         </div>
-                    ) : <RenderMarkdown content={chat.content} fileList={chat.files}/>,
+                    ) : <RenderMarkdown content={chat.content} fileList={chat?.options?.fileList}/>,
                     // avatar: chat.role === 'assistant' ? (
                     //     <img
                     //         src={botAvatar}
