@@ -20,7 +20,7 @@ export type EditLayout = {
     columnsCount?: number,
     labelLayout?: "horizontal" | "vertical",
     labelWidth?: number,
-    customButton?: () => JSX.Element | null
+    customButton?: (form:FormInstance) => JSX.Element | null
 }
 
 export type EditFormProps<T> = {
@@ -168,7 +168,7 @@ const EditForm = <T, >({
                 onCancel={onCancelClick}
                 confirmLoading={confirmLoading}
                 footer={<Space>
-                    {layout?.customButton?.()}
+                    {layout?.customButton?.(form)}
                     {intelligentFilling && <Button onClick={() => {
                         setOpenIntelligentFilling(true)
                     }}>

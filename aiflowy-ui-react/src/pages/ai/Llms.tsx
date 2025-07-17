@@ -2,10 +2,13 @@ import React, {useEffect, useRef, useState} from 'react';
 import TreeClassifiedPage from "../../components/TreeClassifiedPage";
 import CrudPage from "../../components/CrudPage";
 import {ColumnsConfig} from "../../components/AntdCrud";
-import {Form, FormInstance, Input, Select, Switch, Tag} from "antd";
+import {Button, Form, FormInstance, Input, message, Select, Switch, Tag} from "antd";
 import CustomLeftArrowIcon from "../../components/CustomIcon/CustomLeftArrowIcon.tsx";
 import KeywordSearchForm from "../../components/AntdCrud/KeywordSearchForm.tsx";
 import {RawValueType} from 'rc-select/lib/interface';
+import {EditLayout} from "../../components/AntdCrud/EditForm.tsx";
+import {usePost} from "../../hooks/useApis.ts";
+import {convertAttrsToObject} from "../../libs/utils.ts";
 
 
 const columns: ColumnsConfig<any> = [
@@ -87,7 +90,7 @@ const columns: ColumnsConfig<any> = [
         key: 'llmEndpoint',
         hidden: true,
         editCondition: (data) => {
-            return  data?.isCustomInput
+            return data?.isCustomInput || data?.brand === "ollama"
         }
 
     },
@@ -118,7 +121,7 @@ const columns: ColumnsConfig<any> = [
             type: "input",
         },
         editCondition: (data: any) => {
-            return data?.brand === "spark"
+            return data?.brand === "spark" || data?.brand === "ollama"
         }
     },
     {
@@ -140,7 +143,7 @@ const columns: ColumnsConfig<any> = [
         hidden: true,
         form: {type: 'input'},
         editCondition: (data) => {
-            return data?.brand && data?.isCustomInput;
+            return data?.brand && data?.isCustomInput && data?.brand !== "ollama";
         },
     },
     {
@@ -150,7 +153,17 @@ const columns: ColumnsConfig<any> = [
         hidden: true,
         form: {type: 'input'},
         editCondition: (data) => {
-            return data?.brand && data?.isCustomInput;
+            return data?.brand && data?.isCustomInput && data?.brand !== "ollama";
+        },
+    },
+    {
+        title: '重排路径',
+        dataIndex: 'options.rerankPath',
+        key: 'options.rerankPath',
+        hidden: true,
+        form: {type: 'input'},
+        editCondition: (data) => {
+            return data?.brand && data?.isCustomInput && data?.brand !== "ollama";
         },
     },
     {
@@ -207,7 +220,7 @@ const columns: ColumnsConfig<any> = [
             type: 'switch',
         },
         editCondition: (data) => {
-            return data?.brand && data?.isCustomInput;
+            return data?.brand === "ollama" || (data?.brand && data?.isCustomInput);
         },
     },
     {
@@ -217,7 +230,7 @@ const columns: ColumnsConfig<any> = [
         hidden: true,
         form: {type: 'switch'},
         editCondition: (data) => {
-            return data?.brand && data?.isCustomInput;
+            return data?.brand === "ollama" || (data?.brand && data?.isCustomInput);
         },
     },
     {
@@ -227,7 +240,7 @@ const columns: ColumnsConfig<any> = [
         hidden: true,
         form: {type: 'switch'},
         editCondition: (data) => {
-            return data?.brand && data?.isCustomInput;
+            return data?.brand === "ollama" || (data?.brand && data?.isCustomInput);
         },
     },
     {
@@ -237,7 +250,7 @@ const columns: ColumnsConfig<any> = [
         hidden: true,
         form: {type: 'switch'},
         editCondition: (data) => {
-            return data?.brand && data?.isCustomInput;
+            return data?.brand === "ollama" || (data?.brand && data?.isCustomInput);
         },
     },
     {
@@ -247,7 +260,7 @@ const columns: ColumnsConfig<any> = [
         hidden: true,
         form: {type: 'switch'},
         editCondition: (data) => {
-            return data?.brand && data?.isCustomInput;
+            return data?.brand === "ollama" || (data?.brand && data?.isCustomInput);
         },
     },
     {
@@ -257,7 +270,7 @@ const columns: ColumnsConfig<any> = [
         hidden: true,
         form: {type: 'switch'},
         editCondition: (data) => {
-            return data?.brand && data?.isCustomInput;
+            return data?.brand === "ollama" || (data?.brand && data?.isCustomInput);
         },
     },
     {
@@ -267,7 +280,7 @@ const columns: ColumnsConfig<any> = [
         hidden: true,
         form: {type: 'switch'},
         editCondition: (data) => {
-            return data?.brand && data?.isCustomInput;
+            return data?.brand === "ollama" || (data?.brand && data?.isCustomInput);
         },
     },
     {
@@ -277,7 +290,7 @@ const columns: ColumnsConfig<any> = [
         hidden: true,
         form: {type: 'switch'},
         editCondition: (data) => {
-            return data?.brand && data?.isCustomInput;
+            return data?.brand === "ollama" || (data?.brand && data?.isCustomInput);
         },
     },
     {
@@ -287,7 +300,7 @@ const columns: ColumnsConfig<any> = [
         hidden: true,
         form: {type: 'switch'},
         editCondition: (data) => {
-            return data?.brand && data?.isCustomInput;
+            return data?.brand === "ollama" || (data?.brand && data?.isCustomInput);
         },
     },
 ];
@@ -318,54 +331,95 @@ const ModelNameInput: React.FC<{
 
     // 当品牌变化时，需要判断是否为编辑状态
     useEffect(() => {
-        const brandData = treeData.find(brand => brand.key === brandValue);
+        // 如果treeData还没加载完成，不执行逻辑
+        if (!treeData.length) return;
+
+
+        const formId = form.getFieldValue('id');
+        const formValues = form.getFieldsValue();
+
+        // 如果是编辑状态且表单已有数据，优先使用表单中的brand值
+        const isEditMode = !!formId;
+        const formBrandValue = formValues.brand;
+
+        // 确定有效的brand值
+        let effectiveBrandValue = brandValue;
+
+        // 如果是编辑模式且表单中有brand值，使用表单中的值
+        if (isEditMode && formBrandValue) {
+            effectiveBrandValue = formBrandValue;
+        }
+
+        else if (isEditMode && !brandValue && !formBrandValue) {
+            // 检查是否有其他相关字段有值，说明是从数据库加载的数据
+            const hasDbData = formValues.llmEndpoint || formValues['options.chatPath'] || formValues.llmModel;
+            if (hasDbData) {
+                return; // 跳过本次更新，等待brand值正确加载
+            }
+        }
+
+
+        // 查找品牌数据并设置模型选项
+        const brandData = treeData.find(brand => brand.key === effectiveBrandValue);
         const options = brandData?.options.modelList?.map((model: { title: any; llmModel: any; }) => ({
             label: model.title,
             value: model.llmModel
         })) || [];
         setModelOptions(options);
 
-        // 只有在品牌真正发生变化时才执行清空逻辑
-        const brandChanged = prevBrandValue.current !== brandValue;
-        prevBrandValue.current = brandValue;
+        // 只有在品牌真正发生变化时才执行配置更新逻辑
+        const brandChanged = prevBrandValue.current !== effectiveBrandValue;
+        prevBrandValue.current = effectiveBrandValue;
 
-        if (!brandValue) {
-            form.setFieldValue("brand", undefined);
-            form.setFieldValue("llmEndpoint", undefined);
-            form.setFieldValue("options.chatPath", undefined);
-            form.setFieldValue("options.embedPath", undefined);
+        if (!effectiveBrandValue) {
+            // 只在新增模式下才清空字段
+            if (!isEditMode) {
+                form.setFieldValue("brand", undefined);
+                form.setFieldValue("llmEndpoint", undefined);
+                form.setFieldValue("options.chatPath", undefined);
+                form.setFieldValue("options.embedPath", undefined);
+                form.setFieldValue("options.rerankPath", undefined);
 
-            // 只有在非编辑状态下且品牌发生变化时才清空模型名称和描述
-            const formId = form.getFieldValue('id');
-            if (!formId && brandChanged && hasInitialized.current) {
-                form.setFieldValue("llmModel", undefined);
-                form.setFieldValue("description", undefined);
-                onChange?.('');
+                // 品牌发生变化时才清空模型名称和描述
+                if (brandChanged && hasInitialized.current) {
+                    form.setFieldValue("llmModel", undefined);
+                    form.setFieldValue("description", undefined);
+                    onChange?.('');
+                }
             }
-
-
         } else {
-            form.setFieldValue("brand", brandValue);
-            if (brandData) {
-                const options = brandData.options;
-                form.setFieldValue("llmEndpoint", options.llmEndpoint);
-                form.setFieldValue("options.chatPath", options.chatPath);
-                form.setFieldValue("options.embedPath", options.embedPath);
+            // 确保brand字段被正确设置
+            form.setFieldValue("brand", effectiveBrandValue);
 
-                // 品牌变化时，如果不是编辑状态，清空模型名称
-                const formId = form.getFieldValue('id');
-                if (!formId && brandChanged && hasInitialized.current) {
+            if (brandData) {
+                const brandOptions = brandData.options;
+
+                // 判断是否应该使用品牌的默认配置
+                // 只有在以下情况才使用默认配置：
+                // 1. 新增模式
+                // 2. 编辑模式下用户主动切换了品牌
+                const shouldUseDefaultConfig = !isEditMode || (isEditMode && brandChanged && hasInitialized.current);
+
+                if (shouldUseDefaultConfig) {
+                    form.setFieldValue("llmEndpoint", brandOptions.llmEndpoint);
+                    form.setFieldValue("options.chatPath", brandOptions.chatPath);
+                    form.setFieldValue("options.embedPath", brandOptions.embedPath);
+                    form.setFieldValue("options.rerankPath", brandOptions.rerankPath);
+                }
+
+                // 新增模式下品牌变化时清空模型名称
+                if (!isEditMode && brandChanged && hasInitialized.current) {
                     form.setFieldValue("llmModel", undefined);
                     onChange?.('');
                 }
             }
 
+            // 触发表单项的条件渲染更新
             columns.forEach((column) => {
                 if (column.editCondition && column.onValuesChange) {
                     column.onValuesChange("", "");
                 }
             });
-
         }
 
         hasInitialized.current = true;
@@ -404,26 +458,16 @@ const ModelNameInput: React.FC<{
     }, [value, brandValue, treeData]);
 
 
-
-
     useEffect(() => {
-        const updatedFields = {
-            brand: brandValue,
-        };
 
-        form.setFieldsValue(updatedFields);
         form.setFieldValue("options.isCustomInput", isCustomInput);
         form.setFieldValue("isCustomInput", isCustomInput);
         form.getFieldsValue();
         columns.forEach(column => {
-            if (column.onValuesChange){
+            if (column.onValuesChange) {
                 column.onValuesChange(column, "");
             }
         })
-
-
-
-
     }, [isCustomInput]);
 
     const findModelListByBrandKey = (brandKey: string) => {
@@ -465,7 +509,7 @@ const ModelNameInput: React.FC<{
 
     return (
         <div>
-            {isCustomInput ? (
+            {isCustomInput || brandValue === "ollama" ? (
                 <Input
                     placeholder={columnConfig.placeholder}
                     {...columnConfig.form?.attrs}
@@ -534,21 +578,43 @@ const ModelNameInput: React.FC<{
                 />
             )}
             <div style={{marginTop: 8}}>
-                <Switch
-                    size="small"
-                    checked={isCustomInput || false}
-                    onChange={(checked) => {
-                        setIsCustomInput(checked);
-                        // 切换时清空当前值
-                        onChange?.('');
-                        form.setFieldValue('llmModel', '');
-                        form.setFieldValue('options.isCustomInput', checked);
-                        form.setFieldValue('isCustomInput', checked);
+                {
+                    brandValue !== "ollama" &&
+                    <Switch
+                        size="small"
+                        checked={isCustomInput || false}
+                        onChange={(checked) => {
+                            setIsCustomInput(checked);
+                            // 切换时清空当前值
+                            const fieldValue = form.getFieldValue("llmModel");
+                            if (!fieldValue) {
+                                onChange?.('');
+                                form.setFieldValue('llmModel', '');
+                            }
 
-                    }}
-                    checkedChildren="自定义"
-                    unCheckedChildren="选择"
-                />
+                            if (!checked) {
+
+                                const llmList = findModelListByBrandKey(brandValue);
+
+                                const find = llmList.find((llm: any) => {
+                                    return  fieldValue === llm.llmModel
+                                })
+                                if (!find) {
+                                    form.setFieldValue('llmModel', '');
+                                }
+                                ;
+
+
+                            }
+
+                            form.setFieldValue('options.isCustomInput', checked);
+                            form.setFieldValue('isCustomInput', checked);
+
+                        }}
+                        checkedChildren="自定义"
+                        unCheckedChildren="选择"
+                    />
+                }
             </div>
         </div>
     );
@@ -560,6 +626,8 @@ const Llms: React.FC<{ paramsToUrl: boolean }> = () => {
 
     const [groupId, setGroupId] = useState('')
     const [treeData, setTreeData] = useState<any[]>([]);
+
+    const {doPost: verifyLlmConfig, loading: verifyLoading} = usePost("/api/v1/aiLlm/verifyLlmConfig");
 
 
     // 自定义表单渲染工厂函数
@@ -581,7 +649,8 @@ const Llms: React.FC<{ paramsToUrl: boolean }> = () => {
                 }
                 if (values.supportChat) {
                     form.setFieldValue("supportFunctionCalling", values.supportChat);
-                    form.setFieldValue("supportEmbed",!values.supportChat)
+                    form.setFieldValue("supportEmbed", !values.supportChat)
+                    form.setFieldValue("supportReranker", !values.supportChat);
                 }
 
             }
@@ -597,11 +666,11 @@ const Llms: React.FC<{ paramsToUrl: boolean }> = () => {
                 }
                 if (values.supportEmbed) {
                     form.setFieldValue("supportFunctionCalling", !values.supportEmbed);
-                    form.setFieldValue("supportChat",!values.supportEmbed)
-                    form.setFieldValue("options.multimodal",!values.supportEmbed);
+                    form.setFieldValue("supportChat", !values.supportEmbed)
+                    form.setFieldValue("options.multimodal", !values.supportEmbed);
+                    form.setFieldValue("supportReranker", !values.supportEmbed);
                 }
 
-                console.log(2,values.supportEmbed);
 
             }
         }
@@ -618,8 +687,27 @@ const Llms: React.FC<{ paramsToUrl: boolean }> = () => {
                 const multimodal = form.getFieldValue("options.multimodal");
 
                 if (multimodal) {
-                    form.setFieldValue("supportEmbed",!multimodal)
+                    form.setFieldValue("supportEmbed", !multimodal)
+                    form.setFieldValue("supportReranker", !multimodal);
                 }
+
+            }
+        }
+
+        if (columnConfig.key === 'supportReranker') {
+            const originOnValuesChange = columnConfig.onValuesChange;
+
+            columnConfig.onValuesChange = (values: any, allChangeValues: any) => {
+                if (originOnValuesChange) {
+                    originOnValuesChange(values, allChangeValues);
+                }
+                if (values.supportReranker) {
+                    form.setFieldValue("supportFunctionCalling", !values.supportReranker);
+                    form.setFieldValue("supportChat", !values.supportReranker)
+                    form.setFieldValue("options.multimodal", !values.supportReranker);
+                    form.setFieldValue("supportEmbed", !values.supportReranker)
+                }
+
 
             }
         }
@@ -627,6 +715,63 @@ const Llms: React.FC<{ paramsToUrl: boolean }> = () => {
 
         return null;
     };
+
+    const editLayout: EditLayout = {
+        openType: "modal",
+        customButton: (form) => {
+
+            return (
+                <Button variant="solid" loading={verifyLoading} onClick={async () => {
+
+                    const fieldsValue = form.getFieldsValue();
+
+                    if (!fieldsValue.brand) {
+                        message.error("请先选择供应商")
+                        return;
+                    }
+
+                    if (!fieldsValue.title) {
+                        message.error("请输入标题")
+                        return;
+                    }
+
+                    if (!fieldsValue.llmModel) {
+                        message.error("请选择/手动输入大模型名称")
+                        return;
+                    }
+
+                    if (!(
+                        fieldsValue.supportAudioToAudio ||
+                        fieldsValue.supportChat ||
+                        fieldsValue.supportEmbed ||
+                        fieldsValue.supportReranker ||
+                        fieldsValue.FunctionCalling
+
+                    )) {
+                        message.error("请在 对话模型/向量化/重排 中至少勾选一项")
+                        return;
+                    }
+
+                    convertAttrsToObject(fieldsValue);
+
+                    const resp = await verifyLlmConfig(
+                        {
+                            data: fieldsValue,
+                        }
+                    )
+
+                    if (resp.data.errorCode === 0) {
+                        message.success("验证通过")
+                    }
+
+
+                }}>
+                    验证配置
+                </Button>
+
+            )
+        }
+    }
 
     return (
         <div style={{margin: "24px"}}>
@@ -660,7 +805,7 @@ const Llms: React.FC<{ paramsToUrl: boolean }> = () => {
                                 onTreeSelect={setGroupId}>
                 <CrudPage columnsConfig={columns} tableAlias="aiLlm" params={{brand: groupId}} key={groupId}
                           needHideSearchForm={true}
-                          editLayout={{openType: "modal"}} ref={crudRef} formRenderFactory={customFormRenderFactory}/>
+                          editLayout={editLayout} ref={crudRef} formRenderFactory={customFormRenderFactory}/>
             </TreeClassifiedPage>
         </div>
     )
