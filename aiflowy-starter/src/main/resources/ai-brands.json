@@ -256,7 +256,7 @@
     "options":{
       "llmEndpoint":"https://qianfan.baidubce.com",
       "chatPath":"/v2/chat/completions",
-      "embedPath":"v2/embeddings",
+      "embedPath":"/v2/embeddings",
       "rerankPath":"/v2/rerank",
       "modelList":[
         {
