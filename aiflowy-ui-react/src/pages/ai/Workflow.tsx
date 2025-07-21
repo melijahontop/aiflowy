@@ -1,5 +1,6 @@
 import React, {useRef, useState} from 'react';
 import {
+    ClockCircleOutlined,
     DownloadOutlined,
     NodeIndexOutlined, PlayCircleOutlined, UploadOutlined,
 } from "@ant-design/icons";
@@ -9,6 +10,7 @@ import {Button, Form, Input, MenuProps, message, Modal, Space, Spin, Upload} fro
 import TextArea from "antd/es/input/TextArea";
 import {useGetManual, usePostFile} from "../../hooks/useApis.ts";
 import {useCheckPermission} from "../../hooks/usePermissions.tsx";
+import {SysJobModal} from "../system/SysJobModal.tsx";
 
 const columnsColumns: ColumnsConfig<any> = [
     {
@@ -124,6 +126,7 @@ const Workflow: React.FC<{ paramsToUrl: boolean }> = () => {
     }
 
     const canSave = useCheckPermission("/api/v1/aiWorkflow/save")
+    const hasJobSave = useCheckPermission("/api/v1/sysJob/save")
 
     const getCustomActions = (item: any) => {
         const arr = []
@@ -150,8 +153,17 @@ const Workflow: React.FC<{ paramsToUrl: boolean }> = () => {
         }] : [])
     ];
 
+    const jobModaRef = useRef<any>(null);
+    const [jobModalOpen, setJobModalOpen] = useState(false);
+
     return (
         <>
+            <SysJobModal
+                ref={jobModaRef}
+                open={jobModalOpen}
+                onModalOk={() => {setJobModalOpen(false)}}
+                onModalCancel={() => {setJobModalOpen(false)}}
+            />
             <Modal title="导入工作流"
                    open={isModalOpen}
                    onOk={handleOk}
@@ -226,6 +238,21 @@ const Workflow: React.FC<{ paramsToUrl: boolean }> = () => {
                                   }}>
                                       <DownloadOutlined title="导出工作流"  />
                                       <span>导出</span>
+                                  </Space>,
+                                  hasJobSave && <Space onClick={() => {
+                                      const obj = {
+                                          jobType: 1,
+                                          allowConcurrent: 0,
+                                          misfirePolicy: 3,
+                                          jobParams: {
+                                              workflowId: item.id
+                                          }
+                                      }
+                                      setJobModalOpen(true)
+                                      jobModaRef.current.setJobInfo(obj)
+                                  }}>
+                                      <ClockCircleOutlined title="添加到定时任务" />
+                                      <span>添加到定时任务</span>
                                   </Space>,
                                   ...existNodes
                               ]

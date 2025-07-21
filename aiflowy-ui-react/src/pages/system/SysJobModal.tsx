@@ -36,6 +36,12 @@ export const SysJobModal: React.FC<SysJobModalProps> = forwardRef((props, ref) =
                     }
                 })
             }
+        },
+        setJobInfo: (data: any) => {
+            //console.log("setJobInfo", data)
+            setFormData(data)
+            form.setFieldsValue(data)
+            getWorkflowParamsList(data.jobParams.workflowId)
         }
     }));
 
