@@ -4,10 +4,10 @@
 
 ## _result 内置对象
 
-_result 是一个内置对象，用于存放动态代码的执行结果，
+_result 是一个内置对象，针对不同语言，遵循不同的语法，用于存放动态代码的执行结果，
 _result 中存储的数据都可作为节点的输出参数。
 
-![result_demo.png](../resource/result_demo.png)
+![result_demo1.png](../resource/result-demo1.png)
 
 ## 支持的语言
 
@@ -87,7 +87,7 @@ JavaScript 是一种高级的、解释型的编程语言，主要用于网页开
 
 下面是一个简单的示例：
 
-![javascript-code.png](../resource/javascript-code.png)
+![javascript-code.png](../resource/javascript-code1.png)
 
 执行代码：
 ```
@@ -97,7 +97,7 @@ for (var i=1; i<=num; i++) {
     a+=i;
 }
 
-_result.put("jsRes", a);
+_result.jsRes = a
 ```
 运行结果：
 
@@ -105,4 +105,4 @@ _result.put("jsRes", a);
 
 ## 输出参数
 
-代码块中使用 `_result.put(key, value)` 的变量都可作为输出参数输出。
+代码块中使用 `_result` 设置的值都可作为输出参数输出。

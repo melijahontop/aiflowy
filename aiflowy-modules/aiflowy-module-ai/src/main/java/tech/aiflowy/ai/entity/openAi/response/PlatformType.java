@@ -19,6 +19,10 @@ public enum PlatformType {
         this.brand = brand;
     }
 
+    public String getBrand(){
+        return this.brand;
+    }
+
     public static PlatformType getByBrand(String brand){
         PlatformType[] values = values();
         for (PlatformType type : values){
