@@ -138,6 +138,8 @@ public class MessageHandlerService {
             return null;
         }
 
+        Map<String, Object> botOptions = aiBot.getOptions();
+
         BigInteger llmId = aiBot.getLlmId();
         if (llmId == null) {
             log.error("此 bot 没有绑定大模型");
@@ -167,7 +169,9 @@ public class MessageHandlerService {
         .set("functions",functions)
         .set("historiesPrompt",historiesPrompt)
         .set("chatOptions",chatOptions)
-        .set("botId",botId);
+        .set("botId",botId)
+        .setIfNotEmpty("botOptions",botOptions)
+        ;
 
     }
 
