@@ -72,10 +72,40 @@ public class WeChatMessageHandler implements MessageHandler {
         String encryptType = ((String) contextData.getOrDefault("encryptType", ""));
         String msgSignature = ((String) contextData.getOrDefault("msgSignature", ""));
 
+
+        Map<String,Object> botOptions = (Map<String, Object>) agentParams.get("botOptions");
+
+        if (botOptions == null || botOptions.isEmpty()){
+            log.error("此 bot 未配置完整微信公众号信息！");
+            throw new BusinessException("此 bot 未配置完整微信公众号信息！");
+        }
+
+        String appId = (String) botOptions.get("weChatMpAppId");
+        String secret = (String) botOptions.get("weChatMpSecret");
+        String token = (String) botOptions.get("weChatMpToken");
+        String aesKey = (String) botOptions.get("weChatMpAesKey");
+
+        // 获取 weChat 配置
+        if (
+            !StringUtils.hasText(appId) ||
+                !StringUtils.hasText(secret) ||
+                !StringUtils.hasText(token)
+            ) {
+                throw new BusinessException("此 bot 未配置完整微信公众号信息！");
+        }
+
+        WxMpDefaultConfigImpl config = new WxMpDefaultConfigImpl();
+        config.setAppId(appId); // 设置微信公众号的appid
+        config.setSecret(secret); // 设置微信公众号的app corpSecret
+        config.setToken(token); // 设置微信公众号的token
+        config.setAesKey(aesKey); // 设置微信公众号的EncodingAESKey
+
+        wxMpService.setWxMpConfigStorage(config);
+
         // 校验签名
         if (!this.wxMpService.checkSignature(timestamp, nonce, signature)) {
-            log.error("签名验证失败，wxMpService:{},wxMpService.config:{}",this.wxMpService,this.wxMpService.getWxMpConfigStorage());
-            return "";
+            log.error("签名验证失败，wxMpService:{},wxMpService.config:{}",wxMpService,wxMpService.getWxMpConfigStorage());
+            throw new BusinessException("签名验证失败！");
         }
 
         WxMpXmlMessage inMessage = null;
