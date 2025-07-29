@@ -114,7 +114,7 @@ export const WorkflowDesign = () => {
         setSaveLoading(true)
         doUpdate({
             data: {
-                id: params.id,
+                id: workflow?.data?.id,
                 content: tinyflowRef.current!.getData()
             }
         }).then(() => {
@@ -152,13 +152,13 @@ export const WorkflowDesign = () => {
         setRunLoading(true)
         await doUpdate({
             data: {
-                id: params.id,
+                id: workflow?.data?.id,
                 content: tinyflowRef.current!.getData()
             }
         })
         getRunningParameters({
             params: {
-                id: params.id,
+                id: workflow?.data?.id,
             }
         }).then((resp) => {
             if (resp.data.errorCode === 0) {
@@ -167,7 +167,7 @@ export const WorkflowDesign = () => {
             }
             setRunLoading(false)
         })
-        getNodesInfo(params.id)
+        getNodesInfo(workflow?.data?.id)
     }
 
     const [open, setOpen] = useState(false);
@@ -200,7 +200,7 @@ export const WorkflowDesign = () => {
         setSubmitLoading(true)
         runWithStream({
             data: {
-                id: params.id,
+                id: workflow?.data?.id,
                 variables: values
             },
             onMessage: (msg: any) => {
@@ -603,7 +603,7 @@ export const WorkflowDesign = () => {
                 onClose={onSingleRunClose}
                 open={singleRunOpen}
             >
-                <SingleRun ref={singleRunRef} workflowId={params.id} node={currentNode}/>
+                <SingleRun ref={singleRunRef} workflowId={workflow?.data?.id} node={currentNode}/>
             </Drawer>
 
             <div style={{height: 'calc(100vh - 50px)', display: "flex"}} className={"agentsflow"}>
@@ -646,7 +646,7 @@ export const WorkflowDesign = () => {
                                           setPageLoading(true)
                                           await doUpdate({
                                               data: {
-                                                  id: params.id,
+                                                  id: workflow?.data?.id,
                                                   content: tinyflowRef.current!.getData()
                                               }
                                           })

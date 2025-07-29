@@ -1,7 +1,7 @@
 import {useParams} from "react-router-dom";
 import {Button, Col, Collapse, Empty, Form, Input, message, Row, Space, Spin} from "antd";
 import css from './runpage.module.css'
-import {useGet, useGetManual} from "../../../../hooks/useApis.ts";
+import {useGetManual} from "../../../../hooks/useApis.ts";
 import {Uploader} from "../../../../components/Uploader";
 import {
     CheckCircleOutlined, CloseCircleOutlined,
@@ -22,9 +22,31 @@ import {ConfirmItemMulti} from "./ConfirmItemMulti.tsx";
 export const RunPage: React.FC = () => {
     const params = useParams();
 
-    const {result: res} = useGet("/api/v1/aiWorkflow/getRunningParameters",{
-        id: params.id
-    });
+
+    const {result:workflow,doGet: getWorkflowInfo} = useGetManual("/api/v1/aiWorkflow/detail")
+
+    const getNodesInfo = (workflowId: any) => {
+        setCollapseItems([])
+        getWorkflowInfo({
+            params: {
+                id: workflowId,
+            }
+        }).then(res => {
+            const nodeJson = JSON.parse(res.data?.data.content);
+            setCollapseItems(sortNodes(nodeJson))
+            getRunningParameters({
+                params: {
+                    id: res.data?.data?.id,
+                }
+            })
+        })
+    }
+
+    useEffect(() => {
+        getNodesInfo(params.id)
+    },[])
+
+    const {result: res,doGet:getRunningParameters} = useGetManual("/api/v1/aiWorkflow/getRunningParameters");
 
     const [form] = Form.useForm();
 
@@ -41,7 +63,7 @@ export const RunPage: React.FC = () => {
         setSubmitLoading(true)
         runWithStream({
             data: {
-                id: params.id,
+                id: workflow?.data?.id,
                 variables: values
             },
             onMessage: (msg: any) => {
@@ -274,22 +296,7 @@ export const RunPage: React.FC = () => {
     const [activeCol, setActiveCol] = useState('')
     const [collapseItems, setCollapseItems] = useState<any[]>([])
 
-    const {doGet: getWorkflowInfo} = useGetManual("/api/v1/aiWorkflow/detail")
-    const getNodesInfo = (workflowId: any) => {
-        setCollapseItems([])
-        getWorkflowInfo({
-            params: {
-                id: workflowId,
-            }
-        }).then(res => {
-            const nodeJson = JSON.parse(res.data?.data.content);
-            setCollapseItems(sortNodes(nodeJson))
-        })
-    }
 
-    useEffect(() => {
-        getNodesInfo(params.id)
-    },[])
 
     return (
         <div className={css.runPageContainer}>
