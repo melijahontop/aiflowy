@@ -185,8 +185,8 @@ const columns: ColumnsConfig<any> = [
         key: 'supportFunctionCalling',
         hidden: true,
         form: {type: 'switch'},
-        editCondition: (_data: any) => {
-            return false;
+        editCondition: (data: any) => {
+             return data?.brand === "ollama" || (data?.brand && data?.isCustomInput);
         },
     },
     {
