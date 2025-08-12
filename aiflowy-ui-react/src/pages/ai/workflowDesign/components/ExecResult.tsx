@@ -27,7 +27,6 @@ export const ExecResult: React.FC<ExecResultProps> = ({nodes = [], result = {}})
     }, nodes)
 
     const showResult = (arr: any[], contentType: string) => {
-        console.log(contentType)
         return (
             <div className={contentType === "text" ? css.resultTextContainer : css.resultContainer}>
                 {arr.map((item: any,index) => {
@@ -59,7 +58,7 @@ export const ExecResult: React.FC<ExecResultProps> = ({nodes = [], result = {}})
                             }
                             {(contentType === "text" || !contentType) &&
                                 <div>
-                                    <JsonView src={result}/>
+                                    <JsonView src={item}/>
                                 </div>
                             }
                             {(contentType === "other" || contentType === "file") &&
