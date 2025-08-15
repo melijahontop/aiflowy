@@ -17,17 +17,22 @@ public class MultimodalMessageBuilder extends ReActMessageBuilder {
 
     private static final Logger logger = LoggerFactory.getLogger(MultimodalMessageBuilder.class);
 
+    private List<String> fileList;
+
+
+    public void setFileList(List<String> fileList){
+        this.fileList = fileList;
+    }
+
+    public List<String> getFileList(){
+        return this.getFileList();
+    }
+
+
     @Override
     public Message buildStartMessage(String prompt, List<Function> functions, String userQuery) {
 
-        Map<String,Object> parsePrompt = (Map<String, Object>) JSON.parse(prompt);
-
-        String realPrompt = (String) parsePrompt.get("prompt");
-
-        List<String> fileList =(List<String>) parsePrompt.get("fileList");
-
-
-        HumanMessage humanMessage = new HumanMessage(realPrompt);
+        HumanMessage humanMessage = new HumanMessage(prompt);
 
 
         humanMessage.setMetadataMap(
