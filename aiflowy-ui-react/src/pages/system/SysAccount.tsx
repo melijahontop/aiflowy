@@ -76,6 +76,11 @@ export const SysAccount: React.FC = () => {
         return (data?.accountType == 1 || data?.accountType == 99)
     }
 
+    const [editShowing, setEditShowing] = useState<boolean>(false)
+    const onEditModalShowChange = (show: boolean) => {
+        setEditShowing(show)
+    }
+
     //字段配置
     const columnsConfig: ColumnsConfig<any> = [
         {
@@ -103,7 +108,7 @@ export const SysAccount: React.FC = () => {
         {
             form: {
                 type: "input",
-                rules: [{required: true, message: '请输入登录账号'}]
+                rules: editShowing ? [] : [{required: true, message: '请输入登录账号'}]
             },
             dataIndex: "loginName",
             title: "登录账号",
@@ -118,7 +123,7 @@ export const SysAccount: React.FC = () => {
             hidden: true,
             form: {
                 type: "password",
-                rules: [{required: true, message: '请输入登录密码'}]
+                rules: editShowing ? [] : [{required: true, message: '请输入登录密码'}]
             },
             dataIndex: "password",
             title: "密码",
@@ -318,6 +323,7 @@ export const SysAccount: React.FC = () => {
                 tableAlias="sysAccount"
                 actionConfig={actionConfig}
                 editLayout={editLayout}
+                onEditModalShowChange={onEditModalShowChange}
             />
         </>
     )

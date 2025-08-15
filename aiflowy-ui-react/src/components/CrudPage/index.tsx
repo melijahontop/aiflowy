@@ -27,7 +27,8 @@ interface CurdPageProps {
     needHideSearchForm?: boolean;
     usePermission?: string;
     //自定义form 表单渲染器
-    formRenderFactory?: (position: "edit" | "search", columnConfig: ColumnConfig,form:FormInstance) => JSX.Element | null
+    formRenderFactory?: (position: "edit" | "search", columnConfig: ColumnConfig,form:FormInstance) => JSX.Element | null;
+    onEditModalShowChange?: (show: boolean) => void,
 }
 
 const CrudPage: React.FC<CurdPageProps> = forwardRef(({
@@ -46,7 +47,8 @@ const CrudPage: React.FC<CurdPageProps> = forwardRef(({
                                                           externalRefreshTrigger,
                                                           needHideSearchForm,
                                                           usePermission,
-                                                          formRenderFactory
+                                                          formRenderFactory,
+                                                          onEditModalShowChange
                                                       }, ref) => {
 
     useImperativeHandle(ref, () => ({
@@ -155,6 +157,7 @@ const CrudPage: React.FC<CurdPageProps> = forwardRef(({
                   intelligentFilling={{
                       url: `/api/v1/${tableAlias}/intelligentFilling`
                   }}
+                  onEditModalShowChange={onEditModalShowChange}
                   pageNumber={pageNumber}
                   pageSize={pageSize}
                   totalRow={((result?.data) as Page<any>)?.totalRow}

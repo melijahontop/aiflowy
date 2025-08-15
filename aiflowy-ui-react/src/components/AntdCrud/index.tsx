@@ -146,7 +146,7 @@ export type AntdCrudProps<T> = {
     actionConfig?: ActionConfig<T>,
 
     //自定义form 表单渲染器
-    formRenderFactory?: (position: "edit" | "search", columnConfig: ColumnConfig,form:FormInstance) => JSX.Element | null
+    formRenderFactory?: (position: "edit" | "search", columnConfig: ColumnConfig, form: FormInstance) => JSX.Element | null
 
     customButton?: () => React.ReactNode | null,
 
@@ -184,6 +184,9 @@ export type AntdCrudProps<T> = {
     // 是否需要隐藏搜索框
     needHideSearchForm?: boolean,
     usePermission?: string
+
+    // 编辑窗口弹出/关闭回调
+    onEditModalShowChange?: (show: boolean) => void,
 }
 
 
@@ -218,30 +221,31 @@ function download(columns: ColumnsConfig<any>, dataSource: any[]) {
 }
 
 const AntdCrud = forwardRef(function AntdCrud<T>({
-                         columns,
-                         groups,
-                         dataSource,
-                         actions,
-                         actionConfig,
-                         formRenderFactory,
-                         customButton,
-                         pageNumber = 1,
-                         pageSize = 10,
-                         totalRow = 0,
-                         loading,
-                         paginationHidden = false,
-                         tableAttrs = {},
-                         defaultExpandedAllRow = true,
-                         addButtonEnable = true,
-                         rowSelectEnable = true,
-                         intelligentFilling,
-                         initSearchParams,
-                         onSearchValueInit,
-                         editLayout,
-                         tableAlias,
-                         needHideSearchForm = false,
-                         usePermission
-                     }: AntdCrudProps<T>, ref: any) {
+                                                     columns,
+                                                     groups,
+                                                     dataSource,
+                                                     actions,
+                                                     actionConfig,
+                                                     formRenderFactory,
+                                                     customButton,
+                                                     pageNumber = 1,
+                                                     pageSize = 10,
+                                                     totalRow = 0,
+                                                     loading,
+                                                     paginationHidden = false,
+                                                     tableAttrs = {},
+                                                     defaultExpandedAllRow = true,
+                                                     addButtonEnable = true,
+                                                     rowSelectEnable = true,
+                                                     intelligentFilling,
+                                                     initSearchParams,
+                                                     onSearchValueInit,
+                                                     editLayout,
+                                                     tableAlias,
+                                                     needHideSearchForm = false,
+                                                     usePermission,
+                                                     onEditModalShowChange
+                                                 }: AntdCrudProps<T>, ref: any) {
 
     const tableRef = useRef<any>(null);
 
@@ -253,9 +257,9 @@ const AntdCrud = forwardRef(function AntdCrud<T>({
         // content: () => tableRef.current!,
     });
 
-    const hasQueryPermission = useCheckPermission(`/api/v1/${usePermission?usePermission:tableAlias}/query`)
-    const hasRemovePermission = useCheckPermission(`/api/v1/${usePermission?usePermission:tableAlias}/remove`)
-    const hasSavePermission = useCheckPermission(`/api/v1/${usePermission?usePermission:tableAlias}/save`)
+    const hasQueryPermission = useCheckPermission(`/api/v1/${usePermission ? usePermission : tableAlias}/query`)
+    const hasRemovePermission = useCheckPermission(`/api/v1/${usePermission ? usePermission : tableAlias}/remove`)
+    const hasSavePermission = useCheckPermission(`/api/v1/${usePermission ? usePermission : tableAlias}/save`)
 
     dataSource = convertObjetToAttrs(dataSource);
 
@@ -326,6 +330,9 @@ const AntdCrud = forwardRef(function AntdCrud<T>({
                     setModalRow(row)
                     setModalTitle("编辑")
                     setIsModalOpen(true)
+                    if (onEditModalShowChange){
+                        onEditModalShowChange(true)
+                    }
                 }}> <EditOutlined/> 编辑 </a>}
 
 
@@ -413,13 +420,13 @@ const AntdCrud = forwardRef(function AntdCrud<T>({
         <div style={{padding: "0 20px 20px 20px"}}>
             {contextHolder}
             {
-                !needHideSearchForm &&  isHiddenSearch && <SearchForm columns={columns} colSpan={6}
-                                                     onSearch={(values: any) => {
-                                                         setLocalPageNumber(1)
-                                                         setSearchParams(values)
-                                                     }}
-                                                     onSearchValueInit={onSearchValueInit}
-                                                     formRenderFactory={formRenderFactory}
+                !needHideSearchForm && isHiddenSearch && <SearchForm columns={columns} colSpan={6}
+                                                                     onSearch={(values: any) => {
+                                                                         setLocalPageNumber(1)
+                                                                         setSearchParams(values)
+                                                                     }}
+                                                                     onSearchValueInit={onSearchValueInit}
+                                                                     formRenderFactory={formRenderFactory}
                 />
             }
 
@@ -448,6 +455,9 @@ const AntdCrud = forwardRef(function AntdCrud<T>({
                       groups={groups}
                       onSubmit={() => {
                           setIsModalOpen(false)
+                          if (onEditModalShowChange) {
+                            onEditModalShowChange(false)
+                          }
                       }}
                       onCancel={() => {
                           setIsModalOpen(false)
@@ -467,15 +477,17 @@ const AntdCrud = forwardRef(function AntdCrud<T>({
 
                     {customButton?.()}
 
-                    {needHideSearchForm &&   <Button onClick={() => {
-                    }}><a target="_blank" href="https://aiflowy.tech/zh/product/llm/addLlm.html" style={{ fontSize: 12}}>大模型配置参考地址</a></Button>}
+                    {needHideSearchForm && <Button onClick={() => {
+                    }}><a target="_blank" href="https://aiflowy.tech/zh/product/llm/addLlm.html"
+                          style={{fontSize: 12}}>大模型配置参考地址</a></Button>}
 
 
-                    {!needHideSearchForm && (addButtonEnable && hasSavePermission) && <Button type="primary" onClick={() => {
-                        setModalRow(null);
-                        setModalTitle("新增")
-                        setIsModalOpen(!isModalOpen)
-                    }}><PlusOutlined />新增</Button>}
+                    {!needHideSearchForm && (addButtonEnable && hasSavePermission) &&
+                        <Button type="primary" onClick={() => {
+                            setModalRow(null);
+                            setModalTitle("新增")
+                            setIsModalOpen(!isModalOpen)
+                        }}><PlusOutlined/>新增</Button>}
 
                     {selectCount > 0 &&
                         <div style={{
@@ -520,7 +532,7 @@ const AntdCrud = forwardRef(function AntdCrud<T>({
                 <Space align={"center"} size={"middle"}>
                     {!needHideSearchForm &&
                         <Tooltip placement="top" title={isHiddenSearch ? "展开" : "收起"}>
-                            <SearchOutlined onClick={()=>{
+                            <SearchOutlined onClick={() => {
                                 setIsHiddenSearch(!isHiddenSearch)
                             }
                             }/>
