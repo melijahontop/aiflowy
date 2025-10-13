@@ -1,8 +1,11 @@
 package tech.aiflowy.common.filestorage.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.io.FileTypeUtil;
 import cn.hutool.core.io.file.FileNameUtil;
 import cn.hutool.core.util.StrUtil;
+import com.amazonaws.util.StringUtils;
+import tech.aiflowy.common.filestorage.utils.PathGeneratorUtil;
 import tech.aiflowy.common.util.DateUtil;
 import tech.aiflowy.common.filestorage.FileStorageService;
 import org.slf4j.Logger;
@@ -12,7 +15,6 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
@@ -40,8 +42,12 @@ public class LocalFileStorageServiceImpl implements FileStorageService {
     @Override
     public String save(MultipartFile file) {
         try {
-            byte[] bytes = file.getBytes();
-            String path = generatePath(bytes, file.getOriginalFilename());
+            String path = "";
+            if (StringUtils.hasValue(StpUtil.getLoginIdAsString())){
+                path = "/" + StpUtil.getLoginIdAsString() + PathGeneratorUtil.generatePath(file.getOriginalFilename());
+            } else {
+                path = "/" + "commons" + PathGeneratorUtil.generatePath(file.getOriginalFilename());
+            }
             File target = getLocalFile(path);
             if (!target.getParentFile().exists() && !target.getParentFile().mkdirs()) {
                 LOG.error("创建文件失败: {} ", target.getParentFile());

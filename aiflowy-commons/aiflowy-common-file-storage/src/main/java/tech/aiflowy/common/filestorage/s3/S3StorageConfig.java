@@ -13,6 +13,11 @@ public class S3StorageConfig {
     private String endpoint;
 
     /**
+     * 厂商
+     */
+    private String manufacturer;
+
+    /**
      * 自定义域名
      */
     private String domain;
@@ -128,4 +133,7 @@ public class S3StorageConfig {
         return SpringContextUtil.getBean(S3StorageConfig.class);
     }
 
+    public String getManufacturer() {return manufacturer;}
+
+    public void setManufacturer(String manufacturer) {this.manufacturer = manufacturer;}
 }

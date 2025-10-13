@@ -1,6 +1,7 @@
 package tech.aiflowy.common.filestorage.s3;
 
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileTypeUtil;
@@ -25,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
 import tech.aiflowy.common.filestorage.StorageConfig;
+import tech.aiflowy.common.filestorage.utils.PathGeneratorUtil;
 
 import java.io.*;
 import java.net.URL;
@@ -122,11 +124,25 @@ public class S3Client {
     public String upload(MultipartFile file) throws Exception {
         byte[] content = file.getBytes();
         String name = file.getOriginalFilename();
-        String path = generatePath(content, name);
+        String path = "";
+        // 用户登录状态和未登录存储的路径不一致
+        // 登录状态
+        String loginIdAsString = StpUtil.getLoginIdAsString();
+        if (StringUtils.hasValue(loginIdAsString)){
+            path = loginIdAsString + PathGeneratorUtil.generatePath(name);
+        } else {
+            path = "commons" + PathGeneratorUtil.generatePath(name);
+        }
         String baseUrl = properties.getEndpoint() + "/" + properties.getBucketName() + "/";
-
+        if ("aliyun".equals(properties.getManufacturer())){
+            baseUrl = "https://" + properties.getBucketName() + "." + properties.getEndpoint() + "/";
+        }
         if (StringUtils.hasValue(properties.getPrefix())) {
             path = properties.getPrefix() + "/" + path;
+        }
+
+        if (StrUtil.isNotEmpty(properties.getDomain())) {
+            baseUrl = properties.getDomain() + "/";
         }
         String completeUrl = baseUrl + path;
         upload(content, path, file.getContentType());

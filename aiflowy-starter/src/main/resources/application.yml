@@ -23,8 +23,8 @@ spring:
       max-request-size: 100MB
   web:
     resources:
-      # 示例：windows【file: C:\aiflowy\file】 linux【file: /www/aiflowy/file】
-      static-locations: file:C:\aiflowy\file
+      # 示例：windows【file: C:\aiflowy\attachment】 linux【file: /www/aiflowy/attachment】
+      static-locations: file:C:\aiflowy\attachment
 #      static-locations: file:/Users/michael/Desktop/test
   mvc:
     static-path-pattern: /static/**
@@ -47,6 +47,7 @@ aiflowy:
   storage:
     type: local
     s3:
+      manufacturer: aliyun # 厂商 使用的存储地址为阿里云需要填充为 aliyun,其他厂商请忽略
       access-key: key
       secret-key: secret
       endpoint: your-endpoint
@@ -55,8 +56,8 @@ aiflowy:
       access-policy: 2
       prefix: public
     local:
-      # 示例：windows【C:\aiflowy\file】 linux【/www/aiflowy/file】
-      root: 'C:\aiflowy\file'
+      # 示例：windows【C:\aiflowy\attachment】 linux【/www/aiflowy/attachment】
+      root: 'C:\aiflowy\attachment'
 #      root: /Users/michael/Desktop/test
       # 后端接口地址
       prefix: 'http://localhost:8080/static'
