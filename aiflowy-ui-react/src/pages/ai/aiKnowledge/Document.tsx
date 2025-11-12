@@ -652,7 +652,7 @@ const Document: React.FC = () => {
             {
                 isFileImportVisible ? (  <div className="content">
                     <FileImportPanel data={{knowledgeId: knowledge?.data?.id}} maxCount={1} style={{flex: 1}}
-                                     action="/api/v1/commons/upload" onBack={()=>{setIsFileImportVisible(false)}}/>
+                                     action={`${baseUrl}/api/v1/commons/upload`} onBack={()=>{setIsFileImportVisible(false)}}/>
                 </div>) :(
 
                     <div style={{display: 'flex', flexDirection: 'column'}}>

@@ -255,3 +255,14 @@ export const dateFormat = (dateOrTime: Date | null | string | number = null, for
     });
     return res;
 };
+
+/**
+ * 将字节格式化为可读大小
+ */
+export function formatBytes(bytes: any, decimals = 2) {
+    if (bytes === 0 || !bytes) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(decimals)) + " " + sizes[i];
+}

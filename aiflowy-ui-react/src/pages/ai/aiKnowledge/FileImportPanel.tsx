@@ -28,6 +28,7 @@ import docIcon from '../../../assets/docIcon.png'
 import excelIcon from '../../../assets/excelIcon.png'
 import CustomDeleteIcon from "../../../components/CustomIcon/CustomDeleteIcon.tsx";
 import {uuid} from "../../../libs/uuid.ts";
+import {formatBytes} from "../../../libs/utils.ts";
 interface DataType {
     key: string;
     fileName: string;
@@ -159,7 +160,7 @@ const FileImportPanel: React.FC<FileImportPanelProps> = ({ data, action, onBack,
             title: '文件大小',
             dataIndex: 'size',
             key: 'size',
-            render: (text: any)  =><span> {text} KB</span>,
+            render: (text: any)  =><span> {formatBytes(text)}</span>,
         },
         {
             title: '操作',
