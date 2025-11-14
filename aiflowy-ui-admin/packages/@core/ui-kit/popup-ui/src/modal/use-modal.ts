@@ -15,7 +15,7 @@ import { useStore } from '@aiflowy-core/shared/store';
 import { ModalApi } from './modal-api';
 import AIFlowyModal from './modal.vue';
 
-const USER_MODAL_INJECT_KEY = Symbol('VBEN_MODAL_INJECT');
+const USER_MODAL_INJECT_KEY = Symbol('APP_MODAL_INJECT');
 
 const DEFAULT_MODAL_PROPS: Partial<ModalProps> = {};
 

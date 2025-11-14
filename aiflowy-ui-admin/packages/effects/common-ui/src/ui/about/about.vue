@@ -4,9 +4,9 @@ import type { AboutProps, DescriptionItem } from './about';
 import { h } from 'vue';
 
 import {
-  VBEN_DOC_URL,
-  VBEN_GITHUB_URL,
-  VBEN_PREVIEW_URL,
+  APP_DOC_URL,
+  APP_GITHUB_URL,
+  APP_PREVIEW_URL,
 } from '@aiflowy/constants';
 
 import { AIFlowyRenderContent } from '@aiflowy-core/shadcn-ui';
@@ -27,7 +27,7 @@ withDefaults(defineProps<Props>(), {
 });
 
 declare global {
-  const __VBEN_ADMIN_METADATA__: {
+  const __APP_ADMIN_METADATA__: {
     authorEmail: string;
     authorName: string;
     authorUrl: string;
@@ -60,7 +60,7 @@ const {
   license,
   version,
   // vite inject-metadata 插件注入的全局变量
-} = __VBEN_ADMIN_METADATA__ || {};
+} = __APP_ADMIN_METADATA__ || {};
 
 const aiflowyDescriptionItems: DescriptionItem[] = [
   {
@@ -80,15 +80,15 @@ const aiflowyDescriptionItems: DescriptionItem[] = [
     title: '主页',
   },
   {
-    content: renderLink(VBEN_DOC_URL, '点击查看'),
+    content: renderLink(APP_DOC_URL, '点击查看'),
     title: '文档地址',
   },
   {
-    content: renderLink(VBEN_PREVIEW_URL, '点击查看'),
+    content: renderLink(APP_PREVIEW_URL, '点击查看'),
     title: '预览地址',
   },
   {
-    content: renderLink(VBEN_GITHUB_URL, '点击查看'),
+    content: renderLink(APP_GITHUB_URL, '点击查看'),
     title: 'Github',
   },
   {
@@ -115,7 +115,7 @@ const devDependenciesItems = Object.keys(devDependencies).map((key) => ({
   <Page :title="title">
     <template #description>
       <p class="text-foreground mt-3 text-sm leading-6">
-        <a :href="VBEN_GITHUB_URL" class="aiflowy-link" target="_blank">
+        <a :href="APP_GITHUB_URL" class="aiflowy-link" target="_blank">
           {{ name }}
         </a>
         {{ description }}

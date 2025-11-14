@@ -19,7 +19,7 @@ import { useStore } from '@aiflowy-core/shared/store';
 import { DrawerApi } from './drawer-api';
 import AIFlowyDrawer from './drawer.vue';
 
-const USER_DRAWER_INJECT_KEY = Symbol('VBEN_DRAWER_INJECT');
+const USER_DRAWER_INJECT_KEY = Symbol('APP_DRAWER_INJECT');
 
 const DEFAULT_DRAWER_PROPS: Partial<DrawerProps> = {};
 

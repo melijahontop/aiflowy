@@ -5,7 +5,7 @@ import { computed, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { AuthenticationLoginExpiredModal } from '@aiflowy/common-ui';
-import { VBEN_DOC_URL, VBEN_GITHUB_URL } from '@aiflowy/constants';
+import { APP_DOC_URL, APP_GITHUB_URL } from '@aiflowy/constants';
 import { useWatermark } from '@aiflowy/hooks';
 import { BookOpenText, CircleHelp, SvgGithubIcon } from '@aiflowy/icons';
 import {
@@ -71,7 +71,7 @@ const notifications = ref<NotificationItem[]>([
     isRead: false,
     message: '描述信息描述信息描述信息',
     title: '跳转外部链接示例',
-    link: 'https://doc.aiflowy.pro',
+    link: 'https://doc.aiflowy.tech',
   },
 ]);
 
@@ -94,7 +94,7 @@ const menus = computed(() => [
   },
   {
     handler: () => {
-      openWindow(VBEN_DOC_URL, {
+      openWindow(APP_DOC_URL, {
         target: '_blank',
       });
     },
@@ -103,7 +103,7 @@ const menus = computed(() => [
   },
   {
     handler: () => {
-      openWindow(VBEN_GITHUB_URL, {
+      openWindow(APP_GITHUB_URL, {
         target: '_blank',
       });
     },
@@ -112,7 +112,7 @@ const menus = computed(() => [
   },
   {
     handler: () => {
-      openWindow(`${VBEN_GITHUB_URL}/issues`, {
+      openWindow(`${APP_GITHUB_URL}/issues`, {
         target: '_blank',
       });
     },

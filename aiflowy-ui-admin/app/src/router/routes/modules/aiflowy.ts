@@ -1,9 +1,9 @@
 import type { RouteRecordRaw } from 'vue-router';
 
 import {
-  VBEN_DOC_URL,
-  VBEN_GITHUB_URL,
-  VBEN_LOGO_URL,
+  APP_DOC_URL,
+  APP_GITHUB_URL,
+  APP_LOGO_URL,
 } from '@aiflowy/constants';
 
 import { IFrameView } from '#/layouts';
@@ -13,7 +13,7 @@ const routes: RouteRecordRaw[] = [
   {
     meta: {
       badgeType: 'dot',
-      icon: VBEN_LOGO_URL,
+      icon: APP_LOGO_URL,
       order: 9998,
       title: $t('demos.aiflowy.title'),
     },
@@ -26,7 +26,7 @@ const routes: RouteRecordRaw[] = [
         component: IFrameView,
         meta: {
           icon: 'lucide:book-open-text',
-          link: VBEN_DOC_URL,
+          link: APP_DOC_URL,
           title: $t('demos.aiflowy.document'),
         },
       },
@@ -36,7 +36,7 @@ const routes: RouteRecordRaw[] = [
         component: IFrameView,
         meta: {
           icon: 'mdi:github',
-          link: VBEN_GITHUB_URL,
+          link: APP_GITHUB_URL,
           title: 'Github',
         },
       },

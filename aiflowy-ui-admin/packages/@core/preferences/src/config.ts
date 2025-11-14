@@ -42,7 +42,7 @@ const defaultPreferences: Preferences = {
   },
   copyright: {
     companyName: 'AIFlowy',
-    companySiteLink: 'https://www.aiflowy.pro',
+    companySiteLink: 'https://www.aiflowy.tech',
     date: '2024',
     enable: true,
     icp: '',
