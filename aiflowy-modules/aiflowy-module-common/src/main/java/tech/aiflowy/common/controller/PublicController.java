@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/public/")
@@ -17,16 +19,18 @@ public class PublicController {
     private TCaptchaConfig tCaptchaConfig;
 
     @GetMapping("tcaptcha")
-    public Result tcaptcha() {
-        return Result.success()
-                .set("enable", tCaptchaConfig.getEnable())
-                .set("appId", tCaptchaConfig.getCaptchaAppId());
+    public Result<?> tcaptcha() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("enable", tCaptchaConfig.getEnable());
+        map.put("appId", tCaptchaConfig.getCaptchaAppId());
+        return Result.ok(map);
 
     }
 
     @GetMapping("getDataScopeState")
-    public Result getDataScopeState() {
-        return Result.success()
-                .set("enable", Consts.ENABLE_DATA_SCOPE);
+    public Result<?> getDataScopeState() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("enable", Consts.ENABLE_DATA_SCOPE);
+        return Result.ok(map);
     }
 }

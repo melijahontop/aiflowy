@@ -39,36 +39,36 @@ public class AiEditorController {
 
 
     @PostMapping(value = "/upload/image", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Result uploadImage(@RequestParam("image") MultipartFile file) {
+    public Result<?> uploadImage(@RequestParam("image") MultipartFile file) {
         String path = storageService.save(file);
         Map<String, Object> data = new HashMap<>();
         data.put("src", path);
         data.put("alt", file.getName());
 
-        return Result.success(data);
+        return Result.ok(data);
     }
 
 
     @PostMapping(value = "/upload/video", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Result uploadVideo(@RequestParam("video") MultipartFile file) {
+    public Result<?> uploadVideo(@RequestParam("video") MultipartFile file) {
         String path = storageService.save(file);
 
         Map<String, Object> data = new HashMap<>();
         data.put("src", path);
         data.put("poster", null);
 
-        return Result.success(data);
+        return Result.ok(data);
     }
 
 
     @PostMapping(value = "/upload/attachment", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Result uploadAttachment(@RequestParam("attachment") MultipartFile file) {
+    public Result<?> uploadAttachment(@RequestParam("attachment") MultipartFile file) {
         String path = storageService.save(file);
         Map<String, Object> data = new HashMap<>();
         data.put("href", path);
         data.put("fileName", file.getName());
 
-        return Result.success(data);
+        return Result.ok(data);
     }
 
 

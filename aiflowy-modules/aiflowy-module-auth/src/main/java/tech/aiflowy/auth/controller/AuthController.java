@@ -22,20 +22,20 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("login")
-    public Result login(@JsonBody LoginDTO loginDTO) {
+    public Result<LoginVO> login(@JsonBody LoginDTO loginDTO) {
         LoginVO res = authService.login(loginDTO);
-        return Result.success(res);
+        return Result.ok(res);
     }
 
     @PostMapping("logout")
-    public Result logout() {
+    public Result<Void> logout() {
         StpUtil.logout();
-        return Result.success();
+        return Result.ok();
     }
 
     @GetMapping("getPermissions")
-    public Result getPermissions() {
+    public Result<List<String>> getPermissions() {
         List<String> permissionList = StpUtil.getPermissionList();
-        return Result.success(permissionList);
+        return Result.ok(permissionList);
     }
 }
