@@ -8,34 +8,71 @@ import {
   ElForm,
   ElFormItem,
   ElInput,
+  ElMessage,
+  ElMessageBox,
   ElTable,
   ElTableColumn,
 } from 'element-plus';
 
+import { api } from '#/api/request';
 import DictSelect from '#/components/dict/DictSelect.vue';
 import PageData from '#/components/page/PageData.vue';
 
-const formRef = ref();
+import SysAccountModal from './sysAccountModal.vue';
+
+const formRef = ref<FormInstance>();
 const pageDataRef = ref();
-const search = (formEl: FormInstance) => {
-  formEl.validate((valid) => {
-    if (valid) {
-      pageDataRef.value.setQuery(formInline.value);
-    }
-  });
-};
-const reset = (formEl: FormInstance) => {
-  formEl.resetFields();
-  pageDataRef.value.setQuery({});
-};
+const saveDialog = ref();
 const formInline = ref({
   loginName: '',
   accountType: '',
 });
+function search(formEl: FormInstance | undefined) {
+  formEl?.validate((valid) => {
+    if (valid) {
+      pageDataRef.value.setQuery(formInline.value);
+    }
+  });
+}
+function reset(formEl: FormInstance | undefined) {
+  formEl?.resetFields();
+  pageDataRef.value.setQuery({});
+}
+function showDialog(row: any) {
+  saveDialog.value.openDialog({ ...row });
+}
+function remove(row: any) {
+  ElMessageBox.confirm('确定删除吗？', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
+    beforeClose: (action, instance, done) => {
+      if (action === 'confirm') {
+        instance.confirmButtonLoading = true;
+        api
+          .post('/api/v1/sysAccount/remove', { id: row.id })
+          .then((res) => {
+            instance.confirmButtonLoading = false;
+            if (res.errorCode === 0) {
+              ElMessage.success(res.message);
+              reset(formRef.value);
+              done();
+            }
+          })
+          .catch(() => {
+            instance.confirmButtonLoading = false;
+          });
+      } else {
+        done();
+      }
+    },
+  }).catch(() => {});
+}
 </script>
 
 <template>
   <div class="page-container">
+    <SysAccountModal ref="saveDialog" @reload="reset" />
     <ElForm ref="formRef" :inline="true" :model="formInline">
       <ElFormItem label="用户类型" prop="accountType">
         <DictSelect
@@ -52,6 +89,7 @@ const formInline = ref({
         <ElButton @click="reset(formRef)">重置</ElButton>
       </ElFormItem>
     </ElForm>
+    <ElButton @click="showDialog({})" type="primary"> 新增 </ElButton>
     <PageData
       ref="pageDataRef"
       page-url="/api/v1/sysAccount/page"
@@ -63,6 +101,12 @@ const formInline = ref({
           <ElTableColumn prop="loginName" label="账号" width="180" />
           <ElTableColumn prop="nickname" label="昵称" width="180" />
           <ElTableColumn prop="avatar" label="头像" />
+          <ElTableColumn>
+            <template #default="{ row }">
+              <ElButton @click="showDialog(row)" type="primary">编辑</ElButton>
+              <ElButton @click="remove(row)" type="danger">删除</ElButton>
+            </template>
+          </ElTableColumn>
         </ElTable>
       </template>
     </PageData>

@@ -76,6 +76,9 @@ function createRequestClient(baseURL: string, options?: RequestClientOptions) {
     defaultResponseInterceptor({
       codeField: 'errorCode',
       dataField: 'data',
+      showErrorMessage: (message) => {
+        ElMessage.error(message);
+      },
       successCode: 0,
     }),
   );
