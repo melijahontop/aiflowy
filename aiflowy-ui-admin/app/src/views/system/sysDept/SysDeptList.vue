@@ -3,6 +3,7 @@ import type { FormInstance } from 'element-plus';
 
 import { ref } from 'vue';
 
+import { Delete, Edit, Plus } from '@element-plus/icons-vue';
 import {
   ElButton,
   ElForm,
@@ -87,6 +88,9 @@ function remove(row: any) {
     </ElForm>
     <div class="handle-div">
       <ElButton @click="showDialog({})" type="primary">
+        <ElIcon class="mr-1">
+          <Plus />
+        </ElIcon>
         {{ $t('button.add') }}
       </ElButton>
     </div>
@@ -133,12 +137,18 @@ function remove(row: any) {
               {{ row.remark }}
             </template>
           </ElTableColumn>
-          <ElTableColumn>
+          <ElTableColumn label="操作" width="150">
             <template #default="{ row }">
-              <ElButton @click="showDialog(row)" type="primary">
+              <ElButton @click="showDialog(row)" link type="primary">
+                <ElIcon class="mr-1">
+                  <Edit />
+                </ElIcon>
                 {{ $t('button.edit') }}
               </ElButton>
-              <ElButton @click="remove(row)" type="danger">
+              <ElButton @click="remove(row)" link type="danger">
+                <ElIcon class="mr-1">
+                  <Delete />
+                </ElIcon>
                 {{ $t('button.delete') }}
               </ElButton>
             </template>

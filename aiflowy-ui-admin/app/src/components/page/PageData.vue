@@ -62,7 +62,7 @@ const getPageList = async () => {
     pageList.value = res.data?.records || [];
     pageInfo.total = res.data?.totalRow || 0;
   } catch (error) {
-    console.error('获取数据失败:', error);
+    console.error('get data error:', error);
     pageList.value = [];
     pageInfo.total = 0;
   }
@@ -127,7 +127,6 @@ onMounted(() => {
 </template>
 
 <style scoped>
-
 .pagination-container {
   margin-top: 10px;
 }

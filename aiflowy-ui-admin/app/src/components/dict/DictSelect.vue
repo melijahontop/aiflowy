@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 
 import { ElMessage, ElOption, ElSelect } from 'element-plus';
 
 import { api } from '#/api/request';
+import { $t } from '#/locales';
 // 字典项接口
 interface DictItem {
   value: number | string;
@@ -42,7 +43,7 @@ interface Emits {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  placeholder: '请选择',
+  placeholder: undefined,
   clearable: true,
   filterable: true,
   disabled: false,
@@ -55,7 +56,15 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits<Emits>();
-
+// 使用计算属性处理placeholder
+const placeholderText = computed(() => {
+  // 如果父组件传入了placeholder，优先使用
+  if (props.placeholder !== undefined) {
+    return props.placeholder;
+  }
+  // 否则使用默认的国际化文本
+  return $t('dictSelect.placeholder');
+});
 // 响应式数据
 const dictOptions = ref<DictItem[]>([]);
 const loading = ref(false);
@@ -99,8 +108,8 @@ const fetchDictData = async (code: string) => {
     loadedCodes.value.add(code);
     emit('dictLoaded', data);
   } catch (error) {
-    console.error(`获取字典 ${code} 失败:`, error);
-    ElMessage.error(`获取字典数据失败: ${code}`);
+    console.error(`${$t('dictSelect.getError')}: ${code}`, error);
+    ElMessage.error(`${$t('dictSelect.getError')}: ${code}`);
     dictOptions.value = [];
   } finally {
     loading.value = false;
@@ -150,7 +159,7 @@ defineExpose({
     :model-value="modelValue"
     @update:model-value="handleChange"
     @blur="handleBlur"
-    :placeholder="placeholder"
+    :placeholder="placeholderText"
     :clearable="clearable"
     :filterable="filterable"
     :disabled="disabled || loading"
