@@ -1,12 +1,16 @@
 <script setup>
 import { markRaw, onMounted, ref } from 'vue';
 
-import { Delete, Edit, Plus, View } from '@element-plus/icons-vue';
+import { $t } from '@aiflowy/locales';
 
+import { Delete, Edit, Plus, View } from '@element-plus/icons-vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+
+import { api } from '#/api/request';
 import CardPage from '#/components/cardPage/CardPage.vue';
 import HeaderSearch from '#/components/headerSearch/HeaderSearch.vue';
 import PageData from '#/components/page/PageData.vue';
-import AddKnowledgeModal from '#/views/ai/knowledge/AddKnowledgeModal.vue';
+import AiKnowledgeModal from '#/views/ai/knowledge/AiKnowledgeModal.vue';
 
 // 操作按钮配置
 const actions = ref([
@@ -29,76 +33,40 @@ const actions = ref([
     icon: markRaw(View),
   },
   {
-    name: 'share',
+    name: 'delete',
     label: '删除',
     type: 'info',
     icon: markRaw(Delete),
   },
 ]);
 
-// 模拟数据加载
-onMounted(() => {
-  // 模拟异步数据加载
-  setTimeout(() => {
-    userList.value = [
-      {
-        id: 1,
-        avatar:
-          'https://copyright.bdstatic.com/vcg/creative/d90a05ca26b2ca79dc1cbaa4931b18ee.jpg@wm_1,k_cGljX2JqaHdhdGVyLmpwZw==',
-        title: '张三',
-        description:
-          '前端开发工程师，专注于Vue和React技术栈,前端开发工程师，专注于Vue和React技术栈',
-      },
-      {
-        id: 2,
-        avatar:
-          'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
-        title: '李四',
-        description: '后端开发工程师，擅长Java和Spring框架',
-      },
-      {
-        id: 3,
-        avatar:
-          'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
-        title: '王五',
-        description: 'UI设计师，专注于用户体验设计',
-      },
-      {
-        id: 4,
-        avatar:
-          'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
-        title: '赵六',
-        description: '全栈开发工程师，熟悉前后端技术',
-      },
-      {
-        id: 5,
-        avatar:
-          'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
-        title: '钱七',
-        description: '产品经理，负责产品规划和设计',
-      },
-      {
-        id: 6,
-        avatar:
-          'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
-        title: '孙八',
-        description: '测试工程师，确保产品质量',
-      },
-    ];
-  }, 500);
-});
-
+onMounted(() => {});
+const handleDelete = (item) => {
+  ElMessageBox.confirm('确定要删除吗？', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
+  })
+    .then(() => {
+      api.post('/api/v1/aiKnowledge/remove', { id: item.id }).then((res) => {
+        if (res.errorCode === 0) {
+          ElMessage.success($t('message.deleteOkMessage'));
+          pageDataRef.value.setQuery({});
+        }
+      });
+    })
+    .catch(() => {});
+};
 // 处理操作按钮点击
 const handleAction = ({ action, item }) => {
-  console.log('执行操作:', action.name, '数据:', item);
   // 根据不同的操作执行不同的逻辑
   switch (action.name) {
     case 'delete': {
-      // 删除逻辑
+      handleDelete(item);
       break;
     }
     case 'edit': {
-      // 编辑逻辑
+      aiKnowledgeModalRef.value.openDialog(item);
       break;
     }
     // 其他操作...
@@ -106,7 +74,7 @@ const handleAction = ({ action, item }) => {
 };
 
 const pageDataRef = ref();
-const addKnowledgeRef = ref();
+const aiKnowledgeModalRef = ref();
 const headerButtons = [
   {
     key: 'add',
@@ -119,7 +87,7 @@ const headerButtons = [
 const handleButtonClick = (event, _item) => {
   switch (event.key) {
     case 'add': {
-      addKnowledgeRef.value.openDialog();
+      aiKnowledgeModalRef.value.openDialog({});
       break;
     }
   }
@@ -143,7 +111,8 @@ const handleSearch = (params) => {
       <PageData
         ref="pageDataRef"
         page-url="/api/v1/aiKnowledge/page"
-        :page-size="10"
+        :page-size="12"
+        :page-sizes="[12, 24, 36, 48]"
         :init-query-params="{ status: 1 }"
       >
         <template #default="{ pageList }">
@@ -159,7 +128,8 @@ const handleSearch = (params) => {
       </PageData>
     </div>
     <!--    新增知识库模态框-->
-    <AddKnowledgeModal ref="addKnowledgeRef" @success="handleAddSuccess" />
+    <!--    <AddKnowledgeModal ref="addKnowledgeRef" @success="handleAddSuccess" />-->
+    <AiKnowledgeModal ref="aiKnowledgeModalRef" @reload="handleSearch" />
   </div>
 </template>
 

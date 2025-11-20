@@ -276,10 +276,6 @@ const handleConfirm = () => {
     }
   });
 };
-
-const handleAvatarSuccess = (imageUrl: string) => {
-  llmForm.icon = imageUrl;
-};
 </script>
 
 <template>
@@ -291,11 +287,7 @@ const handleAvatarSuccess = (imageUrl: string) => {
     align-center
   >
     <div class="llm-dialog-container">
-      <UploadAvatar
-        :allowed-image-types="['image/jpeg']"
-        :image-url="llmForm.icon"
-        @success="handleAvatarSuccess"
-      />
+      <UploadAvatar v-model="llmForm.icon" />
       <ElForm
         ref="llmFormRef"
         style="width: 100%; margin-top: 20px"
