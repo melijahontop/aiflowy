@@ -26,7 +26,10 @@ const brandListData = ref([]);
 const LlmAddOrUpdateDialog = ref(false);
 onMounted(() => {
   getLlmBrandList().then((res) => {
-    brandListData.value = [{ title: '全部', key: '' }, ...res.data];
+    brandListData.value = [
+      { title: $t('common.allCategories'), key: '' },
+      ...res.data,
+    ];
   });
 });
 
@@ -158,8 +161,16 @@ const handleSuccess = () => {
                   />
                 </template>
               </ElTableColumn>
-              <ElTableColumn prop="title" label="名称" width="180" />
-              <ElTableColumn prop="supportFeatures" label="能力" width="240">
+              <ElTableColumn
+                prop="title"
+                :label="$t('llm.filed.title')"
+                width="180"
+              />
+              <ElTableColumn
+                prop="supportFeatures"
+                :label="$t('llm.filed.ability')"
+                width="240"
+              >
                 <template #default="scope">
                   <ElTag
                     v-for="item in scope.row.supportFeatures"
@@ -170,8 +181,16 @@ const handleSuccess = () => {
                   </ElTag>
                 </template>
               </ElTableColumn>
-              <ElTableColumn prop="description" label="描述" width="auto" />
-              <ElTableColumn fixed="right" label="操作" min-width="120">
+              <ElTableColumn
+                prop="description"
+                :label="$t('llm.filed.description')"
+                width="auto"
+              />
+              <ElTableColumn
+                fixed="right"
+                :label="$t('common.handle')"
+                min-width="120"
+              >
                 <template #default="scope">
                   <ElButton link type="primary" @click="handleEdit(scope.row)">
                     <ElIcon class="mr-1">

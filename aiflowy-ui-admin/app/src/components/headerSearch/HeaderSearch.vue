@@ -91,17 +91,21 @@ const handleDropdownClick = (button) => {
         <div>
           <ElInput
             v-model="searchValue"
-            placeholder="请输入搜索内容"
+            :placeholder="$t('common.searchPlaceholder')"
             class="search-input"
             @keyup.enter="handleSearch"
             clearable
           />
         </div>
         <div>
-          <ElButton type="primary" @click="handleSearch"> 搜索 </ElButton>
+          <ElButton type="primary" @click="handleSearch">
+            {{ $t('button.query') }}
+          </ElButton>
         </div>
         <div>
-          <ElButton @click="handleReset"> 重置 </ElButton>
+          <ElButton @click="handleReset">
+            {{ $t('button.reset') }}
+          </ElButton>
         </div>
       </div>
     </div>

@@ -22,7 +22,8 @@
     "multimodal": "多模态",
     "llmApiKey": "apiKey",
     "llmExtraConfig": "大模型其他属性配置",
-    "options": "其他配置内容"
+    "options": "其他配置内容",
+    "ability": "能力"
   }
 ,
   "llmModal": {
