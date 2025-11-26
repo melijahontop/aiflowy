@@ -8,6 +8,7 @@ import {
   ElAvatar,
   ElButton,
   ElCard,
+  ElDivider,
   ElDropdown,
   ElDropdownItem,
   ElDropdownMenu,
@@ -81,15 +82,21 @@ const hiddenActions = computed(() => {
         </div>
         <template #footer>
           <div :class="visibleActions.length > 2 ? 'footer-div' : ''">
-            <ElButton
-              v-for="(action, idx) in visibleActions"
-              :key="idx"
-              :icon="action.icon"
-              link
-              @click="action.onClick(item)"
-            >
-              {{ action.text }}
-            </ElButton>
+            <template v-for="(action, idx) in visibleActions" :key="idx">
+              <ElButton
+                :icon="action.icon"
+                style="color: var(--el-color-info-light-3)"
+                link
+                @click="action.onClick(item)"
+              >
+                {{ action.text }}
+              </ElButton>
+              <ElDivider
+                v-if="visibleActions.length > 1"
+                direction="vertical"
+              />
+            </template>
+
             <ElDropdown v-if="hiddenActions.length > 0" trigger="click">
               <ElButton :icon="MoreFilled" link />
               <template #dropdown>
@@ -120,6 +127,7 @@ const hiddenActions = computed(() => {
 
 <style scoped>
 :deep(.el-card__footer) {
+  border-top: none;
   background:
     linear-gradient(
       180deg,
