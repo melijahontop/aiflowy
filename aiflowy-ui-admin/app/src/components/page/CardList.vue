@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
+import { useAccess } from '@aiflowy/access';
+
 import { MoreFilled } from '@element-plus/icons-vue';
 import {
   ElAvatar,
@@ -17,6 +19,7 @@ export interface ActionButton {
   text: string;
   action: string;
   className: string;
+  permission: string;
 }
 
 export interface CardListProps {
@@ -33,11 +36,19 @@ const props = withDefaults(defineProps<CardListProps>(), {
   actions: () => [],
 });
 const emit = defineEmits(['onAction']);
+const { hasAccessByCodes } = useAccess();
+const filterActions = computed(() => {
+  return props.actions.filter((action) => {
+    return hasAccessByCodes([action.permission]);
+  });
+});
 const visibleActions = computed(() => {
-  return props.actions.length <= 3 ? props.actions : props.actions.slice(0, 3);
+  return filterActions.value.length <= 3
+    ? filterActions.value
+    : filterActions.value.slice(0, 3);
 });
 const hiddenActions = computed(() => {
-  return props.actions.length > 3 ? props.actions.slice(3) : [];
+  return filterActions.value.length > 3 ? filterActions.value.slice(3) : [];
 });
 function handleAction(row: any, action: any) {
   emit('onAction', row, action);
@@ -71,7 +82,7 @@ function handleAction(row: any, action: any) {
           </div>
         </div>
         <template #footer>
-          <div class="footer-div">
+          <div :class="visibleActions.length > 2 ? 'footer-div' : ''">
             <ElButton
               v-for="(action, idx) in visibleActions"
               :key="idx"

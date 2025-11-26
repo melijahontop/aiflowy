@@ -30,24 +30,28 @@ const actions: ActionButton[] = [
     text: $t('button.edit'),
     action: 'edit',
     className: '',
+    permission: '',
   },
   {
     icon: Tools,
     text: $t('button.design'),
     action: 'design',
     className: '',
+    permission: '',
   },
   {
     icon: VideoPlay,
     text: $t('button.run'),
     action: 'run',
     className: '',
+    permission: '',
   },
   {
     icon: Delete,
     text: $t('button.delete'),
     action: 'delete',
     className: 'item-danger',
+    permission: '',
   },
 ];
 onMounted(() => {
