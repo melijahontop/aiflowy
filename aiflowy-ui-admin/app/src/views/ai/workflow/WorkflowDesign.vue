@@ -66,7 +66,6 @@ const handleKeydown = (event: KeyboardEvent) => {
   }
 };
 const drawerVisible = ref(false);
-const submitLoading = ref(false);
 watch(
   [() => tinyFlowData.value, () => llmList.value, () => knowledgeList.value],
   ([tinyFlowData, llmList, knowledgeList]) => {
@@ -123,18 +122,18 @@ function getRunningParams() {
       drawerVisible.value = true;
     });
 }
+function onExecuting(msg: any) {
+  console.log(msg);
+}
 </script>
 
 <template>
   <div class="head-div h-full w-full">
-    <ElDrawer
-      v-model="drawerVisible"
-      title="I am the title"
-      size="600px"
-    >
+    <ElDrawer v-model="drawerVisible" :title="$t('button.run')" size="600px">
       <WorkflowForm
-        :submit-loading="submitLoading"
+        :workflow-id="workflowId"
         :workflow-params="runParams"
+        :on-executing="onExecuting"
       />
     </ElDrawer>
     <div class="flex items-center justify-between border-b p-2.5">
