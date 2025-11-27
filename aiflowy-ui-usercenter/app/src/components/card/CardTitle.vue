@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { cn } from '@aiflowy/utils';
 
-interface AssistantCardTitleProps {
+interface CardTitleProps {
   class?: string;
 }
 
-defineOptions({ name: 'AssistantCardTitle' });
-const props = defineProps<AssistantCardTitleProps>();
+defineOptions({ name: 'CardTitle' });
+const props = defineProps<CardTitleProps>();
 </script>
 
 <template>

@@ -11,6 +11,18 @@ const routes: RouteRecordRaw[] = [
       title: '智能体',
     },
   },
+  {
+    name: 'Bot',
+    path: '/bots/bot/:id',
+    component: () => import('#/views/bots/bot/index.vue'),
+    meta: {
+      title: '智能体',
+      hideInMenu: true,
+      hideInTab: true,
+      hideInBreadcrumb: true,
+      activePath: '/bots',
+    },
+  },
 ];
 
 export default routes;

@@ -4,26 +4,24 @@ import { createIconifyIcon } from '@aiflowy/icons';
 import { ElAside, ElButton, ElContainer, ElHeader, ElMain } from 'element-plus';
 
 import {
-  AssistantCard,
-  AssistantCardAvatar,
-  AssistantCardContent,
-  AssistantCardDescription,
-  AssistantCardTitle,
-} from '../assistantCard';
+  Card,
+  CardAvatar,
+  CardContent,
+  CardDescription,
+  CardTitle,
+} from '#/components/card';
 </script>
 
 <template>
   <ElContainer class="h-full rounded-lg border-2 border-[#E6E9EE]">
     <ElAside width="287px" class="border-r border-[#E6E9EE] p-6">
-      <AssistantCard class="max-w-max p-0">
-        <AssistantCardAvatar />
-        <AssistantCardContent>
-          <AssistantCardTitle>客服助手</AssistantCardTitle>
-          <AssistantCardDescription>
-            智能客服，回答用户问题
-          </AssistantCardDescription>
-        </AssistantCardContent>
-      </AssistantCard>
+      <Card class="max-w-max p-0">
+        <CardAvatar />
+        <CardContent>
+          <CardTitle>客服助手</CardTitle>
+          <CardDescription>智能客服，回答用户问题</CardDescription>
+        </CardContent>
+      </Card>
       <ElButton
         class="mt-6 !h-10 w-full !text-sm"
         color="#0066FF"

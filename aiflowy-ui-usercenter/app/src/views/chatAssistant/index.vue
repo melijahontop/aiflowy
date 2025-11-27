@@ -6,12 +6,13 @@ import { cn } from '@aiflowy/utils';
 import { ElAside, ElContainer, ElMain, ElSpace } from 'element-plus';
 
 import {
-  AssistantCard,
-  AssistantCardAvatar,
-  AssistantCardContent,
-  AssistantCardDescription,
-  AssistantCardTitle,
-} from './components/assistantCard';
+  Card,
+  CardAvatar,
+  CardContent,
+  CardDescription,
+  CardTitle,
+} from '#/components/card';
+
 import { ChatBubbleList, ChatContainer, ChatSender } from './components/chat';
 
 const recentUsedAssistant = reactive([
@@ -53,24 +54,22 @@ const handleSelectAssistant = (id: number) => {
       >
         <span class="pl-5 text-sm text-[#969799]">最近使用</span>
         <div class="flex h-full flex-col gap-5 overflow-auto">
-          <AssistantCard
+          <Card
             v-for="assistant in recentUsedAssistant"
             :key="assistant.id"
             :class="cn(assistant.checked && 'bg-[#F0F4FF]')"
             @click="handleSelectAssistant(assistant.id)"
           >
-            <AssistantCardAvatar />
-            <AssistantCardContent>
-              <AssistantCardTitle
-                :class="cn(assistant.checked && 'text-[#0066FF]')"
-              >
+            <CardAvatar />
+            <CardContent>
+              <CardTitle :class="cn(assistant.checked && 'text-[#0066FF]')">
                 {{ assistant.title }}
-              </AssistantCardTitle>
-              <AssistantCardDescription>
+              </CardTitle>
+              <CardDescription>
                 {{ assistant.description }}
-              </AssistantCardDescription>
-            </AssistantCardContent>
-          </AssistantCard>
+              </CardDescription>
+            </CardContent>
+          </Card>
         </div>
       </ElSpace>
     </ElAside>
