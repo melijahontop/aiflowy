@@ -30,9 +30,9 @@ onMounted(async () => {
       console.log('value:', value);
     },
   });
-  getWorkflowInfo(workflowId.value);
   getLlmList();
   getKnowledgeList();
+  getWorkflowInfo(workflowId.value);
 });
 onUnmounted(() => {
   document.removeEventListener('keydown', handleKeydown);
@@ -126,31 +126,38 @@ function getRunningParams() {
     });
 }
 const executeMessage = ref<any>(null);
+const initState = ref(false);
 function onExecuting(msg: any) {
   executeMessage.value = msg;
+}
+function onSubmit() {
+  initState.value = !initState.value;
 }
 </script>
 
 <template>
   <div class="head-div h-full w-full">
     <ElDrawer v-model="drawerVisible" :title="$t('button.run')" size="600px">
-      参数：
+      <div class="mb-2.5 font-semibold">参数：</div>
       <WorkflowForm
         :workflow-id="workflowId"
         :workflow-params="runParams"
         :on-executing="onExecuting"
+        :on-submit="onSubmit"
       />
-      执行结果：
-      <ExecResult
-        :workflow-id="workflowId"
-        :execute-message="executeMessage"
-        :node-json="sortNodes(tinyFlowData)"
-      />
-      执行步骤：
+      <div class="mb-2.5 font-semibold">执行步骤：</div>
       <WorkflowSteps
         :workflow-id="workflowId"
         :execute-message="executeMessage"
         :node-json="sortNodes(tinyFlowData)"
+        :init-signal="initState"
+      />
+      <div class="mb-2.5 mt-2.5 font-semibold">执行结果：</div>
+      <ExecResult
+        :workflow-id="workflowId"
+        :execute-message="executeMessage"
+        :node-json="sortNodes(tinyFlowData)"
+        :init-signal="initState"
       />
     </ElDrawer>
     <div class="flex items-center justify-between border-b p-2.5">
