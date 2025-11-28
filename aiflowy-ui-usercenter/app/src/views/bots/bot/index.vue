@@ -25,10 +25,9 @@ import {
   CardDescription,
   CardTitle,
 } from '#/components/card';
+import { RunResult, RunSteps } from '#/components/runBot';
 
-import Collapse from './collapse.vue';
 import Form from './form.vue';
-import Result from './result.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -88,17 +87,10 @@ onMounted(async () => {
           <h1 class="text-base font-medium text-[#1A1A1A]">输入参数</h1>
           <Form />
         </ElAside>
-        <ElAside
-          width="366px"
-          class="flex flex-col gap-6 rounded-lg bg-white p-5"
-        >
-          <h1 class="text-base font-medium text-[#1A1A1A]">执行步骤</h1>
-          <Collapse />
+        <ElAside width="366px">
+          <RunSteps />
         </ElAside>
-        <ElMain class="flex flex-col gap-6 rounded-lg bg-white">
-          <h1 class="text-base font-medium text-[#1A1A1A]">运行结果</h1>
-          <Result />
-        </ElMain>
+        <RunResult />
       </ElContainer>
     </ElMain>
   </ElContainer>

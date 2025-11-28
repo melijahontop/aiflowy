@@ -13,7 +13,7 @@ const routes: RouteRecordRaw[] = [
   },
   {
     name: 'Bot',
-    path: '/bots/bot/:id',
+    path: '/bots/:id',
     component: () => import('#/views/bots/bot/index.vue'),
     meta: {
       title: '智能体',

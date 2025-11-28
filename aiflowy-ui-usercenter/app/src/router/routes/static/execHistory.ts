@@ -11,6 +11,18 @@ const routes: RouteRecordRaw[] = [
       title: '执行记录',
     },
   },
+  {
+    name: 'ExecHistoryDetails',
+    path: '/execHistory/:id',
+    component: () => import('#/views/execHistory/details/index.vue'),
+    meta: {
+      title: '执行记录',
+      hideInMenu: true,
+      hideInTab: true,
+      hideInBreadcrumb: true,
+      activePath: '/execHistory',
+    },
+  },
 ];
 
 export default routes;

@@ -58,7 +58,7 @@ onMounted(async () => {
         <RouterLink
           v-for="bot in botList"
           :key="bot.id"
-          :to="`/bots/bot/${bot.id}`"
+          :to="`/bots/${bot.id}`"
           class="w-full max-w-[378px]"
         >
           <Card
