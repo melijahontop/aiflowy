@@ -11,6 +11,7 @@ import {
   ElForm,
   ElFormItem,
   ElInput,
+  ElMessage,
   ElRadioGroup,
   ElSelect,
 } from 'element-plus';
@@ -65,7 +66,14 @@ function submit() {
       submitLoading.value = true;
       postSse('/api/v1/aiWorkflow/tryRunningStream', data, {
         onMessage: (message) => {
-          props.onExecuting?.(message);
+          if (message.data) {
+            const msg = JSON.parse(message.data).content;
+            if (msg.status === 'execOnce') {
+              ElMessage.warning('流程已执行完毕，请重新发起。');
+            } else {
+              props.onExecuting?.(message);
+            }
+          }
         },
         onFinished: () => {
           submitLoading.value = false;

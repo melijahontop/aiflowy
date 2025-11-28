@@ -11,6 +11,7 @@ import { ElButton, ElDrawer, ElMessage, ElSkeleton } from 'element-plus';
 import { api } from '#/api/request';
 import { $t } from '#/locales';
 import { router } from '#/router';
+import ExecResult from '#/views/ai/workflow/components/ExecResult.vue';
 import WorkflowForm from '#/views/ai/workflow/components/WorkflowForm.vue';
 import WorkflowSteps from '#/views/ai/workflow/components/WorkflowSteps.vue';
 
@@ -133,11 +134,19 @@ function onExecuting(msg: any) {
 <template>
   <div class="head-div h-full w-full">
     <ElDrawer v-model="drawerVisible" :title="$t('button.run')" size="600px">
+      参数：
       <WorkflowForm
         :workflow-id="workflowId"
         :workflow-params="runParams"
         :on-executing="onExecuting"
       />
+      执行结果：
+      <ExecResult
+        :workflow-id="workflowId"
+        :execute-message="executeMessage"
+        :node-json="sortNodes(tinyFlowData)"
+      />
+      执行步骤：
       <WorkflowSteps
         :workflow-id="workflowId"
         :execute-message="executeMessage"

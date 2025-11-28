@@ -3,13 +3,14 @@ import type { ServerSentEventMessage } from 'fetch-event-stream';
 
 import { computed, ref, watch } from 'vue';
 
-import { preferences } from '@aiflowy/preferences';
-
-import { CircleCloseFilled, SuccessFilled } from '@element-plus/icons-vue';
+import {
+  CircleCloseFilled,
+  SuccessFilled,
+  WarningFilled,
+} from '@element-plus/icons-vue';
 import { ElCollapse, ElCollapseItem, ElIcon } from 'element-plus';
-import { JsonViewer } from 'vue3-json-viewer';
 
-import 'vue3-json-viewer/dist/vue3-json-viewer.css';
+import ShowJson from '#/components/json/ShowJson.vue';
 
 export interface WorkflowStepsProps {
   workflowId: any;
@@ -17,15 +18,10 @@ export interface WorkflowStepsProps {
   nodeJson: any;
 }
 const props = defineProps<WorkflowStepsProps>();
-const themeMode = ref(preferences.theme.mode);
-watch(
-  () => preferences.theme.mode,
-  (newVal) => {
-    themeMode.value = newVal;
-  },
-);
+
 const nodes = ref<any[]>([]);
 const nodeStatusMap = ref<Record<string, any>>({});
+const isChainError = ref(false);
 watch(
   () => props.nodeJson,
   (newVal) => {
@@ -41,6 +37,9 @@ watch(
     if (newMsg && newMsg.data) {
       try {
         const msg = JSON.parse(newMsg.data).content;
+        if (msg.status === 'error') {
+          isChainError.value = true;
+        }
         if (msg.nodeId && msg.status) {
           nodeStatusMap.value[msg.nodeId] = {
             status: msg.status,
@@ -85,11 +84,14 @@ const activeName = ref('1');
               <ElIcon v-if="node.status === 'nodeError'" color="red" size="20">
                 <CircleCloseFilled />
               </ElIcon>
+              <ElIcon v-if="isChainError" color="orange" size="20">
+                <WarningFilled />
+              </ElIcon>
             </div>
           </div>
         </template>
         <div>
-          <JsonViewer :value="node.content || {}" copyable :theme="themeMode" />
+          <ShowJson :value="node.content" />
         </div>
       </ElCollapseItem>
     </ElCollapse>
