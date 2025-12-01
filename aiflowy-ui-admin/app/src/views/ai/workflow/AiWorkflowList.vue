@@ -52,15 +52,15 @@ const actions: ActionButton[] = [
       toDesignPage(row);
     },
   },
-  {
-    icon: VideoPlay,
-    text: $t('button.run'),
-    className: '',
-    permission: '',
-    onClick: (row: any) => {
-      alert(row.id);
-    },
-  },
+  // {
+  //   icon: VideoPlay,
+  //   text: $t('button.run'),
+  //   className: '',
+  //   permission: '',
+  //   onClick: (row: any) => {
+  //     alert(row.id);
+  //   },
+  // },
   {
     icon: CopyDocument,
     text: $t('button.copy'),
