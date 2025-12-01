@@ -3,7 +3,7 @@ import { ref } from 'vue';
 
 import { ElButton } from 'element-plus';
 
-import DataSelectModal from '#/components/dataSelectModal/DataSelectModal.vue';
+import PluginSelectModal from '#/components/pluginSelectModal/PluginSelectModal.vue';
 
 const dataSelectRef = ref();
 const handleOpen = () => {
@@ -25,7 +25,7 @@ const handleGetData = (ids: string[]) => {
       <ElButton type="primary" @click="handleGetData"> 确认 </ElButton>
     </div>
 
-    <DataSelectModal
+    <PluginSelectModal
       ref="dataSelectRef"
       page-url="/api/v1/aiPlugin/page"
       @get-data="handleGetData"
