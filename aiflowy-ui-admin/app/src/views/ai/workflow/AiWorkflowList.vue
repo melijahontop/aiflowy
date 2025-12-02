@@ -5,9 +5,12 @@ import type { ActionButton } from '#/components/page/CardList.vue';
 
 import { onMounted, ref } from 'vue';
 
+import { downloadFileFromBlob } from '@aiflowy/utils';
+
 import {
   CopyDocument,
   Delete,
+  Download,
   Edit,
   Plus,
   Tools,
@@ -52,15 +55,29 @@ const actions: ActionButton[] = [
       toDesignPage(row);
     },
   },
-  // {
-  //   icon: VideoPlay,
-  //   text: $t('button.run'),
-  //   className: '',
-  //   permission: '',
-  //   onClick: (row: any) => {
-  //     alert(row.id);
-  //   },
-  // },
+  {
+    icon: VideoPlay,
+    text: $t('button.run'),
+    className: '',
+    permission: '',
+    onClick: (row: any) => {
+      router.push({
+        name: 'RunPage',
+        query: {
+          id: row.id,
+        },
+      });
+    },
+  },
+  {
+    icon: Download,
+    text: $t('button.export'),
+    className: '',
+    permission: '',
+    onClick: (row: any) => {
+      exportJson(row);
+    },
+  },
   {
     icon: CopyDocument,
     text: $t('button.copy'),
@@ -143,6 +160,14 @@ function toDesignPage(row: any) {
     query: {
       id: row.id,
     },
+  });
+}
+function exportJson(row: any) {
+  api.download(`/api/v1/aiWorkflow/exportWorkFlow?id=${row.id}`).then((res) => {
+    downloadFileFromBlob({
+      fileName: `${row.title}.json`,
+      source: res,
+    });
   });
 }
 </script>

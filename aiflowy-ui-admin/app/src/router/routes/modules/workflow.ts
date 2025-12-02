@@ -15,6 +15,16 @@ const routes: RouteRecordRaw[] = [
     path: '/workflow/design',
     component: () => import('#/views/ai/workflow/WorkflowDesign.vue'),
   },
+  {
+    meta: {
+      title: '运行',
+      openInNewWindow: true,
+      noBasicLayout: true,
+    },
+    name: 'RunPage',
+    path: '/workflow/run',
+    component: () => import('#/views/ai/workflow/RunPage.vue'),
+  },
 ];
 
 export default routes;
