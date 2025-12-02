@@ -81,6 +81,7 @@ const handleAction = ({
 }) => {
   if (action.name === 'run') {
     router.push({ path: `/ai/bots/run/${item.id}` });
+    // 打开新窗口
     // window.open(`/ai/bots/run/${item.id}`, '_blank');
   } else if (action.name === 'setting') {
     router.push({ path: `/ai/bots/setting/${item.id}` });

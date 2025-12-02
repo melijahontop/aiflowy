@@ -74,7 +74,7 @@ function closeHeader() {
 <template>
   <ElContainer class="h-full">
     <ElMain class="!py-0">
-      <BubbleList :list="bubbleItems" max-height="auto" class="!h-full">
+      <BubbleList :list="bubbleItems" max-height="none" class="!h-full">
         <!-- 自定义头像 -->
         <template #avatar="{ item }">
           <div class="avatar-wrapper">
@@ -143,16 +143,8 @@ function closeHeader() {
         </template>
       </BubbleList>
     </ElMain>
-    <ElFooter height="300px">
-      <div
-        style="
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-          height: 300px;
-          justify-content: space-between;
-        "
-      >
+    <ElFooter height="fit-content">
+      <div class="flex flex-col gap-3">
         <ElButton style="width: fit-content" @click="openCloseHeader">
           {{ showHeaderFlog ? '关闭头部' : '打开头部' }}
         </ElButton>

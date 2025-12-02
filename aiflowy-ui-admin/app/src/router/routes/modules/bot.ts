@@ -4,14 +4,27 @@ const routes: RouteRecordRaw[] = [
   {
     name: 'BotRun',
     path: '/ai/bots/run/:id',
-    component: () => import('#/views/ai/bots/Run.vue'),
+    component: () => import('#/views/ai/bots/pages/Run.vue'),
     meta: {
-      title: 'bot',
+      title: 'Bots',
       noBasicLayout: true,
       openInNewWindow: true,
       hideInMenu: true,
       hideInBreadcrumb: true,
       hideInTab: true,
+    },
+  },
+  {
+    name: 'BotSetting',
+    path: '/ai/bots/setting/:id',
+    component: () => import('#/views/ai/bots/pages/setting/index.vue'),
+    meta: {
+      title: 'Bots',
+      openInNewWindow: true,
+      hideInMenu: true,
+      hideInBreadcrumb: true,
+      hideInTab: true,
+      activePath: '/ai/bots',
     },
   },
 ];
