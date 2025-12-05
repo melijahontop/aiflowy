@@ -68,7 +68,6 @@ const handleKeydown = (event: KeyboardEvent) => {
   }
 };
 const drawerVisible = ref(false);
-const executeMessage = ref<any>(null);
 const initState = ref(false);
 const singleNode = ref<any>();
 const singleRunVisible = ref(false);
@@ -78,6 +77,7 @@ const updateWorkflowNode = ref<any>(null);
 const pluginSelectRef = ref();
 const updatePluginNode = ref<any>(null);
 const pageLoading = ref(false);
+const chainInfo = ref<any>(null);
 // functions
 async function loadCustomNode() {
   customNode.value = await getCustomNode({
@@ -145,9 +145,6 @@ function getRunningParams() {
       drawerVisible.value = true;
     });
 }
-function onExecuting(msg: any) {
-  executeMessage.value = msg;
-}
 function onSubmit() {
   initState.value = !initState.value;
 }
@@ -198,6 +195,9 @@ function handlePluginNodeUpdate(chooseId: any) {
       updatePluginNode.value(res.data);
     });
 }
+function onAsyncExecute(info: any) {
+  chainInfo.value = info;
+}
 </script>
 
 <template>
@@ -227,15 +227,15 @@ function handlePluginNodeUpdate(chooseId: any) {
         ref="workflowForm"
         :workflow-id="workflowId"
         :workflow-params="runParams"
-        :on-executing="onExecuting"
         :on-submit="onSubmit"
+        :on-async-execute="onAsyncExecute"
       />
       <div class="mb-2.5 font-semibold">{{ $t('aiWorkflow.steps') }}：</div>
       <WorkflowSteps
         :workflow-id="workflowId"
-        :execute-message="executeMessage"
         :node-json="sortNodes(tinyFlowData)"
         :init-signal="initState"
+        :polling-data="chainInfo"
         @resume="resumeChain"
       />
       <div class="mb-2.5 mt-2.5 font-semibold">
@@ -243,9 +243,9 @@ function handlePluginNodeUpdate(chooseId: any) {
       </div>
       <ExecResult
         :workflow-id="workflowId"
-        :execute-message="executeMessage"
         :node-json="sortNodes(tinyFlowData)"
         :init-signal="initState"
+        :polling-data="chainInfo"
       />
     </ElDrawer>
     <div class="flex items-center justify-between border-b p-2.5">
