@@ -177,8 +177,8 @@ public class AiWorkflowController extends BaseCurdController<AiWorkflowService, 
             throw new RuntimeException("工作流不存在");
         }
 
-        Tinyflow tinyflow = workflow.toTinyflow();
-        ChainDefinition definition = tinyflow.toChain();
+//        Tinyflow tinyflow = workflow.toTinyflow();
+//        ChainDefinition definition = tinyflow.toChain();
 
         if (StpUtil.isLogin()) {
             variables.put(Constants.LOGIN_USER_KEY, SaTokenUtil.getLoginAccount());
@@ -187,7 +187,7 @@ public class AiWorkflowController extends BaseCurdController<AiWorkflowService, 
         String chainExecId = IdUtil.fastSimpleUUID();
         variables.put("chainExecId", chainExecId);
 
-        chainExecutor.executeAsync(definition.getId(), variables);
+        chainExecutor.executeAsync(workflow.getId().toString(), variables);
 
 //        ThreadUtil.execAsync(() -> {
 //            Map<String, Object> result = chain.executeForResult(variables);

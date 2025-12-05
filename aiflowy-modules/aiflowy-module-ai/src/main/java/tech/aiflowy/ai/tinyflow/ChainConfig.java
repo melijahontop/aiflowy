@@ -57,7 +57,12 @@ public class ChainConfig {
             @Override
             public ChainState load(String instanceId) {
                 ChainState chainState = (ChainState) cache.get(CHAIN_CACHE_KEY + instanceId);
-                return chainState == null ? new ChainState() : chainState;
+                if (chainState == null) {
+                    chainState = new ChainState();
+                    chainState.setInstanceId(instanceId);
+                    cache.put(CHAIN_CACHE_KEY + instanceId, chainState);
+                }
+                return chainState;
             }
 
             @Override
