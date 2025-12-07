@@ -1,29 +1,44 @@
 <script setup lang="ts">
 import type { BubbleListProps } from 'vue-element-plus-x/types/BubbleList';
+import type { TypewriterInstance } from 'vue-element-plus-x/types/Typewriter';
 
-import type { BotInfo, Message } from '@aiflowy/types';
+import type { BotInfo, ChatMessage } from '@aiflowy/types';
 
-import { onMounted, onUnmounted, ref, watchEffect } from 'vue';
+import { ref, watchEffect } from 'vue';
 import { BubbleList, Sender } from 'vue-element-plus-x';
+import { useRouter } from 'vue-router';
 
 import { useUserStore } from '@aiflowy/stores';
 import { cn, tryit, uuid } from '@aiflowy/utils';
 
-import { CircleClose, DocumentCopy, Refresh } from '@element-plus/icons-vue';
-import { ElAvatar, ElButton, ElIcon } from 'element-plus';
+import {
+  DocumentCopy,
+  Microphone,
+  Paperclip,
+  Promotion,
+  Refresh,
+} from '@element-plus/icons-vue';
+import { ElAvatar, ElButton, ElIcon, ElSpace } from 'element-plus';
 
 import { getMessageList } from '#/api';
 import { sse } from '#/api/request';
 
 import BotAvatar from '../botAvatar/botAvatar.vue';
+// import RecordingIcon from '../icons/RecordingIcon.vue';
+import SendingIcon from '../icons/SendingIcon.vue';
 
 const props = defineProps<{
   bot?: BotInfo;
-  sessionId?: string;
+  sessionId: string;
 }>();
-const { stop, postSse } = sse();
+const { postSse } = sse();
+const router = useRouter();
 const userStore = useUserStore();
-const bubbleItems = ref<BubbleListProps<Message>['list']>([]);
+const bubbleItems = ref<BubbleListProps<ChatMessage>['list']>([]);
+const senderRef = ref<InstanceType<typeof Sender>>();
+const senderValue = ref('');
+const sending = ref(false);
+const sessionId = ref(props.sessionId.length > 0 ? props.sessionId : uuid());
 
 watchEffect(async () => {
   if (props.bot && props.sessionId) {
@@ -41,66 +56,87 @@ watchEffect(async () => {
         ...item,
         content:
           item.role === 'assistant'
-            ? item.content.replace('Final Answer: ', '')
+            ? item.content.replace(/^Final Answer:\s*/i, '')
             : item.content,
         placement: item.role === 'assistant' ? 'start' : 'end',
         noStyle: true,
       }));
     }
-  }
-});
-
-const senderRef = ref();
-const senderValue = ref('');
-const showHeaderFlog = ref(false);
-
-onMounted(() => {
-  showHeaderFlog.value = true;
-  senderRef.value.openHeader();
-
-  // if (props.bot && props.sessionId) {
-  //   postSse(
-  //     '/api/v1/aiBot/chat',
-  //     {
-  //       botId: props.bot.id,
-  //       fileList: [],
-  //       isExternalMsg: 1,
-  //       prompt: '你好',
-  //       sessionId: props.sessionId,
-  //       tempUserId: uuid() + props.bot.id,
-  //     },
-  //     {
-  //       onMessage(message) {
-  //         console.warn(message);
-  //       },
-  //       onError(err) {
-  //         console.error(err);
-  //       },
-  //       onFinished() {
-  //         console.warn('success');
-  //       },
-  //     },
-  //   );
-  // }
-});
-
-onUnmounted(() => {
-  console.log('unmounted');
-});
-
-function openCloseHeader() {
-  if (showHeaderFlog.value) {
-    senderRef.value.closeHeader();
   } else {
-    senderRef.value.openHeader();
+    bubbleItems.value = [];
   }
-  showHeaderFlog.value = !showHeaderFlog.value;
-}
+});
 
-function closeHeader() {
-  showHeaderFlog.value = false;
-  senderRef.value.closeHeader();
-}
+const handleSubmit = async () => {
+  sending.value = true;
+  const data = {
+    botId: props.bot?.id,
+    fileList: [],
+    isExternalMsg: 1,
+    prompt: senderValue.value,
+    tempUserId: uuid() + props.bot?.id,
+    sessionId: sessionId.value,
+  };
+
+  const mockMessages = generateMockMessages();
+  bubbleItems.value.push(...mockMessages);
+  senderRef.value?.clear();
+
+  postSse('/api/v1/aiBot/chat', data, {
+    onMessage(message) {
+      if (message.event === 'finishEvent') {
+        const data = JSON.parse(message.data!);
+        const lastIndex = bubbleItems.value.length - 1;
+
+        if (lastIndex >= 0) {
+          bubbleItems.value[lastIndex] = {
+            ...bubbleItems.value[lastIndex]!,
+            content: data.consumeTokenInfo.content.replace(
+              /^Final Answer:\s*/i,
+              '',
+            ),
+            loading: false,
+            typing: true,
+          };
+        }
+        sending.value = false;
+      }
+    },
+  });
+};
+const handleComplete = (_: TypewriterInstance, index: number) => {
+  if (index === bubbleItems.value.length - 1 && props.sessionId.length <= 0) {
+    setTimeout(() => {
+      router.replace({ params: { sessionId: sessionId.value } });
+    }, 100);
+  }
+};
+
+const generateMockMessages = () => {
+  const userMessage: ChatMessage = {
+    role: 'user',
+    id: Date.now().toString(),
+    fileList: [],
+    content: senderValue.value,
+    created: Date.now(),
+    updateAt: Date.now(),
+    placement: 'end',
+    noStyle: true,
+  };
+
+  const assistantMessage: ChatMessage = {
+    role: 'assistant',
+    id: Date.now().toString(),
+    content: '',
+    loading: true,
+    created: Date.now(),
+    updateAt: Date.now(),
+    placement: 'start',
+    noStyle: true,
+  };
+
+  return [userMessage, assistantMessage];
+};
 </script>
 
 <template>
@@ -108,14 +144,22 @@ function closeHeader() {
     <div
       :class="
         cn(
-          'flex h-full w-full flex-col gap-2',
-          !props.sessionId && 'items-center justify-center gap-8',
+          'flex h-full w-full flex-col gap-3',
+          !sessionId && 'items-center justify-center gap-8',
         )
       "
     >
       <!-- 对话列表 -->
-      <div v-show="props.sessionId" class="flex-1 overflow-hidden">
-        <BubbleList :list="bubbleItems" max-height="none" class="!h-full">
+      <div
+        v-if="sessionId || bubbleItems.length > 0"
+        class="w-full flex-1 overflow-hidden"
+      >
+        <BubbleList
+          class="!h-full"
+          :list="bubbleItems"
+          max-height="none"
+          @complete="handleComplete"
+        >
           <!-- 自定义头像 -->
           <template #avatar="{ item }">
             <BotAvatar
@@ -128,30 +172,19 @@ function closeHeader() {
 
           <!-- 自定义头部 -->
           <template #header="{ item }">
-            <div class="header-wrapper">
-              <div class="header-name">
-                {{
-                  item.role === 'assistant'
-                    ? bot?.title
-                    : userStore.userInfo?.nickname
-                }}
-              </div>
-            </div>
-          </template>
-
-          <!-- 自定义气泡内容 -->
-          <template #content="{ item }">
-            <div class="content-wrapper">
-              <div class="content-text">
-                {{ item.content }}
-              </div>
+            <div class="text-sm text-[#979797]">
+              {{
+                item.role === 'assistant'
+                  ? bot?.title
+                  : userStore.userInfo?.nickname
+              }}
             </div>
           </template>
 
           <!-- 自定义底部 -->
           <template #footer="{ item }">
-            <div class="footer-wrapper">
-              <div class="footer-container">
+            <ElSpace :size="10">
+              <ElSpace>
                 <ElButton
                   v-if="item.role === 'assistant'"
                   type="info"
@@ -165,169 +198,54 @@ function closeHeader() {
                   size="small"
                   circle
                 />
-              </div>
-              <div class="footer-time">
+              </ElSpace>
+              <div class="text-xs">
                 {{ new Date(item.created).toLocaleString() }}
               </div>
-            </div>
-          </template>
-
-          <!-- 自定义 loading -->
-          <template #loading>
-            <div class="loading-container">
-              <span>AI</span>
-              <span>正</span>
-              <span>在</span>
-              <span>思</span>
-              <span>考</span>
-              <span>中</span>
-              <span>...</span>
-            </div>
+            </ElSpace>
           </template>
         </BubbleList>
       </div>
 
       <!-- 新对话显示bot信息 -->
-      <div v-show="!props.sessionId" class="flex flex-col items-center gap-3.5">
-        <BotAvatar :src="props.bot?.icon" :size="88" />
+      <div v-else class="flex flex-col items-center gap-3.5">
+        <BotAvatar :src="bot?.icon" :size="88" />
         <h1 class="text-base font-medium text-black/85">
-          {{ props.bot?.title }}
+          {{ bot?.title }}
         </h1>
-        <span class="text-sm text-[#757575]">{{ props.bot?.description }}</span>
+        <span class="text-sm text-[#757575]">{{ bot?.description }}</span>
       </div>
 
       <!-- Sender -->
-      <div class="flex w-full flex-col gap-3">
-        <ElButton style="width: fit-content" @click="openCloseHeader">
-          {{ showHeaderFlog ? '关闭头部' : '打开头部' }}
-        </ElButton>
-        <Sender ref="senderRef" v-model="senderValue">
-          <template #header>
-            <div class="header-self-wrap">
-              <div class="header-self-title">
-                <div class="header-left">💯 欢迎使用 Element Plus X</div>
-                <div class="header-right">
-                  <ElButton @click.stop="closeHeader">
-                    <ElIcon><CircleClose /></ElIcon>
-                    <span>关闭头部</span>
-                  </ElButton>
-                </div>
-              </div>
-              <div class="header-self-content">🦜 自定义头部内容</div>
-            </div>
-          </template>
-        </Sender>
-      </div>
+      <Sender
+        ref="senderRef"
+        class="w-full"
+        v-model="senderValue"
+        variant="updown"
+        :auto-size="{ minRows: 3, maxRows: 6 }"
+        allow-speech
+        @submit="handleSubmit"
+      >
+        <!-- 自定义头部内容 -->
+        <!-- <template #header></template> -->
+        <template #action-list>
+          <ElSpace>
+            <ElButton circle>
+              <ElIcon><Paperclip /></ElIcon>
+            </ElButton>
+            <ElButton circle>
+              <ElIcon><Microphone /></ElIcon>
+              <!-- <ElIcon color="#0066FF"><RecordingIcon /></ElIcon> -->
+            </ElButton>
+            <ElButton v-if="sending" circle>
+              <ElIcon size="30" color="#409eff"><SendingIcon /></ElIcon>
+            </ElButton>
+            <ElButton v-else circle color="#0066FF" @click="handleSubmit">
+              <ElIcon><Promotion /></ElIcon>
+            </ElButton>
+          </ElSpace>
+        </template>
+      </Sender>
     </div>
   </div>
 </template>
-
-<style scoped lang="less">
-.avatar-wrapper {
-  width: 40px;
-  height: 40px;
-  img {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-  }
-}
-
-.header-wrapper {
-  .header-name {
-    font-size: 14px;
-    color: #979797;
-  }
-}
-
-.content-wrapper {
-  .content-text {
-    font-size: 14px;
-    color: #333;
-    padding: 12px;
-    background: linear-gradient(to right, #fdfcfb 0%, #ffd1ab 100%);
-    border-radius: 15px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-}
-
-.footer-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  .footer-time {
-    font-size: 12px;
-    margin-top: 3px;
-  }
-}
-
-.footer-container {
-  :deep(.el-button + .el-button) {
-    margin-left: 8px;
-  }
-}
-
-.loading-container {
-  font-size: 14px;
-  color: #333;
-  padding: 12px;
-  background: linear-gradient(to right, #fdfcfb 0%, #ffd1ab 100%);
-  border-radius: 15px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.loading-container span {
-  display: inline-block;
-  margin-left: 8px;
-}
-
-@keyframes bounce {
-  0%,
-  100% {
-    transform: translateY(5px);
-  }
-  50% {
-    transform: translateY(-5px);
-  }
-}
-
-.loading-container span:nth-child(4n) {
-  animation: bounce 1.2s ease infinite;
-}
-.loading-container span:nth-child(4n + 1) {
-  animation: bounce 1.2s ease infinite;
-  animation-delay: 0.3s;
-}
-.loading-container span:nth-child(4n + 2) {
-  animation: bounce 1.2s ease infinite;
-  animation-delay: 0.6s;
-}
-.loading-container span:nth-child(4n + 3) {
-  animation: bounce 1.2s ease infinite;
-  animation-delay: 0.9s;
-}
-
-.header-self-wrap {
-  display: flex;
-  flex-direction: column;
-  padding: 16px;
-  height: 200px;
-  .header-self-title {
-    width: 100%;
-    display: flex;
-    height: 30px;
-    align-items: center;
-    justify-content: space-between;
-    padding-bottom: 8px;
-  }
-  .header-self-content {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    color: #626aef;
-    font-weight: 600;
-  }
-}
-</style>

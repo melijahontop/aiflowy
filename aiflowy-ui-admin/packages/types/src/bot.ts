@@ -39,25 +39,22 @@ interface Session {
   title: string;
 }
 
-interface BaseMessage {
+interface ChatMessage {
+  role: 'assistant' | 'user';
   created: number;
   updateAt: number;
   id: string;
   content: string;
-}
-
-interface UserMessage extends BaseMessage {
-  role: 'user';
-  options: {
+  options?: {
     type: number;
     user_input: string;
   };
+  placement: 'end' | 'start';
+  noStyle: true;
+  loading?: boolean;
+  typing?: boolean;
+  fileList?: File[];
+  isFog?: boolean;
 }
 
-interface AssistantMessage extends BaseMessage {
-  role: 'assistant';
-}
-
-type Message = AssistantMessage | UserMessage;
-
-export type { BotInfo, Message, Session };
+export type { BotInfo, ChatMessage, Session };

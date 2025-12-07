@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { BotInfo, Session } from '@aiflowy/types';
 
-import { computed, onMounted, ref, watchEffect } from 'vue';
+import { onMounted, ref, watchEffect } from 'vue';
 import { Conversations } from 'vue-element-plus-x';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -27,10 +27,11 @@ const router = useRouter();
 
 const bot = ref<BotInfo>();
 const sessionList = ref<Session[]>([]);
+const sessionId = ref<string>(route.params.sessionId as string);
 
-const sessionId = computed(() => route.params.sessionId as string | undefined);
-
-const activeSessionId = ref<string>();
+watchEffect(() => {
+  sessionId.value = route.params.sessionId as string;
+});
 
 // 内置菜单点击方法
 // function handleMenuCommand(
@@ -62,13 +63,6 @@ onMounted(() => {
     fetchBotDetail(route.params.botId as string);
     fetchSessionList(route.params.botId as string);
   }
-  if (route.params.sessionId) {
-    activeSessionId.value = route.params.sessionId as string;
-  }
-});
-
-watchEffect(() => {
-  activeSessionId.value = sessionId.value;
 });
 
 const fetchBotDetail = async (id: string) => {
@@ -91,9 +85,10 @@ const fetchSessionList = async (id: string) => {
   }
 };
 
-const updateActive = (sessionId?: number | string) => {
+const updateActive = (_sessionId?: number | string) => {
+  sessionId.value = `${_sessionId ?? ''}`;
   router.push(
-    `/ai/bots/run/${bot.value?.id}${sessionId ? `/${sessionId}` : ''}`,
+    `/ai/bots/run/${bot.value?.id}${_sessionId ? `/${_sessionId}` : ''}`,
   );
 };
 </script>
@@ -123,7 +118,7 @@ const updateActive = (sessionId?: number | string) => {
         <Conversations
           v-show="sessionList.length > 0"
           class="!w-full !shadow-none"
-          v-model:active="activeSessionId"
+          v-model:active="sessionId"
           :items="sessionList"
           :label-max-width="120"
           :show-tooltip="true"
@@ -140,7 +135,7 @@ const updateActive = (sessionId?: number | string) => {
       </div>
     </ElAside>
     <ElMain>
-      <Chat :session-id="activeSessionId" :bot="bot" />
+      <Chat :session-id="sessionId" :bot="bot" />
     </ElMain>
   </ElContainer>
 </template>
