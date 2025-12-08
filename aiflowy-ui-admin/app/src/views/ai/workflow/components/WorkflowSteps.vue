@@ -193,7 +193,7 @@ function handleConfirm(node: any) {
           </ElForm>
         </div>
         <div v-else>
-          <ShowJson :value="node.result" />
+          <ShowJson :value="node.result || node.message" />
         </div>
       </ElCollapseItem>
     </ElCollapse>

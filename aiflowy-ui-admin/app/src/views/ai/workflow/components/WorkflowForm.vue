@@ -22,6 +22,7 @@ import ChooseResource from '#/views/ai/resource/ChooseResource.vue';
 export type WorkflowFormProps = {
   onAsyncExecute?: (values: any) => void;
   onSubmit?: (values: any) => void;
+  tinyFlowData: any;
   workflowId: any;
   workflowParams: any;
 };
@@ -97,6 +98,12 @@ function submitV2() {
   });
 }
 const timer = ref();
+const nodes = ref(
+  props.tinyFlowData.nodes.map((node: any) => ({
+    nodeId: node.id,
+    nodeName: node.data.title,
+  })),
+);
 // 轮询执行结果
 function startPolling(executeId: any) {
   if (timer.value) return;
@@ -104,10 +111,12 @@ function startPolling(executeId: any) {
 }
 function executePolling(executeId: any) {
   api
-    .get('/api/v1/aiWorkflow/getChainStatus', {
-      params: {
-        executeId,
-      },
+    .post('/api/v1/aiWorkflow/getChainStatus', {
+      executeId,
+      nodes: props.tinyFlowData.nodes.map((node: any) => ({
+        nodeId: node.id,
+        nodeName: nodes.value,
+      })),
     })
     .then((res) => {
       // 5 是挂起状态
