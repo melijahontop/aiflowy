@@ -7,7 +7,7 @@ interface Props {
   /** 文字颜色 */
   textColor?: string;
   /** 标签文本内容 */
-  text: string;
+  text: number | string;
   /** 标签尺寸 */
   size?: 'large' | 'medium' | 'small';
   /** 是否可关闭 */
@@ -34,7 +34,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits<{
-  close: [text: string];
+  close: [text: number | string];
 }>();
 
 // 根据类型自动设置颜色

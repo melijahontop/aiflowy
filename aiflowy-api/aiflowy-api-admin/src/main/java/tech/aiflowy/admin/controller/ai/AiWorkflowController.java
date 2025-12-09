@@ -110,14 +110,11 @@ public class AiWorkflowController extends BaseCurdController<AiWorkflowService, 
         for (NodeInfo node : nodes) {
             String nodeId = node.getNodeId();
             NodeState nodeState = nodeStateRepository.load(executeId, nodeId);
-            NodeInfo nodeInfo = new NodeInfo();
-            nodeInfo.setNodeId(nodeId);
-            nodeInfo.setNodeName(node.getNodeName());
-            nodeInfo.setStatus(nodeState.getStatus().getValue());
-            nodeInfo.setMessage(nodeState.getError() == null ? "" : nodeState.getError().getMessage());
-            nodeInfo.setResult(chainState.getNodeExecuteResult(nodeId));
-            nodeInfo.setSuspendForParameters(chainState.getSuspendForParameters());
-            res.getNodes().put(nodeId, nodeInfo);
+            node.setStatus(nodeState.getStatus().getValue());
+            node.setMessage(nodeState.getError() == null ? "" : nodeState.getError().getMessage());
+            node.setResult(chainState.getNodeExecuteResult(nodeId));
+            node.setSuspendForParameters(chainState.getSuspendForParameters());
+            res.getNodes().put(nodeId, node);
         }
         return Result.ok(res);
     }

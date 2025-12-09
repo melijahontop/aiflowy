@@ -17,6 +17,7 @@ import { api } from '#/api/request';
 import CronPicker from '#/components/cron/CronPicker.vue';
 import DictSelect from '#/components/dict/DictSelect.vue';
 import { $t } from '#/locales';
+import WorkflowFormItem from '#/views/ai/workflow/components/WorkflowFormItem.vue';
 
 const emit = defineEmits(['reload']);
 // vue
@@ -181,25 +182,11 @@ const str = '"param"';
           @change="workflowChange"
         />
       </ElFormItem>
-      <ElFormItem
-        v-for="item in workflowParams"
-        :key="item.id"
-        :label="item.description || item.name"
-        :prop="`jobParams.workflowParams.${item.name}`"
-        :rules="
-          item.required
-            ? [
-                {
-                  required: true,
-                  message: $t('message.required'),
-                  trigger: 'blur',
-                },
-              ]
-            : []
-        "
-      >
-        <ElInput v-model="entity.jobParams.workflowParams[item.name]" />
-      </ElFormItem>
+      <WorkflowFormItem
+        v-model:run-params="entity.jobParams.workflowParams"
+        :parameters="workflowParams"
+        prop-prefix="jobParams.workflowParams."
+      />
       <ElFormItem
         v-if="entity.jobType === 2"
         :label="$t('sysJob.beanMethod')"
