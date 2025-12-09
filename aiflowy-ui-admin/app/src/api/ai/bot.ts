@@ -1,4 +1,9 @@
-import type { BotInfo, Message, RequestResult, Session } from '@aiflowy/types';
+import type {
+  BotInfo,
+  ChatMessage,
+  RequestResult,
+  Session,
+} from '@aiflowy/types';
 
 import { api } from '#/api/request.js';
 
@@ -53,7 +58,23 @@ export interface GetMessageListParams {
 }
 /** 获取单个对话的信息列表 */
 export const getMessageList = (params: GetMessageListParams) => {
-  return api.get<RequestResult<Message[]>>('/api/v1/aiBotMessage/messageList', {
-    params,
+  return api.get<RequestResult<ChatMessage[]>>(
+    '/api/v1/aiBotMessage/messageList',
+    {
+      params,
+    },
+  );
+};
+
+/** 更新Bot的LLM配置 */
+export interface UpdateLlmOptionsParams {
+  id: string;
+  llmOptions: {
+    [key: string]: any;
+  };
+}
+export const updateLlmOptions = (params: UpdateLlmOptionsParams) => {
+  return api.post<RequestResult>('/api/v1/aiBot/updateLlmOptions', {
+    ...params,
   });
 };

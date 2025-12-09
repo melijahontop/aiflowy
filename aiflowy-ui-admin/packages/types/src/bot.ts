@@ -11,6 +11,7 @@ interface BotInfo {
   llmOptions: {
     maxMessageCount: number;
     maxReplyLength: number;
+    systemPrompt?: string;
     temperature: number;
     topK: number;
     topP: number;

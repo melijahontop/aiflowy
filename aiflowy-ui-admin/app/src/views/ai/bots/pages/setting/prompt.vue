@@ -1,7 +1,40 @@
 <script setup lang="ts">
-import { ElIcon } from 'element-plus';
+import type { BotInfo } from '@aiflowy/types';
 
+import { ref, watch } from 'vue';
+
+import { useDebounceFn } from '@vueuse/core';
+import { ElIcon, ElInput } from 'element-plus';
+
+import { updateLlmOptions } from '#/api';
 import MagicStaffIcon from '#/components/icons/MagicStaffIcon.vue';
+
+const props = defineProps<{
+  bot?: BotInfo;
+  hasSavePermission?: boolean;
+}>();
+const systemPrompt = ref(
+  '你是一个AI助手，请根据用户的问题给出清晰、准确的回答。',
+);
+
+watch(
+  () => props.bot?.llmOptions.systemPrompt,
+  (newPrompt) => {
+    if (newPrompt) {
+      systemPrompt.value = newPrompt;
+    }
+  },
+  { immediate: true },
+);
+
+const handleInput = useDebounceFn((value: string) => {
+  updateLlmOptions({
+    id: props.bot?.id || '',
+    llmOptions: {
+      systemPrompt: value,
+    },
+  });
+}, 1000);
 </script>
 
 <template>
@@ -22,10 +55,27 @@ import MagicStaffIcon from '#/components/icons/MagicStaffIcon.vue';
         </span>
       </button>
     </div>
-    <div class="flex-1 rounded-lg bg-[#F7F7F7] p-3">
-      <span class="text-sm text-[#1A1A1A]">
-        你是一个AI助手，请根据用户的问题给出清
-      </span>
-    </div>
+    <ElInput
+      class="flex-1"
+      type="textarea"
+      resize="none"
+      v-model="systemPrompt"
+      :title="!hasSavePermission ? '你没有配置bot的权限！' : ''"
+      :disabled="!hasSavePermission"
+      @input="handleInput"
+    />
   </div>
 </template>
+
+<style lang="css" scoped>
+.el-textarea :deep(.el-textarea__inner) {
+  padding: 12px;
+  box-shadow: none;
+  height: 100%;
+  font-size: 12px;
+  line-height: 1.25;
+  border-radius: 8px;
+  --el-input-text-color: #1a1a1a;
+  --el-input-bg-color: #f7f7f7;
+}
+</style>

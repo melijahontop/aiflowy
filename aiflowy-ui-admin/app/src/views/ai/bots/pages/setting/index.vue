@@ -1,15 +1,43 @@
 <script setup lang="ts">
+import type { BotInfo } from '@aiflowy/types';
+
+import { computed, onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
+
+import { tryit } from '@aiflowy/utils';
+
 import { ElCol, ElRow } from 'element-plus';
+
+import { getBotDetails } from '#/api';
+import { hasPermission } from '#/api/common/hasPermission';
 
 import Config from './config.vue';
 import Preview from './preview.vue';
 import Prompt from './prompt.vue';
+
+const route = useRoute();
+const hasSavePermission = computed(() => hasPermission(['/api/v1/aiBot/save']));
+const bot = ref<BotInfo>();
+
+onMounted(() => {
+  if (route.params.id) {
+    fetchBotDetail(route.params.id as string);
+  }
+});
+
+const fetchBotDetail = async (id: string) => {
+  const [, res] = await tryit(getBotDetails(id));
+
+  if (res?.errorCode === 0) {
+    bot.value = res.data;
+  }
+};
 </script>
 
 <template>
   <ElRow class="h-full p-4" :gutter="16">
     <ElCol :span="8">
-      <Prompt />
+      <Prompt :bot="bot" :has-save-permission="hasSavePermission" />
     </ElCol>
     <ElCol :span="8">
       <Config />

@@ -29,7 +29,7 @@ import SendingIcon from '../icons/SendingIcon.vue';
 
 const props = defineProps<{
   bot?: BotInfo;
-  sessionId: string;
+  sessionId?: string;
 }>();
 const { postSse } = sse();
 const router = useRouter();
@@ -38,7 +38,9 @@ const bubbleItems = ref<BubbleListProps<ChatMessage>['list']>([]);
 const senderRef = ref<InstanceType<typeof Sender>>();
 const senderValue = ref('');
 const sending = ref(false);
-const sessionId = ref(props.sessionId.length > 0 ? props.sessionId : uuid());
+const sessionId = ref(
+  props.sessionId && props.sessionId.length > 0 ? props.sessionId : uuid(),
+);
 
 watchEffect(async () => {
   if (props.bot && props.sessionId) {
@@ -84,28 +86,31 @@ const handleSubmit = async () => {
 
   postSse('/api/v1/aiBot/chat', data, {
     onMessage(message) {
-      if (message.event === 'finishEvent') {
-        const data = JSON.parse(message.data!);
-        const lastIndex = bubbleItems.value.length - 1;
+      const content = message.data!.replace(/^Final Answer:\s*/i, '');
+      const lastBubbleItem = bubbleItems.value[bubbleItems.value.length - 1];
 
-        if (lastIndex >= 0) {
-          bubbleItems.value[lastIndex] = {
-            ...bubbleItems.value[lastIndex]!,
-            content: data.consumeTokenInfo.content.replace(
-              /^Final Answer:\s*/i,
-              '',
-            ),
+      if (lastBubbleItem) {
+        if (content === lastBubbleItem.content) {
+          sending.value = false;
+        } else {
+          bubbleItems.value[bubbleItems.value.length - 1] = {
+            ...lastBubbleItem,
+            content: lastBubbleItem.content + content,
             loading: false,
             typing: true,
           };
         }
-        sending.value = false;
       }
     },
   });
 };
 const handleComplete = (_: TypewriterInstance, index: number) => {
-  if (index === bubbleItems.value.length - 1 && props.sessionId.length <= 0) {
+  if (
+    index === bubbleItems.value.length - 1 &&
+    props.sessionId &&
+    props.sessionId.length <= 0 &&
+    sending.value === false
+  ) {
     setTimeout(() => {
       router.replace({ params: { sessionId: sessionId.value } });
     }, 100);
