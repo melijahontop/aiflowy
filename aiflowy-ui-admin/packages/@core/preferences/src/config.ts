@@ -17,7 +17,7 @@ const defaultPreferences: Preferences = {
     contentPaddingTop: 0,
     defaultAvatar:
       'https://unpkg.com/@aiflowy/static-source@0.1.7/source/avatar-v1.webp',
-    defaultHomePath: '/analytics',
+    defaultHomePath: '/ai/bots',
     dynamicTitle: true,
     enableCheckUpdates: true,
     enablePreferences: true,
@@ -65,7 +65,7 @@ const defaultPreferences: Preferences = {
   logo: {
     enable: true,
     fit: 'contain',
-    source: '/favicon.svg',
+    source: '/logo.webp',
   },
   navigation: {
     accordion: true,
