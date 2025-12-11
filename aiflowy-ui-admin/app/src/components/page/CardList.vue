@@ -61,6 +61,7 @@ const hiddenActions = computed(() => {
       :key="index"
       shadow="hover"
       footer-class="foot-c"
+      style="--el-box-shadow-light: 0px 2px 12px 0px rgba(100, 121, 153, 0.1)"
     >
       <div class="flex flex-col gap-3">
         <div class="flex items-center gap-3">
@@ -80,7 +81,11 @@ const hiddenActions = computed(() => {
           <template v-for="(action, idx) in visibleActions" :key="idx">
             <ElButton
               :icon="action.icon"
-              style="color: var(--el-color-info-light-3)"
+              size="small"
+              style="
+                --el-button-text-color: hsl(220, 9.68%, 63.53%);
+                --el-button-font-weight: 400;
+              "
               link
               @click="action.onClick(item)"
             >
@@ -97,7 +102,14 @@ const hiddenActions = computed(() => {
           </template>
 
           <ElDropdown v-if="hiddenActions.length > 0" trigger="click">
-            <ElButton :icon="MoreFilled" link />
+            <ElButton
+              style="
+                --el-button-text-color: hsl(220, 9.68%, 63.53%);
+                --el-button-font-weight: 400;
+              "
+              :icon="MoreFilled"
+              link
+            />
             <template #dropdown>
               <ElDropdownMenu>
                 <ElDropdownItem
@@ -148,7 +160,8 @@ const hiddenActions = computed(() => {
 }
 
 .item-desc {
-  font-size: clamp(8px, 1vw, 12px);
+  font-size: clamp(8px, 1vw, 14px);
+  color: #75808d;
   height: 20px;
   white-space: nowrap;
   overflow: hidden;

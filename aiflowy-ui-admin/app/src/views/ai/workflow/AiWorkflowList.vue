@@ -9,7 +9,6 @@ import {
   Download,
   Edit,
   Plus,
-  Tools,
   VideoPlay,
 } from '@element-plus/icons-vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
@@ -17,6 +16,7 @@ import { ElMessage, ElMessageBox } from 'element-plus';
 import { api } from '#/api/request';
 import workflowIcon from '#/assets/ai/workflow/workflowIcon.png';
 import HeaderSearch from '#/components/headerSearch/HeaderSearch.vue';
+import WorkFlowIcon from '#/components/icons/WorkFlowIcon.vue';
 import CardList from '#/components/page/CardList.vue';
 import PageData from '#/components/page/PageData.vue';
 import PageSide from '#/components/page/PageSide.vue';
@@ -37,7 +37,7 @@ const actions: ActionButton[] = [
     },
   },
   {
-    icon: Tools,
+    icon: markRaw(WorkFlowIcon),
     text: $t('button.design'),
     className: '',
     permission: '',
@@ -198,14 +198,14 @@ function changeCategory(categoryId: any) {
 </script>
 
 <template>
-  <div class="space-y-6 p-6">
+  <div class="flex h-full flex-col gap-6 p-6">
     <AiWorkflowModal ref="saveDialog" @reload="reset" />
     <HeaderSearch
       :buttons="headerButtons"
       @search="handleSearch"
       @button-click="showDialog({})"
     />
-    <div class="flex gap-2.5">
+    <div class="flex flex-1 gap-2.5">
       <PageSide
         list-url="/api/v1/aiWorkflowCategory/list"
         save-url="/api/v1/aiWorkflowCategory/save"
