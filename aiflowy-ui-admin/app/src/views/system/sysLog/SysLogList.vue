@@ -37,7 +37,7 @@ function reset(formEl?: FormInstance) {
           <ElTable :data="pageList" border>
             <ElTableColumn prop="accountId" :label="$t('sysLog.accountId')">
               <template #default="{ row }">
-                {{ row.accountId }}
+                {{ row.account.nickname }}
               </template>
             </ElTableColumn>
             <ElTableColumn prop="actionName" :label="$t('sysLog.actionName')">
@@ -63,32 +63,9 @@ function reset(formEl?: FormInstance) {
                 {{ row.actionMethod }}
               </template>
             </ElTableColumn>
-            <ElTableColumn prop="actionUrl" :label="$t('sysLog.actionUrl')">
-              <template #default="{ row }">
-                {{ row.actionUrl }}
-              </template>
-            </ElTableColumn>
             <ElTableColumn prop="actionIp" :label="$t('sysLog.actionIp')">
               <template #default="{ row }">
                 {{ row.actionIp }}
-              </template>
-            </ElTableColumn>
-            <ElTableColumn
-              prop="actionParams"
-              :label="$t('sysLog.actionParams')"
-            >
-              <template #default="{ row }">
-                {{ row.actionParams }}
-              </template>
-            </ElTableColumn>
-            <ElTableColumn prop="actionBody" :label="$t('sysLog.actionBody')">
-              <template #default="{ row }">
-                {{ row.actionBody }}
-              </template>
-            </ElTableColumn>
-            <ElTableColumn prop="status" :label="$t('sysLog.status')">
-              <template #default="{ row }">
-                {{ row.status }}
               </template>
             </ElTableColumn>
             <ElTableColumn prop="created" :label="$t('sysLog.created')">
