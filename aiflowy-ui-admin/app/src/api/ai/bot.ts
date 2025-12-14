@@ -106,3 +106,19 @@ export const doPostBotPluginTools = (botId: string) => {
     id: botId,
   });
 };
+
+export const getPerQuestions = (presetQuestions: any[]) => {
+  if (!presetQuestions) {
+    return [];
+  }
+  return presetQuestions
+    .filter((item: any) => {
+      return (
+        typeof item.description === 'string' && item.description.trim() !== ''
+      );
+    })
+    .map((item: any) => ({
+      key: item.key,
+      description: item.description,
+    }));
+};

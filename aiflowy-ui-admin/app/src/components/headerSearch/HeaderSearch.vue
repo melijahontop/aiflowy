@@ -167,6 +167,7 @@ const handleDropdownClick = (button) => {
 
 <style scoped>
 .custom-header {
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;

@@ -5,6 +5,7 @@ import { onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 
 import { $t } from '@aiflowy/locales';
+import { useBotStore } from '@aiflowy/stores';
 import { tryit } from '@aiflowy/utils';
 
 import { Delete, Plus, Setting } from '@element-plus/icons-vue';
@@ -23,7 +24,7 @@ import {
   ElSlider,
 } from 'element-plus';
 
-import { getAiLlmList, updateLlmId, updateLlmOptions } from '#/api';
+import {getAiLlmList, getPerQuestions, updateLlmId, updateLlmOptions} from '#/api';
 import { api } from '#/api/request';
 import ProblemPresupposition from '#/components/chat/ProblemPresupposition.vue';
 import PublishWxOfficalAccount from '#/components/chat/PublishWxOfficalAccount.vue';
@@ -34,6 +35,7 @@ const props = defineProps<{
   bot?: BotInfo;
   hasSavePermission?: boolean;
 }>();
+const botStore = useBotStore();
 const route = useRoute();
 const botId = ref<string>((route.params.id as string) || '');
 const options = ref<AiLlm[]>([]);
@@ -123,6 +125,7 @@ const getBotDetail = async () => {
     .then((res) => {
       if (res.errorCode === 0) {
         botInfo.value = res.data;
+        botStore.setPresetQuestions(res.data.options.presetQuestions);
       }
     });
 };
@@ -179,7 +182,6 @@ const handleLlmOptionsStrChange = useDebounceFn(
   },
   300,
 );
-
 /** 处理不合规数值 */
 const handleInvalidNumber = (
   value: number,
@@ -308,6 +310,7 @@ const deleteWorkflow = (item: any) => {
 };
 
 const problemPresuppositionRef = ref();
+
 const handleAddPresetQuestion = () => {
   problemPresuppositionRef.value.openDialog(
     botInfo.value?.options.presetQuestions,
@@ -326,6 +329,7 @@ const handleProblemPresuppositionSuccess = (data: any) => {
       if (res.errorCode === 0) {
         ElMessage.success($t('message.updateOkMessage'));
         getBotDetail();
+        botStore.setPresetQuestions(data);
       } else {
         ElMessage.error(res.message);
       }
@@ -628,7 +632,7 @@ const handleUpdatePublishWx = () => {
             </template>
             <div class="question-container">
               <div
-                v-for="item in botInfo?.options?.presetQuestions"
+                v-for="item in getPerQuestions(botStore.presetQuestions)"
                 :key="item.key"
               >
                 <div class="presetQues-container" v-if="item.description">
@@ -667,32 +671,34 @@ const handleUpdatePublishWx = () => {
       <div class="flex w-full flex-col justify-between rounded-lg">
         <ElCollapse expand-icon-position="left">
           <ElCollapseItem title="发布到微信公众号">
-            <div class="publish-wx">
-              <span v-if="botInfo?.options.weChatMpAppId">已配置</span>
-              <span v-else>未配置</span>
-              <div class="publish-config-operation">
-                <div
-                  class="publish-wx-right-container"
-                  @click="handlePublishWx"
-                >
-                  <ElButton link type="primary">
-                    <ElIcon class="mr-1">
-                      <Setting />
-                    </ElIcon>
-                    {{ $t('button.edit') }}
-                  </ElButton>
-                </div>
-                <div
-                  v-if="botInfo?.options.weChatMpAppId"
-                  class="publish-wx-right-container"
-                  @click="handleUpdatePublishWx"
-                >
-                  <ElButton link type="danger">
-                    <ElIcon class="mr-1">
-                      <Delete />
-                    </ElIcon>
-                    {{ $t('button.delete') }}
-                  </ElButton>
+            <div class="publish-wx-container">
+              <div class="publish-wx">
+                <span v-if="botInfo?.options.weChatMpAppId">已配置</span>
+                <span v-else>未配置</span>
+                <div class="publish-config-operation">
+                  <div
+                    class="publish-wx-right-container"
+                    @click="handlePublishWx"
+                  >
+                    <ElButton link type="primary">
+                      <ElIcon class="mr-1">
+                        <Setting />
+                      </ElIcon>
+                      {{ $t('button.edit') }}
+                    </ElButton>
+                  </div>
+                  <div
+                    v-if="botInfo?.options.weChatMpAppId"
+                    class="publish-wx-right-container"
+                    @click="handleUpdatePublishWx"
+                  >
+                    <ElButton link type="danger">
+                      <ElIcon class="mr-1">
+                        <Delete />
+                      </ElIcon>
+                      {{ $t('button.delete') }}
+                    </ElButton>
+                  </div>
                 </div>
               </div>
             </div>
@@ -815,11 +821,18 @@ const handleUpdatePublishWx = () => {
   width: 14px;
   height: 14px;
 }
+.publish-wx-container {
+  background-color: #f5f5f5 !important;
+  padding: 12px;
+}
 .publish-wx {
   padding: 0 8px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  background-color: var(--el-bg-color);
+  height: 45px;
+  border-radius: 8px;
 }
 .publish-wx-right-container {
   display: flex;
@@ -871,7 +884,6 @@ const handleUpdatePublishWx = () => {
 .question-container {
   background-color: #f5f5f5 !important;
   width: 100%;
-  min-height: 120px;
   height: auto;
   padding: 10px;
   display: flex;

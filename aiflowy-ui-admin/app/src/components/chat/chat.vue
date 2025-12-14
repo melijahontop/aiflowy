@@ -14,13 +14,14 @@ import { cn, tryit, uuid } from '@aiflowy/utils';
 import { CopyDocument, Promotion, RefreshRight } from '@element-plus/icons-vue';
 import { ElButton, ElIcon, ElMessage, ElSpace } from 'element-plus';
 
-import { getMessageList } from '#/api';
+import {getMessageList, getPerQuestions} from '#/api';
 import { api, sseClient } from '#/api/request';
 import MarkdownRenderer from '#/components/chat/MarkdownRenderer.vue';
 
 import BotAvatar from '../botAvatar/botAvatar.vue';
 import SendingIcon from '../icons/SendingIcon.vue';
-
+import { useBotStore } from '@aiflowy/stores';
+const botStore = useBotStore();
 const props = defineProps<{
   bot?: BotInfo;
   // 是否是外部消息 1 外部消息 0 内部消息
@@ -336,9 +337,9 @@ const handleRefresh = () => {
       </div>
 
       <!--问题预设-->
-      <div class="questions-preset-container" v-if="presetQuestions.length > 0">
+      <div class="questions-preset-container" v-if="botStore.presetQuestions.length > 0">
         <ElButton
-          v-for="item in presetQuestions"
+          v-for="item in getPerQuestions(botStore.presetQuestions)"
           :key="item.key"
           @click="handleSubmit(item.description)"
         >

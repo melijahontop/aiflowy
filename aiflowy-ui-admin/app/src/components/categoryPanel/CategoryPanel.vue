@@ -221,13 +221,14 @@ onMounted(() => {
 <style scoped>
 .category-panel {
   position: relative; /* 相对定位，用于按钮绝对定位 */
-  border: 1px solid #e5e7eb;
-  border-radius: 4px;
   overflow: hidden;
   height: 100%;
   transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* 平滑宽度过渡 */
   box-sizing: border-box;
-  background-color: var(--el-bg-color);
+  background: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #f0f0f0;
+  padding: 20px;
 }
 
 /* 右上角收缩/展开按钮 */
@@ -266,6 +267,9 @@ onMounted(() => {
   overflow: hidden;
   height: 100%;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
 }
 
 .category-item {
@@ -278,13 +282,14 @@ onMounted(() => {
 .category-item-content {
   display: flex;
   align-items: center;
-  padding: 12px 16px;
   font-size: 14px;
   font-weight: 500;
   color: #333;
   cursor: pointer;
   transition: background-color 0.2s;
   gap: 12px;
+  padding: 6px 0 6px 14px;
+  border-radius: 4px;
 }
 
 .category-item-content:hover {
@@ -312,7 +317,6 @@ onMounted(() => {
 .category-item-content {
   display: flex;
   align-items: center;
-  padding: 12px 16px;
   font-size: 14px;
   font-weight: 500;
   color: #333;
@@ -328,7 +332,14 @@ onMounted(() => {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: var(--el-text-color-primary);
+  font-family:
+    PingFangSC,
+    PingFang SC;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+  text-align: left;
+  font-style: normal;
 }
 
 /* 收缩状态样式 */
@@ -348,12 +359,12 @@ onMounted(() => {
 
 /* 新增：选中态样式 */
 .category-item-content.selected {
-  background-color: var(--el-color-primary-light-9);
-  color: var(--el-text-color-primary);
   font-weight: 600;
+  background: rgba(0, 102, 255, 0.06);
+  color: #0066ff;
 }
 
 .category-item-content.selected:hover {
-  background-color: var(--el-color-primary-light-9);
+  background: rgba(0, 102, 255, 0.06);
 }
 </style>

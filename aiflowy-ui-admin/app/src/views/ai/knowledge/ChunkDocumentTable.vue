@@ -106,7 +106,7 @@ const form = ref({
             :label="$t('aiKnowledge.content')"
             min-width="240"
           />
-          <ElTableColumn fixed="right" :label="$t('common.handle')">
+          <ElTableColumn :label="$t('common.handle')">
             <template #default="scope">
               <ElButton link type="primary" @click="handleEdit(scope.row)">
                 <ElIcon class="mr-1">

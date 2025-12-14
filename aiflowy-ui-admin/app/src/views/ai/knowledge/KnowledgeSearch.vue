@@ -58,7 +58,7 @@ const handleSearch = () => {
 .search-container {
   width: 100%;
   height: 100%;
-  padding: 20px;
+  padding: 0 0 20px 0;
   display: flex;
   flex-direction: column;
 }

@@ -4,10 +4,14 @@ import { ref } from 'vue';
 import { $t } from '@aiflowy/locales';
 import { downloadFileFromBlob } from '@aiflowy/utils';
 
-import { Delete, Download, View } from '@element-plus/icons-vue';
+import { Delete, Download, More, View } from '@element-plus/icons-vue';
 import {
   ElButton,
+  ElDropdown,
+  ElDropdownItem,
+  ElDropdownMenu,
   ElIcon,
+  ElImage,
   ElMessage,
   ElMessageBox,
   ElTable,
@@ -15,6 +19,7 @@ import {
 } from 'element-plus';
 
 import { api } from '#/api/request';
+import documentIcon from '#/assets/ai/knowledge/document.svg';
 import PageData from '#/components/page/PageData.vue';
 
 const props = defineProps({
@@ -63,13 +68,14 @@ const handleDelete = (row: any) => {
   >
     <template #default="{ pageList }">
       <ElTable :data="pageList" style="width: 100%" size="large">
-        <ElTableColumn
-          prop="id"
-          :label="$t('aiKnowledge.fileName')"
-          width="180"
-        >
+        <ElTableColumn prop="fileName" :label="$t('aiKnowledge.fileName')">
           <template #default="{ row }">
-            <span>{{ row.title }}.{{ row.documentType }}</span>
+            <span class="file-name-container">
+              <ElImage :src="documentIcon" class="mr-1" />
+              <span class="title">
+                {{ row.title }}.{{ row.documentType }}
+              </span>
+            </span>
           </template>
         </ElTableColumn>
         <ElTableColumn
@@ -90,30 +96,50 @@ const handleDelete = (row: any) => {
             </div>
           </template>
         </ElTableColumn>
-        <ElTableColumn
-          fixed="right"
-          :label="$t('common.handle')"
-          min-width="120"
-        >
-          <template #default="scope">
-            <ElButton link type="primary" @click="handleView(scope.row)">
-              <ElIcon class="mr-1">
-                <View />
-              </ElIcon>
-              {{ $t('button.view') }}
-            </ElButton>
-            <ElButton link type="primary" @click="handleDownload(scope.row)">
-              <ElIcon class="mr-1">
-                <Download />
-              </ElIcon>
-              {{ $t('button.download') }}
-            </ElButton>
-            <ElButton link type="danger" @click="handleDelete(scope.row)">
-              <ElIcon class="mr-1">
-                <Delete />
-              </ElIcon>
-              {{ $t('button.delete') }}
-            </ElButton>
+        <ElTableColumn :label="$t('common.handle')" min-width="120">
+          <template #default="{ row }">
+            <ElDropdown>
+              <ElButton link>
+                <ElIcon>
+                  <More />
+                </ElIcon>
+              </ElButton>
+
+              <template #dropdown>
+                <ElDropdownMenu>
+                  <div>
+                    <ElDropdownItem @click="handleView(row)">
+                      <ElButton link type="primary">
+                        <ElIcon class="mr-1">
+                          <View />
+                        </ElIcon>
+                        {{ $t('button.view') }}
+                      </ElButton>
+                    </ElDropdownItem>
+                  </div>
+                  <div @click="handleDownload(row)">
+                    <ElDropdownItem>
+                      <ElButton link>
+                        <ElIcon class="mr-1">
+                          <Download />
+                        </ElIcon>
+                        {{ $t('button.download') }}
+                      </ElButton>
+                    </ElDropdownItem>
+                  </div>
+                  <div @click="handleDelete(row)">
+                    <ElDropdownItem>
+                      <ElButton link type="danger">
+                        <ElIcon class="mr-1">
+                          <Delete />
+                        </ElIcon>
+                        {{ $t('button.delete') }}
+                      </ElButton>
+                    </ElDropdownItem>
+                  </div>
+                </ElDropdownMenu>
+              </template>
+            </ElDropdown>
           </template>
         </ElTableColumn>
       </ElTable>
@@ -126,5 +152,18 @@ const handleDelete = (row: any) => {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+}
+.file-name-container {
+  display: flex;
+  align-items: center;
+}
+.title {
+  font-weight: 500;
+  font-size: 14px;
+  color: #1a1a1a;
+  line-height: 20px;
+  text-align: left;
+  font-style: normal;
+  text-transform: none;
 }
 </style>

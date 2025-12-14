@@ -43,8 +43,8 @@ const handleDelete = (item: any) => {
           <ElAvatar v-else src="/favicon.png" shape="circle" />
         </div>
         <div class="el-list-item-content">
-          <div>{{ item[titleKey] }}</div>
-          <div>{{ item[descriptionKey] }}</div>
+          <div class="title">{{ item[titleKey] }}</div>
+          <div class="description">{{ item[descriptionKey] }}</div>
         </div>
       </div>
       <ElIcon
@@ -86,10 +86,34 @@ const handleDelete = (item: any) => {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  gap: 5px;
 }
 .el-list-item-delete-container {
   cursor: pointer;
 }
-
+.title {
+  font-family:
+    PingFangSC,
+    PingFang SC,
+    sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.85);
+  line-height: 24px;
+  text-align: left;
+  font-style: normal;
+  text-transform: none;
+}
+.description {
+  font-family:
+    PingFangSC,
+    PingFang SC,
+    sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.45);
+  line-height: 22px;
+  text-align: left;
+  font-style: normal;
+  text-transform: none;
+}
 </style>
