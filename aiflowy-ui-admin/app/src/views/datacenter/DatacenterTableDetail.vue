@@ -29,6 +29,7 @@ import { api } from '#/api/request';
 import tableIcon from '#/assets/datacenter/table2x.png';
 import PageData from '#/components/page/PageData.vue';
 import { router } from '#/router';
+import { useDictStore } from '#/store';
 import BatchImportModal from '#/views/datacenter/BatchImportModal.vue';
 import RecordModal from '#/views/datacenter/RecordModal.vue';
 
@@ -36,6 +37,7 @@ const pageDataRef = ref();
 const route = useRoute();
 const tableId = ref(route.query.tableId);
 onMounted(() => {
+  initDict();
   getDetailInfo(tableId.value);
   getHeaders(tableId.value);
 });
@@ -45,6 +47,11 @@ const headers = ref<any[]>([]);
 const activeMenu = ref('1');
 const recordModal = ref();
 const batchImportModal = ref();
+const dictStore = useDictStore();
+function initDict() {
+  dictStore.fetchDictionary('fieldType');
+  dictStore.fetchDictionary('yesOrNo');
+}
 function getDetailInfo(id: any) {
   api.get(`/api/v1/datacenterTable/detailInfo?tableId=${id}`).then((res) => {
     detailInfo.value = res.data;
@@ -171,7 +178,7 @@ function openImportModal() {
             :label="$t('datacenterTableFields.fieldType')"
           >
             <template #default="{ row }">
-              {{ row.fieldType }}
+              {{ dictStore.getDictLabel('fieldType', row.fieldType) }}
             </template>
           </ElTableColumn>
           <ElTableColumn
@@ -179,7 +186,7 @@ function openImportModal() {
             :label="$t('datacenterTableFields.required')"
           >
             <template #default="{ row }">
-              {{ row.required }}
+              {{ dictStore.getDictLabel('yesOrNo', row.required) }}
             </template>
           </ElTableColumn>
         </ElTable>

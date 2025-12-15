@@ -13,17 +13,21 @@ import {
   ElInput,
   ElMessage,
   ElMessageBox,
+  ElOption,
+  ElSelect,
   ElTable,
   ElTableColumn,
 } from 'element-plus';
 
 import { api } from '#/api/request';
-import DictSelect from '#/components/dict/DictSelect.vue';
 import { $t } from '#/locales';
 
 const emit = defineEmits(['reload']);
 // vue
-onMounted(() => {});
+onMounted(() => {
+  getFieldType();
+  getYesOrNo();
+});
 defineExpose({
   openDialog,
 });
@@ -74,7 +78,8 @@ const rules = ref({
 const fieldsData = ref();
 const removeFields = ref<any[]>([]);
 const loadFields = ref(false);
-
+const fieldTypes = ref<any>([]);
+const yesOrNoDict = ref<any>([]);
 watch(
   () => fieldsData.value,
   (newVal) => {
@@ -166,6 +171,16 @@ function deleteField(row: any, $index: number) {
     },
   }).catch(() => {});
 }
+function getFieldType() {
+  api.get('/api/v1/dict/items/fieldType').then((res) => {
+    fieldTypes.value = res.data;
+  });
+}
+function getYesOrNo() {
+  api.get('/api/v1/dict/items/yesOrNo').then((res) => {
+    yesOrNoDict.value = res.data;
+  });
+}
 </script>
 
 <template>
@@ -205,16 +220,26 @@ function deleteField(row: any, $index: number) {
             </ElTableColumn>
             <ElTableColumn :label="$t('datacenterTable.fieldType')">
               <template #default="{ row }">
-                <DictSelect
-                  :disabled="!isAdd"
-                  v-model.trim="row.fieldType"
-                  dict-code="fieldType"
-                />
+                <ElSelect v-model.trim="row.fieldType" :disabled="!!row.id">
+                  <ElOption
+                    v-for="item in fieldTypes"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                  />
+                </ElSelect>
               </template>
             </ElTableColumn>
             <ElTableColumn :label="$t('datacenterTable.required')">
               <template #default="{ row }">
-                <DictSelect v-model.trim="row.required" dict-code="yesOrNo" />
+                <ElSelect v-model.trim="row.required">
+                  <ElOption
+                    v-for="item in yesOrNoDict"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                  />
+                </ElSelect>
               </template>
             </ElTableColumn>
             <ElTableColumn :label="$t('common.handle')" width="80">
