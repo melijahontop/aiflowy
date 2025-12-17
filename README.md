@@ -68,9 +68,9 @@ git clone https://gitee.com/aiflowy/aiflowy.git
 cd aiflowy
 mvn clean package
 
-cd aiflowy-ui-react
-npm install
-npm run dev
+cd aiflowy-ui-admin
+pnpm install
+pnpm dev
 
 # Default username and password:
 admin/123456
