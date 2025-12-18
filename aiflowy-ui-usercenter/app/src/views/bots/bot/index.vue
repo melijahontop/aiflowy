@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-import { cn, sortNodes } from '@aiflowy/utils';
+import { sortNodes } from '@aiflowy/utils';
 
 import { ArrowLeft } from '@element-plus/icons-vue';
 import {
@@ -74,13 +74,13 @@ function onAsyncExecute(info: any) {
     <ElHeader class="!px-8 !py-4" height="fit-content">
       <div class="flex flex-col gap-6">
         <ElSpace class="cursor-pointer" :size="10" @click="router.back()">
-          <ElIcon color="#969799" size="24"><ArrowLeft /></ElIcon>
-          <h1 class="text-2xl font-medium text-[#333333]">
+          <ElIcon size="24"><ArrowLeft /></ElIcon>
+          <h1 class="text-2xl font-medium">
             {{ workflowInfo?.title }}
           </h1>
         </ElSpace>
         <div
-          class="flex items-center justify-between rounded-lg bg-[linear-gradient(153deg,#D3E3FD,#CBDEFE)] px-10 py-9"
+          class="bg-background border-border flex items-center justify-between rounded-lg border px-10 py-9"
         >
           <Card class="max-w-none cursor-auto items-center gap-7">
             <CardAvatar
@@ -89,16 +89,16 @@ function onAsyncExecute(info: any) {
               :default-avatar="defaultBotAvatar"
             />
             <CardContent class="gap-3">
-              <CardTitle class="text-3xl font-medium text-[#1A1A1A]">
+              <CardTitle class="text-2xl font-medium">
                 {{ workflowInfo?.title }}
               </CardTitle>
-              <CardDescription class="text-base text-[#5E6673]">
+              <CardDescription class="text-base">
                 {{ workflowInfo?.description }}
               </CardDescription>
             </CardContent>
           </Card>
           <RouterLink to="">
-            <ElButton color="#0066FF" size="large" round plain>
+            <ElButton type="primary" size="large" round plain>
               执行记录
             </ElButton>
           </RouterLink>
@@ -109,9 +109,9 @@ function onAsyncExecute(info: any) {
       <ElContainer class="h-full gap-4">
         <ElAside
           width="366px"
-          class="flex flex-col gap-6 rounded-lg bg-white p-5"
+          class="border-border bg-background flex flex-col gap-6 rounded-lg border p-5"
         >
-          <h1 class="text-base font-medium text-[#1A1A1A]">输入参数</h1>
+          <h1 class="text-base font-medium">输入参数</h1>
           <WorkflowForm
             v-if="runParams && tinyFlowData"
             ref="workflowForm"
@@ -124,9 +124,9 @@ function onAsyncExecute(info: any) {
         </ElAside>
         <ElAside width="366px">
           <div
-            :class="cn('flex h-full flex-col gap-6 rounded-lg bg-white p-5')"
+            class="border-border bg-background flex h-full flex-col gap-6 rounded-lg border p-5"
           >
-            <h1 class="text-base font-medium text-[#1A1A1A]">执行步骤</h1>
+            <h1 class="text-base font-medium">执行步骤</h1>
             <WorkflowSteps
               v-if="tinyFlowData"
               :workflow-id="workflowId"
@@ -137,10 +137,12 @@ function onAsyncExecute(info: any) {
             />
           </div>
         </ElAside>
-        <div :class="cn('flex flex-1 flex-col gap-6 rounded-lg bg-white p-5')">
-          <h1 class="text-base font-medium text-[#1A1A1A]">运行结果</h1>
+        <div
+          class="bg-background border-border flex flex-1 flex-col gap-6 rounded-lg border p-5"
+        >
+          <h1 class="text-base font-medium">运行结果</h1>
           <div
-            class="flex-1 rounded-lg border border-[#F0F0F0] bg-[#F7F7F7] p-4"
+            class="bg-background-deep border-border flex-1 rounded-lg border p-4"
           >
             <ExecResult
               v-if="tinyFlowData"

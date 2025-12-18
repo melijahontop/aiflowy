@@ -111,13 +111,13 @@ function getDateRange() {
 </script>
 
 <template>
-  <ElContainer class="h-full bg-[linear-gradient(153deg,white,#EFF8FF)]">
+  <ElContainer class="bg-background h-full">
     <ElHeader class="!h-auto !p-8 !pb-0">
       <ElSpace direction="vertical" :size="24" alignment="flex-start">
-        <h1 class="text-2xl font-medium text-[#333333]">执行记录</h1>
+        <h1 class="text-2xl font-medium">执行记录</h1>
         <div class="flex items-center gap-8">
           <div class="flex items-center gap-4">
-            <span class="text-nowrap text-sm text-[#1A1A1A]">执行状态</span>
+            <span class="text-nowrap text-sm">执行状态</span>
             <ElSelect
               clearable
               v-model="queryParams.status"
@@ -127,7 +127,7 @@ function getDateRange() {
             />
           </div>
           <div class="flex items-center gap-4">
-            <span class="text-nowrap text-sm text-[#1A1A1A]">智能体</span>
+            <span class="text-nowrap text-sm">智能体</span>
             <ElSelect
               class="bot-select"
               clearable
@@ -142,7 +142,7 @@ function getDateRange() {
             />
           </div>
           <div class="flex items-center gap-4">
-            <span class="text-nowrap text-sm text-[#1A1A1A]">筛选时间</span>
+            <span class="text-nowrap text-sm">筛选时间</span>
             <ElDatePicker
               clearable
               type="daterange"
@@ -159,11 +159,11 @@ function getDateRange() {
     <ElMain class="!px-8">
       <ElContainer>
         <ElHeader
-          class="grid grid-cols-6 place-items-center bg-[#F9FAFE] !p-0"
+          class="bg-background-deep grid grid-cols-5 place-items-center !p-0"
           height="54px"
         >
           <span
-            class="text-sm text-[#1A1A1A]"
+            class="text-accent-foreground text-sm"
             v-for="title in listTitles"
             :key="title"
           >
@@ -179,7 +179,7 @@ function getDateRange() {
               >
                 <template #default="{ pageList }">
                   <div
-                    class="grid h-[60px] grid-cols-6 place-items-center bg-white text-sm text-[#333333]"
+                    class="text-foreground/90 hover:bg-accent grid h-[60px] grid-cols-5 place-items-center text-sm"
                     v-for="record in pageList"
                     :key="record.id"
                   >

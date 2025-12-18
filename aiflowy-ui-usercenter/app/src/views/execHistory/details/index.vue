@@ -79,23 +79,23 @@ const steps = computed(() => {
 </script>
 
 <template>
-  <ElContainer class="h-full bg-white">
+  <ElContainer class="bg-background h-full">
     <ElHeader class="!p-8 !pb-0" height="auto">
       <ElSpace class="cursor-pointer" :size="10" @click="router.back()">
-        <ElIcon color="#969799" size="24"><ArrowLeft /></ElIcon>
-        <h1 class="text-2xl font-medium text-[#333333]">
+        <ElIcon size="24"><ArrowLeft /></ElIcon>
+        <h1 class="text-2xl font-medium">
           {{ route.query.title }}
         </h1>
       </ElSpace>
     </ElHeader>
-    <ElMain class="items-center !px-8">
-      <div
-        class="flex h-full overflow-hidden rounded-xl border border-[#E6E9EE]"
-      >
-        <div class="flex w-[50%] flex-col gap-6 rounded-lg bg-white p-5">
-          <h1 class="text-base font-medium text-[#1A1A1A]">运行结果</h1>
+    <ElMain class="h-full items-center !px-8">
+      <div class="border-border flex h-full rounded-xl border">
+        <div
+          class="bg-background flex flex-1 flex-col gap-6 overflow-hidden rounded-lg p-5"
+        >
+          <h1 class="text-base font-medium">运行结果</h1>
           <div
-            class="flex-1 rounded-lg border border-[#F0F0F0] bg-[#F7F7F7] p-4"
+            class="border-border bg-background-deep flex-1 rounded-lg border p-4"
           >
             <ExecResult
               v-if="nodeJson"
@@ -106,12 +106,11 @@ const steps = computed(() => {
             />
           </div>
         </div>
-        <ElDivider
-          class="!m-0 !h-full !border-[#E6E9EE]"
-          direction="vertical"
-        />
-        <div class="flex h-full w-[49%] flex-col gap-6 rounded-lg bg-white p-5">
-          <h1 class="text-base font-medium text-[#1A1A1A]">执行步骤</h1>
+        <ElDivider class="!border-border !m-0 !h-full" direction="vertical" />
+        <div
+          class="bg-background flex h-full flex-1 flex-col gap-6 rounded-lg p-5"
+        >
+          <h1 class="text-base font-medium">执行步骤</h1>
           <WorkflowSteps
             v-if="nodeJson"
             workflow-id="workflowId"

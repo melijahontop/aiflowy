@@ -112,10 +112,10 @@ function handleSelectionChange(items: any[]) {
 
 <style lang="css" scoped>
 .el-table {
-  --el-table-text-color: #333333;
+  --el-table-text-color: hsl(var(--foreground) / 0.9);
   --el-font-size-base: 12px;
-  --el-table-header-text-color: #1a1a1a;
-  --el-table-header-bg-color: #f9fafe;
+  --el-table-header-text-color: hsl(var(--accent-foreground));
+  --el-table-header-bg-color: hsl(var(--background-deep));
   --el-table-border: none;
 }
 

@@ -41,10 +41,10 @@ function makeItem(item: any, index: number) {
     v-for="(item, idx) of result"
     :key="idx"
   >
-    <ElCard shadow="hover" class="mb-3">
+    <ElCard shadow="hover" class="!border-border !bg-background mb-3">
       <template #header>
         <div>
-          <div class="font-medium">
+          <div class="text-foreground font-medium">
             {{ makeItem(item, idx).resourceName }}
           </div>
         </div>
@@ -69,14 +69,14 @@ function makeItem(item: any, index: number) {
           :src="`${item}`"
           class="h-3/5 w-full"
         ></audio>
-        <div v-if="contentType === 'text'">
+        <div v-if="contentType === 'text'" class="text-foreground">
           {{ typeof item === 'string' ? item : JSON.stringify(item) }}
         </div>
         <div v-if="contentType === 'other' || contentType === 'file'">
           <div class="mt-5 flex justify-center">
             <img :src="fileIcon" alt="" class="h-20 w-20" />
           </div>
-          <div class="mt-3 text-center">
+          <div class="text-foreground mt-3 text-center">
             <a :href="`${item}`" target="_blank">下载</a>
           </div>
         </div>
@@ -85,4 +85,8 @@ function makeItem(item: any, index: number) {
   </ElCol>
 </template>
 
-<style scoped></style>
+<style scoped>
+:deep(.el-card__header) {
+  border-color: hsl(var(--border));
+}
+</style>

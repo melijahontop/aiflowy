@@ -80,9 +80,7 @@ function logout() {
 </script>
 
 <template>
-  <div
-    class="h-full w-full bg-[linear-gradient(153deg,#FFFFFF,#EFF8FF)] pt-[156px]"
-  >
+  <div class="bg-background h-full w-full pt-[156px]">
     <ElForm
       ref="formRef"
       class="mx-auto"
@@ -151,7 +149,9 @@ function logout() {
       </ElFormItem>
       <ElFormItem>
         <div class="mt-20 flex w-full justify-center">
-          <ElButton @click="logout" type="primary" class="!h-11 w-[333px]">退出登录</ElButton>
+          <ElButton @click="logout" type="primary" class="!h-11 w-[333px]">
+            退出登录
+          </ElButton>
         </div>
       </ElFormItem>
     </ElForm>

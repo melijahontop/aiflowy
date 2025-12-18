@@ -65,17 +65,20 @@ function checkedItems() {
       @change="handleCheckedIdsChange"
     >
       <Card
-        class="group relative max-w-[378px] flex-col gap-3 border border-[#F0F0F0] p-3 transition hover:-translate-y-2 hover:shadow-xl"
+        class="border-border group relative max-w-[378px] flex-col gap-3 border p-3 transition hover:-translate-y-2 hover:shadow-xl"
         v-for="asset in props.data"
         :key="asset.id"
       >
         <div
-          class="flex h-[174px] w-full items-center justify-center rounded-lg bg-[#F9F8F8]"
+          class="bg-background-deep flex h-[174px] w-full items-center justify-center rounded-lg"
         >
-          <img class="shrink-0 object-cover w-[100px] h-[100px]" :src="getSrc(asset)" />
+          <img
+            class="h-[100px] w-[100px] shrink-0 object-cover"
+            :src="getSrc(asset)"
+          />
         </div>
         <CardContent class="w-full gap-3">
-          <CardTitle class="font-medium text-[#1A1A1A]">
+          <CardTitle class="font-medium">
             {{ asset.resourceName }}
           </CardTitle>
           <div class="flex items-center justify-between">
@@ -97,7 +100,7 @@ function checkedItems() {
                 "
               />
             </ElSpace>
-            <span class="text-xs text-[#969799]">{{ asset.size }}</span>
+            <span class="text-foreground/60 text-xs">{{ asset.size }}</span>
           </div>
         </CardContent>
         <div

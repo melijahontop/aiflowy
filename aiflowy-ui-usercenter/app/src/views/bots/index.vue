@@ -53,10 +53,10 @@ function handleTagClick(tag: any) {
 </script>
 
 <template>
-  <ElContainer class="h-full bg-[linear-gradient(153deg,white,#EFF8FF)]">
+  <ElContainer class="bg-background h-full">
     <ElHeader class="!h-auto !p-8 !pb-0">
       <ElSpace direction="vertical" :size="24" alignment="flex-start">
-        <h1 class="text-2xl font-medium text-[#333333]">智能体</h1>
+        <h1 class="text-2xl font-medium">智能体</h1>
         <ElSpace :size="20">
           <ElInput
             placeholder="搜索"
@@ -69,10 +69,10 @@ function handleTagClick(tag: any) {
               type="button"
               :class="
                 activeTag === category.id
-                  ? 'border-[#0066FF] bg-[rgba(0,102,255,0.08)]'
-                  : ''
+                  ? 'border-primary text-primary bg-[hsl(var(--primary)/15%)] dark:bg-[hsl(var(--accent))]'
+                  : 'hover:bg-[hsl(var(--accent))]'
               "
-              class="h-[35px] w-[94px] rounded-3xl border border-[#E6E9EE] text-sm text-[#566882] hover:border-[#0066FF] hover:bg-[rgba(0,102,255,0.08)] hover:text-[#0066FF]"
+              class="border-border text-foreground h-[35px] w-[94px] rounded-3xl border text-sm"
               v-for="category in categories"
               :key="category.id"
               @click="handleTagClick(category.id)"
@@ -84,22 +84,24 @@ function handleTagClick(tag: any) {
       </ElSpace>
     </ElHeader>
     <ElMain class="!px-8">
-      <div class="flex flex-wrap items-center gap-5" v-loading="pageLoading">
+      <div
+        class="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-5"
+        v-loading="pageLoading"
+      >
         <RouterLink
           v-for="workflow in workflowList"
           :key="workflow.id"
           :to="`/workflow/${workflow.id}`"
-          class="w-full max-w-[378px]"
         >
           <Card
-            class="h-[168px] w-full max-w-[378px] flex-col gap-3 rounded-xl border border-[#E6E9EE] p-6 pb-0 pr-4 transition hover:-translate-y-2 hover:shadow-xl"
+            class="border-border h-[168px] max-w-none flex-col gap-3 rounded-xl border p-6 pb-0 pr-4 transition hover:-translate-y-2 hover:shadow-xl"
           >
             <CardContent class="flex-row items-center gap-3">
               <CardAvatar
                 :src="workflow.icon"
                 :default-avatar="defaultBotAvatar"
               />
-              <CardTitle class="text-[#042A62]">{{ workflow.title }}</CardTitle>
+              <CardTitle>{{ workflow.title }}</CardTitle>
             </CardContent>
             <CardDescription
               class="line-clamp-2 text-sm text-[#566882]"

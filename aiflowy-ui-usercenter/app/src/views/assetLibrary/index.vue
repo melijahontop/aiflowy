@@ -131,10 +131,10 @@ function handleOperation(type: string) {
 </script>
 
 <template>
-  <ElContainer class="h-full bg-white">
+  <ElContainer class="bg-background h-full">
     <ElHeader class="flex flex-col gap-6 !p-8 !pb-0" height="auto">
       <ElSpace :size="24">
-        <h1 class="text-2xl font-medium text-[#333333]">素材库</h1>
+        <h1 class="text-2xl font-medium">素材库</h1>
         <!--<ElSpace
           class="rounded-lg border border-[#E6E9EE] bg-[#F8FBFE] px-3.5 py-2.5"
         >
@@ -155,8 +155,8 @@ function handleOperation(type: string) {
             type="button"
             :class="
               cn(
-                'rounded-sm border border-[#F0F0F0] bg-white p-1 hover:text-[#0066FF] active:text-[#0066FF]/50',
-                viewType === 'list' && 'text-[#0066FF]',
+                'hover:text-primary active:text-primary/50 border-border rounded-sm border bg-white p-1',
+                viewType === 'list' && 'text-primary',
               )
             "
             @click="viewType = 'list'"
@@ -167,8 +167,8 @@ function handleOperation(type: string) {
             type="button"
             :class="
               cn(
-                'rounded-sm border border-[#F0F0F0] bg-white p-1 hover:text-[#0066FF] active:text-[#0066FF]/50',
-                viewType === 'grid' && 'text-[#0066FF]',
+                'hover:text-primary active:text-primary/50 border-border rounded-sm border bg-white p-1',
+                viewType === 'grid' && 'text-primary',
               )
             "
             @click="viewType = 'grid'"
@@ -236,7 +236,7 @@ function handleOperation(type: string) {
 </template>
 <style scoped>
 .operation-div {
-  border: 1px solid #e6e9ee;
+  border: 1px solid hsl(var(--border));
   border-radius: 5px;
   padding: 5px 10px;
 }
