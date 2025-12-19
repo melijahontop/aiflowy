@@ -43,13 +43,14 @@ public class UcAiBotMessageController extends BaseCurdController<AiBotMessageSer
         w.eq(AiBotMessage::getSessionId, sessionId);
         w.eq(AiBotMessage::getAccountId, SaTokenUtil.getLoginAccount().getId());
         List<AiBotMessage> list = aiBotMessageService.list(w);
-        if (CollectionUtil.isNotEmpty( list)) {
+        if (CollectionUtil.isNotEmpty(list)) {
             for (AiBotMessage message : list) {
                 ChatMessageVO vo = new ChatMessageVO();
                 vo.setKey(message.getId().toString());
                 vo.setRole(message.getRole());
                 vo.setContent(JSON.parseObject(message.getContent()).getString("textContent"));
-                vo.setPlacement("user".equals(message.getRole())?"end":"start");
+                vo.setPlacement("user".equals(message.getRole()) ? "end" : "start");
+                vo.setCreated(message.getCreated());
                 res.add(vo);
             }
         }

@@ -1,5 +1,7 @@
 package tech.aiflowy.ai.vo;
 
+import java.util.Date;
+
 public class ChatMessageVO {
 
     private String key;
@@ -7,6 +9,7 @@ public class ChatMessageVO {
     private String content;
     private String placement;
     private Boolean typing = true;
+    private Date created;
 
     public String getKey() {
         return key;
@@ -46,5 +49,13 @@ public class ChatMessageVO {
 
     public void setTyping(Boolean typing) {
         this.typing = typing;
+    }
+
+    public Date getCreated() {
+        return created;
+    }
+
+    public void setCreated(Date created) {
+        this.created = created;
     }
 }

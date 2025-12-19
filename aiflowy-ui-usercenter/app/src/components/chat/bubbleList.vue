@@ -1,9 +1,12 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
 import { BubbleList } from 'vue-element-plus-x';
 
-import { CopyDocument, EditPen, RefreshRight } from '@element-plus/icons-vue';
-import { ElAvatar, ElButton } from 'element-plus';
+import { useUserStore } from '@aiflowy/stores';
+
+import { ElAvatar } from 'element-plus';
+
+import defaultBotAvatar from '#/assets/defaultBotAvatar.png';
+import defaultUserAvatar from '#/assets/defaultUserAvatar.png';
 
 // type listType = BubbleListItemProps & {
 //   key: number;
@@ -43,11 +46,15 @@ interface Props {
   bot: any;
   messages: any[];
 }
-defineProps<Props>();
-const avatar = ref('https://avatars.githubusercontent.com/u/76239030?v=4');
-const avartAi = ref(
-  'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png',
-);
+const props = defineProps<Props>();
+const store = useUserStore();
+
+function getBotAvatar() {
+  return props.bot.icon || defaultBotAvatar;
+}
+function getUserAvatar() {
+  return store.userInfo?.avatar || defaultUserAvatar;
+}
 </script>
 
 <template>
@@ -55,16 +62,16 @@ const avartAi = ref(
     <!-- 自定义头像 -->
     <template #avatar="{ item }">
       <ElAvatar
-        :src="item.role === 'assistant' ? avartAi : avatar"
+        :src="item.role === 'assistant' ? getBotAvatar() : getUserAvatar()"
         :size="40"
       />
     </template>
 
     <!-- 自定义头部 -->
     <template #header="{ item }">
-      <span class="text-foreground/50 text-xs">{{
-        item.role === 'assistant' ? '下午 2:32' : '下午 2:33'
-      }}</span>
+      <span class="text-foreground/50 text-xs">
+        {{ item.created }}
+      </span>
     </template>
 
     <!-- 自定义气泡内容 -->
@@ -72,7 +79,7 @@ const avartAi = ref(
     </template> -->
 
     <!-- 自定义底部 -->
-    <template #footer="{ item }">
+    <!--<template #footer="{ item }">
       <div class="flex items-center">
         <template v-if="item.role === 'assistant'">
           <ElButton :icon="RefreshRight" link />
@@ -83,6 +90,6 @@ const avartAi = ref(
           <ElButton :icon="EditPen" link />
         </template>
       </div>
-    </template>
+    </template>-->
   </BubbleList>
 </template>

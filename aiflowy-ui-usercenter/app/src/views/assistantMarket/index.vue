@@ -11,7 +11,8 @@ import {
   ElContainer,
   ElHeader,
   ElInput,
-  ElMain, ElMessage,
+  ElMain,
+  ElMessage,
   ElRow,
   ElSpace,
 } from 'element-plus';
@@ -25,7 +26,7 @@ import {
   CardDescription,
   CardTitle,
 } from '#/components/card';
-import {$t} from "#/locales";
+import { $t } from '#/locales';
 
 const router = useRouter();
 const categories = ref<any[]>([]);
