@@ -133,7 +133,9 @@ const getBotDetail = async () => {
     .then((res) => {
       if (res.errorCode === 0) {
         botInfo.value = res.data;
-        dialogueSettings.value = res.data.options;
+        if (res.data.options) {
+          dialogueSettings.value = res.data.options;
+        }
         if (res.data.options?.presetQuestions) {
           botStore.setPresetQuestions(res.data?.options?.presetQuestions);
         }
