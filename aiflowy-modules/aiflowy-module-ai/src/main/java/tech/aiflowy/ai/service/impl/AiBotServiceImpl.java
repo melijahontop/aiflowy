@@ -2,23 +2,17 @@ package tech.aiflowy.ai.service.impl;
 
 import cn.dev33.satoken.stp.StpUtil;
 import com.agentsflex.core.memory.ChatMemory;
-import com.agentsflex.core.memory.DefaultChatMemory;
-import com.agentsflex.core.message.AiMessage;
-import com.agentsflex.core.message.ToolMessage;
 import com.agentsflex.core.message.UserMessage;
 import com.agentsflex.core.model.chat.ChatModel;
 import com.agentsflex.core.model.chat.ChatOptions;
 import com.agentsflex.core.model.chat.StreamResponseListener;
-import com.agentsflex.core.model.chat.response.AiMessageResponse;
-import com.agentsflex.core.model.chat.tool.GlobalToolInterceptors;
-import com.agentsflex.core.model.client.StreamContext;
 import com.agentsflex.core.prompt.MemoryPrompt;
-import com.agentsflex.core.prompt.SimplePrompt;
-import com.agentsflex.core.util.CollectionUtil;
+import com.mybatisflex.core.query.QueryWrapper;
+import com.mybatisflex.spring.service.impl.ServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -30,23 +24,16 @@ import tech.aiflowy.ai.entity.AiBotMessageMemory;
 import tech.aiflowy.ai.mapper.AiBotMapper;
 import tech.aiflowy.ai.service.AiBotMessageService;
 import tech.aiflowy.ai.service.AiBotService;
-import com.mybatisflex.spring.service.impl.ServiceImpl;
-import org.springframework.stereotype.Service;
 import tech.aiflowy.ai.service.ChatStreamListener;
 import tech.aiflowy.ai.utils.CustomBeanUtils;
-import tech.aiflowy.common.ai.ChatSseEmitter;
-import tech.aiflowy.common.ai.inteceptor.ToolLoggingInterceptor;
-import tech.aiflowy.common.satoken.util.SaTokenUtil;
-import tech.aiflowy.common.util.StringUtil;
-import tech.aiflowy.common.web.exceptions.BusinessException;
 import tech.aiflowy.ai.utils.RegexUtils;
-import com.mybatisflex.core.query.QueryWrapper;
+import tech.aiflowy.common.ai.ChatSseEmitter;
+import tech.aiflowy.common.satoken.util.SaTokenUtil;
+import tech.aiflowy.common.web.exceptions.BusinessException;
 
 import javax.annotation.Resource;
-import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -74,18 +61,19 @@ public class AiBotServiceImpl extends ServiceImpl<AiBotMapper, AiBot> implements
     private static final long HEARTBEAT_INTERVAL = 30 * 1000L;
     // 心跳消息
     private static final String HEARTBEAT_MESSAGE = "ping";
+
     @Override
     public AiBot getDetail(String id) {
         AiBot aiBot = null;
 
-        if (id.matches(RegexUtils.ALL_NUMBER)){
+        if (id.matches(RegexUtils.ALL_NUMBER)) {
             aiBot = getById(id);
 
             if (aiBot == null) {
-               aiBot = getByAlias(id);
+                aiBot = getByAlias(id);
             }
 
-        }else{
+        } else {
             aiBot = getByAlias(id);
         }
 
@@ -93,9 +81,9 @@ public class AiBotServiceImpl extends ServiceImpl<AiBotMapper, AiBot> implements
     }
 
     @Override
-    public AiBot getByAlias(String alias){
+    public AiBot getByAlias(String alias) {
         QueryWrapper queryWrapper = QueryWrapper.create();
-        queryWrapper.eq("alias",alias);
+        queryWrapper.eq("alias", alias);
         return getOne(queryWrapper);
     }
 
@@ -103,11 +91,11 @@ public class AiBotServiceImpl extends ServiceImpl<AiBotMapper, AiBot> implements
     public SseEmitter startChat(BigInteger botId, ChatModel chatModel, String prompt, MemoryPrompt memoryPrompt, ChatOptions chatOptions, String sessionId, List<Map<String, String>> messages) {
 
         SseEmitter emitter = ChatSseEmitter.create();
-        if (messages != null && !messages.isEmpty()){
+        if (messages != null && !messages.isEmpty()) {
             ChatMemory defaultChatMemory = new AiBotMessageDefaultMemory(sessionId, emitter, messages);
             defaultChatMemory.addMessage(new UserMessage(prompt));
             memoryPrompt.setMemory(defaultChatMemory);
-        } else{
+        } else {
             AiBotMessageMemory memory = new AiBotMessageMemory(botId, SaTokenUtil.getLoginAccount().getId(), sessionId, aiBotMessageService);
             memoryPrompt.setMemory(memory);
         }
@@ -122,7 +110,7 @@ public class AiBotServiceImpl extends ServiceImpl<AiBotMapper, AiBot> implements
         RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
         threadPoolTaskExecutor.execute(() -> {
             ServletRequestAttributes sra = (ServletRequestAttributes) requestAttributes;
-            RequestContextHolder.setRequestAttributes(requestAttributes, true);
+            RequestContextHolder.setRequestAttributes(sra, true);
             StreamResponseListener streamResponseListener = new ChatStreamListener(chatModel, memoryPrompt, emitter);
 
             chatModel.chatStream(memoryPrompt, streamResponseListener);
@@ -142,7 +130,7 @@ public class AiBotServiceImpl extends ServiceImpl<AiBotMapper, AiBot> implements
 
         byId.setLlmId(aiBot.getLlmId());
 
-        updateById(byId,false);
+        updateById(byId, false);
 
     }
 
@@ -154,14 +142,14 @@ public class AiBotServiceImpl extends ServiceImpl<AiBotMapper, AiBot> implements
             throw new BusinessException("bot 不存在");
         }
 
-        CustomBeanUtils.copyPropertiesIgnoreNull(entity,aiBot);
+        CustomBeanUtils.copyPropertiesIgnoreNull(entity, aiBot);
 
-        if ("".equals(aiBot.getAlias())){
+        if ("".equals(aiBot.getAlias())) {
             aiBot.setAlias(null);
         }
 
 
-        return super.updateById(aiBot,false);
+        return super.updateById(aiBot, false);
     }
 
 

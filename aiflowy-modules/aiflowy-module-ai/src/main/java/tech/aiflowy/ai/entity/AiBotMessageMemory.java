@@ -39,6 +39,7 @@ public class AiBotMessageMemory implements ChatMemory {
                 .eq(AiBotMessage::getAccountId, accountId, true)
                 .eq(AiBotMessage::getSessionId, sessionId, true)
                 .orderBy(AiBotMessage::getCreated, true)
+                .limit(i)
         );
 
         if (sysAiMessages == null || sysAiMessages.isEmpty()) {

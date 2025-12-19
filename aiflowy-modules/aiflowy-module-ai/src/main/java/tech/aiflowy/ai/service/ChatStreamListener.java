@@ -7,10 +7,8 @@ import com.agentsflex.core.model.chat.StreamResponseListener;
 import com.agentsflex.core.model.chat.response.AiMessageResponse;
 import com.agentsflex.core.model.client.StreamContext;
 import com.agentsflex.core.prompt.MemoryPrompt;
-import com.alibaba.fastjson.JSON;
 import org.apache.catalina.connector.ClientAbortException;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-import tech.aiflowy.ai.entity.AiBotMessageDefaultMemory;
 import tech.aiflowy.common.util.StringUtil;
 
 import java.io.IOException;
@@ -18,9 +16,9 @@ import java.util.List;
 
 public class ChatStreamListener implements StreamResponseListener {
 
-    private ChatModel chatModel;
-    private MemoryPrompt memoryPrompt;
-    private SseEmitter sseEmitter;
+    private final ChatModel chatModel;
+    private final MemoryPrompt memoryPrompt;
+    private final SseEmitter sseEmitter;
 
 
     public ChatStreamListener(ChatModel chatModel, MemoryPrompt memoryPrompt, SseEmitter sseEmitter) {
@@ -41,7 +39,7 @@ public class ChatStreamListener implements StreamResponseListener {
             if (aiMessage == null) {
                 return;
             }
-            if ((aiMessage.getFinished() != null) && StringUtil.hasText(aiMessage.getFullReasoningContent()) && aiMessage.isFinalDelta()){
+            if ((aiMessage.getFinished() != null) && StringUtil.hasText(aiMessage.getFullReasoningContent()) && aiMessage.isFinalDelta()) {
                 aiMessage.setContent(aiMessage.getFullReasoningContent());
                 memoryPrompt.addMessage(aiMessage);
                 return;
@@ -51,18 +49,13 @@ public class ChatStreamListener implements StreamResponseListener {
                 for (ToolMessage toolMessage : toolMessages) {
                     memoryPrompt.addMessage(toolMessage);
                 }
-
-                chatModel.chatStream(memoryPrompt,this);
-
+                chatModel.chatStream(memoryPrompt, this);
             } else {
-
-                    String delta = aiMessageResponse.getMessage().getContent();
-                    if (StringUtil.hasText(delta)) {
-                        sseEmitter.send(delta);
-                    }
-
+                String delta = aiMessageResponse.getMessage().getContent();
+                if (StringUtil.hasText(delta)) {
+                    sseEmitter.send(delta);
+                }
             }
-
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -72,9 +65,7 @@ public class ChatStreamListener implements StreamResponseListener {
     public void onStop(StreamContext context) {
         System.out.println("onStop");
         try {
-            if (this.memoryPrompt.getMemory() instanceof AiBotMessageDefaultMemory) {
-                memoryPrompt.addMessage(context.getAiMessage());
-            }
+            memoryPrompt.addMessage(context.getAiMessage());
             sseEmitter.send(SseEmitter.event().name("finish").data("finish"));
         } catch (IOException e) {
             throw new RuntimeException(e);
