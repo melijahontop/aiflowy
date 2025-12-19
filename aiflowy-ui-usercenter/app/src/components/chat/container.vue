@@ -15,20 +15,19 @@ import {
   ElForm,
   ElFormItem,
   ElHeader,
-  ElIcon,
   ElInput,
   ElMain,
   ElTooltip,
 } from 'element-plus';
 
 import { api } from '#/api/request';
+import AssistantAvatar from '#/components/avatar/Assistant.vue';
 import {
   Card,
   CardContent,
   CardDescription,
   CardTitle,
 } from '#/components/card';
-import AssistantIcon from '#/components/icons/AssistantIcon.vue';
 import ChatIcon from '#/components/icons/ChatIcon.vue';
 
 interface Props {
@@ -113,10 +112,7 @@ const handleMouseEvent = (id?: string) => {
   <ElContainer class="border-border bg-background h-full rounded-lg border">
     <ElAside width="287px" class="border-border border-r p-6">
       <Card class="max-w-max p-0">
-        <!-- <CardAvatar /> -->
-        <ElIcon class="!text-primary" :size="36">
-          <AssistantIcon />
-        </ElIcon>
+        <AssistantAvatar :src="bot.icon" />
         <CardContent>
           <CardTitle>{{ bot.title }}</CardTitle>
           <CardDescription>{{ bot.description }}</CardDescription>
