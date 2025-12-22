@@ -4,13 +4,12 @@ import cn.dev33.satoken.stp.SaLoginModel;
 import cn.dev33.satoken.stp.StpUtil;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
-import tech.aiflowy.common.ai.util.UUIDGenerator;
+import org.springframework.stereotype.Service;
 import tech.aiflowy.common.domain.Result;
-import tech.aiflowy.common.util.DateUtil;
+import tech.aiflowy.common.util.IdUtil;
 import tech.aiflowy.system.entity.SysToken;
 import tech.aiflowy.system.mapper.SysTokenMapper;
 import tech.aiflowy.system.service.SysTokenService;
-import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
 import java.time.Duration;
@@ -36,7 +35,7 @@ public class SysTokenServiceImpl extends ServiceImpl<SysTokenMapper, SysToken>  
         if (sysToken != null){
             return Result.fail(1, "已经存在 token， 无需生成");
         }
-        String customToken = UUIDGenerator.generateUUID();; // 自定义的 Token 字符串
+        String customToken = IdUtil.generateUUID();; // 自定义的 Token 字符串
         SaLoginModel saLoginModel = new SaLoginModel();
         saLoginModel.setToken(customToken);
         // 默认30天过期
