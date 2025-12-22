@@ -6,10 +6,7 @@ import com.agentsflex.core.document.DocumentSplitter;
 import com.agentsflex.core.document.splitter.RegexDocumentSplitter;
 import com.agentsflex.core.document.splitter.SimpleDocumentSplitter;
 import com.agentsflex.core.document.splitter.SimpleTokenizeSplitter;
-import com.agentsflex.core.file2text.extractor.FileExtractor;
-import com.agentsflex.core.file2text.source.ByteArrayDocumentSource;
-import com.agentsflex.core.file2text.source.FileDocumentSource;
-import com.agentsflex.core.file2text.source.TemporaryFileStreamDocumentSource;
+import com.agentsflex.core.file2text.File2TextUtil;
 import com.agentsflex.core.model.embedding.EmbeddingModel;
 import com.agentsflex.core.model.embedding.EmbeddingOptions;
 import com.agentsflex.core.store.DocumentStore;
@@ -20,7 +17,6 @@ import com.mybatisflex.core.keygen.impl.FlexIDKeyGenerator;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
-import dev.tinyflow.core.llm.Llm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,13 +33,12 @@ import tech.aiflowy.ai.service.AiDocumentChunkService;
 import tech.aiflowy.ai.service.AiDocumentService;
 import tech.aiflowy.ai.service.AiKnowledgeService;
 import tech.aiflowy.ai.service.AiLlmService;
-import tech.aiflowy.common.ai.DocumentParserFactory;
-import tech.aiflowy.common.ai.ExcelDocumentSplitter;
+import tech.aiflowy.common.ai.rag.ExcelDocumentSplitter;
 import tech.aiflowy.common.domain.Result;
 import tech.aiflowy.common.filestorage.FileStorageService;
+import tech.aiflowy.common.util.FileUtil;
 import tech.aiflowy.common.util.StringUtil;
 import tech.aiflowy.common.web.exceptions.BusinessException;
-import tech.aiflowy.core.utils.JudgeFileTypeUtil;
 
 import javax.annotation.Resource;
 import java.io.IOException;
@@ -165,20 +160,22 @@ public class AiDocumentServiceImpl extends ServiceImpl<AiDocumentMapper, AiDocum
     public Result<?> textSplit(Integer pageNumber, Integer pageSize, String operation, BigInteger knowledgeId, String filePath, String originalFilename, String splitterName, Integer chunkSize, Integer overlapSize, String regex, Integer rowsPerChunk) {
         try {
             InputStream inputStream = storageService.readStream(filePath);
-            if (getFileExtension(filePath) == null){
-                Log.error("获取文件后缀失败");
-                throw new BusinessException("获取文件后缀失败");
-            }
-            FileExtractor documentParser = DocumentParserFactory.getDocumentParser(filePath);
+//            if (getFileExtension(filePath) == null){
+//                Log.error("获取文件后缀失败");
+//                throw new BusinessException("获取文件后缀失败");
+//            }
+//            FileExtractor documentParser = DocumentParserFactory.getDocumentParser(filePath);
             AiDocument aiDocument = new AiDocument();
             List<AiDocumentChunk> previewList = new ArrayList<>();
             DocumentSplitter documentSplitter = getDocumentSplitter(splitterName, chunkSize, overlapSize, regex, rowsPerChunk);
-            Document document = null;
-            if (documentParser != null) {
-                TemporaryFileStreamDocumentSource fileDocumentSource = new TemporaryFileStreamDocumentSource(inputStream, originalFilename, null);
-                String  content = documentParser.extractText(fileDocumentSource);
-                document = new Document(content);
-            }
+
+            String content = File2TextUtil.readFromStream(inputStream, originalFilename, null);
+            Document document = new Document(content);;
+//            if (documentParser != null) {
+//                TemporaryFileStreamDocumentSource fileDocumentSource = new TemporaryFileStreamDocumentSource(inputStream, originalFilename, null);
+//                String  content = documentParser.extractText(fileDocumentSource);
+//                document = new Document(content);
+//            }
             inputStream.close();
             List<Document> documents = documentSplitter.split(document);
             FlexIDKeyGenerator flexIDKeyGenerator = new FlexIDKeyGenerator();
@@ -191,7 +188,7 @@ public class AiDocumentServiceImpl extends ServiceImpl<AiDocumentMapper, AiDocum
                 sort++;
                 previewList.add(chunk);
             }
-            String fileTypeByExtension = JudgeFileTypeUtil.getFileTypeByExtension(filePath);
+            String fileTypeByExtension = FileUtil.getFileTypeByExtension(filePath);
             aiDocument.setDocumentType(fileTypeByExtension);
             aiDocument.setKnowledgeId(knowledgeId);
             aiDocument.setDocumentPath(filePath);

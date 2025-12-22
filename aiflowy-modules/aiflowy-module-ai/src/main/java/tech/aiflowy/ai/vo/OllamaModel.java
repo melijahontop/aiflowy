@@ -1,6 +1,7 @@
 package tech.aiflowy.ai.vo;
 
-import tech.aiflowy.core.utils.CommonUtils;
+
+import tech.aiflowy.common.util.FileUtil;
 
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
@@ -63,7 +64,7 @@ public class OllamaModel {
     }
 
     public String getSizeString() {
-        return CommonUtils.calcByte(this.size);
+        return FileUtil.calcByte(this.size);
     }
 
     public OllamaModel(String name, Long size, String apiUrl, String modified_at) {
