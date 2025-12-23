@@ -22,13 +22,13 @@ public class SysApiKey extends SysApiKeyBase {
     List<BigInteger> permissionIds;
 
     @RelationOneToMany(selfField = "id", targetField = "apiKeyId", targetTable = "tb_sys_api_key_resource_mapping")
-    private List<SysApiKeyResourcePermissionRelationship> resourcePermissions;
+    private List<SysApiKeyResourceMapping> resourcePermissions;
 
-    public List<SysApiKeyResourcePermissionRelationship> getResourcePermissions() {
+    public List<SysApiKeyResourceMapping> getResourcePermissions() {
         return resourcePermissions;
     }
 
-    public void setResourcePermissions(List<SysApiKeyResourcePermissionRelationship> resourcePermissions) {
+    public void setResourcePermissions(List<SysApiKeyResourceMapping> resourcePermissions) {
         this.resourcePermissions = resourcePermissions;
     }
 

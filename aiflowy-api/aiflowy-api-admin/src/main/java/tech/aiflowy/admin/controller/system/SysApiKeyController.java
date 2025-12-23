@@ -16,8 +16,8 @@ import tech.aiflowy.common.util.IdUtil;
 import tech.aiflowy.common.vo.PkVo;
 import tech.aiflowy.common.web.controller.BaseCurdController;
 import tech.aiflowy.system.entity.SysApiKey;
-import tech.aiflowy.system.entity.SysApiKeyResourcePermissionRelationship;
-import tech.aiflowy.system.service.SysApiKeyResourcePermissionRelationshipService;
+import tech.aiflowy.system.entity.SysApiKeyResourceMapping;
+import tech.aiflowy.system.service.SysApiKeyResourceMappingService;
 import tech.aiflowy.system.service.SysApiKeyService;
 
 import javax.annotation.Resource;
@@ -42,7 +42,7 @@ public class SysApiKeyController extends BaseCurdController<SysApiKeyService, Sy
     }
 
     @Resource
-    private SysApiKeyResourcePermissionRelationshipService sysApiKeyResourcePermissionRelationshipService;
+    private SysApiKeyResourceMappingService sysApiKeyResourceMappingService;
     /**
      * 添加（保存）数据
      *
@@ -81,7 +81,7 @@ public class SysApiKeyController extends BaseCurdController<SysApiKeyService, Sy
     protected void onSaveOrUpdateAfter(SysApiKey entity, boolean isSave) {
         if (!isSave && entity.getPermissionIds() != null && !entity.getPermissionIds().isEmpty()) {
             // 修改的时候绑定授权接口
-            sysApiKeyResourcePermissionRelationshipService.authInterface(entity);
+            sysApiKeyResourceMappingService.authInterface(entity);
         }
     }
 
@@ -92,8 +92,8 @@ public class SysApiKeyController extends BaseCurdController<SysApiKeyService, Sy
         Page<SysApiKey> data = pageResult.getData();
         List<SysApiKey> records = data.getRecords();
         records.forEach(record -> {
-            QueryWrapper queryWrapper = QueryWrapper.create().select(SysApiKeyResourcePermissionRelationship::getApiKeyResourceId).eq(SysApiKeyResourcePermissionRelationship::getApiKeyId, record.getId());
-            List<BigInteger> resourceIds = sysApiKeyResourcePermissionRelationshipService.listAs(queryWrapper, BigInteger.class);
+            QueryWrapper queryWrapper = QueryWrapper.create().select(SysApiKeyResourceMapping::getApiKeyResourceId).eq(SysApiKeyResourceMapping::getApiKeyId, record.getId());
+            List<BigInteger> resourceIds = sysApiKeyResourceMappingService.listAs(queryWrapper, BigInteger.class);
             record.setPermissionIds(resourceIds);
         });
         return pageResult;

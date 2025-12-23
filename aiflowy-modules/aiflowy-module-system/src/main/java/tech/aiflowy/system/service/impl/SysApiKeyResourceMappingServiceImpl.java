@@ -1,13 +1,12 @@
 package tech.aiflowy.system.service.impl;
 
 import com.mybatisflex.core.query.QueryWrapper;
-import com.mybatisflex.core.row.Row;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import tech.aiflowy.system.entity.SysApiKey;
-import tech.aiflowy.system.entity.SysApiKeyResourcePermissionRelationship;
-import tech.aiflowy.system.mapper.SysApiKeyResourcePermissionRelationshipMapper;
-import tech.aiflowy.system.service.SysApiKeyResourcePermissionRelationshipService;
+import tech.aiflowy.system.entity.SysApiKeyResourceMapping;
+import tech.aiflowy.system.mapper.SysApiKeyResourceMappingMapper;
+import tech.aiflowy.system.service.SysApiKeyResourceMappingService;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -20,7 +19,7 @@ import java.util.List;
  * @since 2025-12-01
  */
 @Service
-public class SysApiKeyResourcePermissionRelationshipServiceImpl extends ServiceImpl<SysApiKeyResourcePermissionRelationshipMapper, SysApiKeyResourcePermissionRelationship>  implements SysApiKeyResourcePermissionRelationshipService {
+public class SysApiKeyResourceMappingServiceImpl extends ServiceImpl<SysApiKeyResourceMappingMapper, SysApiKeyResourceMapping>  implements SysApiKeyResourceMappingService {
 
     /**
      * 批量授权apiKey接口
@@ -28,11 +27,11 @@ public class SysApiKeyResourcePermissionRelationshipServiceImpl extends ServiceI
      */
     @Override
     public void authInterface(SysApiKey entity) {
-        this.remove(QueryWrapper.create().eq(SysApiKeyResourcePermissionRelationship::getApiKeyId, entity.getId()));
-        List<SysApiKeyResourcePermissionRelationship> rows = new ArrayList<>(entity.getPermissionIds().size());
+        this.remove(QueryWrapper.create().eq(SysApiKeyResourceMapping::getApiKeyId, entity.getId()));
+        List<SysApiKeyResourceMapping> rows = new ArrayList<>(entity.getPermissionIds().size());
         BigInteger apiKeyId = BigInteger.valueOf(entity.getId());
         for (BigInteger resourceId : entity.getPermissionIds()) {
-            SysApiKeyResourcePermissionRelationship sysApiKeyResourcePermissionRelationship = new SysApiKeyResourcePermissionRelationship();
+            SysApiKeyResourceMapping sysApiKeyResourcePermissionRelationship = new SysApiKeyResourceMapping();
             sysApiKeyResourcePermissionRelationship.setApiKeyId(apiKeyId);
             sysApiKeyResourcePermissionRelationship.setApiKeyResourceId(resourceId);
             rows.add(sysApiKeyResourcePermissionRelationship);

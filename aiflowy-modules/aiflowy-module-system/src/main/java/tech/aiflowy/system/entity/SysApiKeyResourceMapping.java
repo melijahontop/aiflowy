@@ -1,7 +1,7 @@
 package tech.aiflowy.system.entity;
 
 import com.mybatisflex.annotation.Table;
-import tech.aiflowy.system.entity.base.SysApiKeyResourcePermissionRelationshipBase;
+import tech.aiflowy.system.entity.base.SysApiKeyResourceMappingBase;
 
 
 /**
@@ -11,5 +11,5 @@ import tech.aiflowy.system.entity.base.SysApiKeyResourcePermissionRelationshipBa
  * @since 2025-12-01
  */
 @Table(value = "tb_sys_api_key_resource_mapping", comment = "apikey-请求接口表")
-public class SysApiKeyResourcePermissionRelationship extends SysApiKeyResourcePermissionRelationshipBase {
+public class SysApiKeyResourceMapping extends SysApiKeyResourceMappingBase {
 }

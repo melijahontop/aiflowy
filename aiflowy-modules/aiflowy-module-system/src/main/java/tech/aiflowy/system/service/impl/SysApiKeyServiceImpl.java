@@ -3,14 +3,13 @@ package tech.aiflowy.system.service.impl;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
-import tech.aiflowy.common.domain.Result;
 import tech.aiflowy.common.web.exceptions.BusinessException;
 import tech.aiflowy.system.entity.SysApiKey;
-import tech.aiflowy.system.entity.SysApiKeyResourcePermission;
-import tech.aiflowy.system.entity.SysApiKeyResourcePermissionRelationship;
+import tech.aiflowy.system.entity.SysApiKeyResource;
+import tech.aiflowy.system.entity.SysApiKeyResourceMapping;
 import tech.aiflowy.system.mapper.SysApiKeyMapper;
-import tech.aiflowy.system.service.SysApiKeyResourcePermissionRelationshipService;
-import tech.aiflowy.system.service.SysApiKeyResourcePermissionService;
+import tech.aiflowy.system.service.SysApiKeyResourceMappingService;
+import tech.aiflowy.system.service.SysApiKeyResourceService;
 import tech.aiflowy.system.service.SysApiKeyService;
 
 import javax.annotation.Resource;
@@ -28,10 +27,10 @@ import java.util.List;
 public class SysApiKeyServiceImpl extends ServiceImpl<SysApiKeyMapper, SysApiKey> implements SysApiKeyService {
 
     @Resource
-    private SysApiKeyResourcePermissionRelationshipService permissionRelationshipService;
+    private SysApiKeyResourceMappingService permissionRelationshipService;
 
     @Resource
-    private SysApiKeyResourcePermissionService permissionService;
+    private SysApiKeyResourceService permissionService;
 
     @Override
     public void checkApiKey(String apiKey) {
@@ -64,13 +63,13 @@ public class SysApiKeyServiceImpl extends ServiceImpl<SysApiKeyMapper, SysApiKey
         if (sysApiKey.getExpiredAt().getTime() < new Date().getTime()) {
             throw new BusinessException("该apiKey已失效");
         }
-        QueryWrapper queryWrapperShip = QueryWrapper.create().select(SysApiKeyResourcePermissionRelationship::getApiKeyResourceId).eq(SysApiKeyResourcePermissionRelationship::getApiKeyId, sysApiKey.getId());
+        QueryWrapper queryWrapperShip = QueryWrapper.create().select(SysApiKeyResourceMapping::getApiKeyResourceId).eq(SysApiKeyResourceMapping::getApiKeyId, sysApiKey.getId());
         // 获取到当前apiKey可以访问哪些资源
         List<BigInteger> resourcePermissionsId = permissionRelationshipService.listAs(queryWrapperShip, BigInteger.class);
-        List<SysApiKeyResourcePermission> allPermissions = permissionService.list();
+        List<SysApiKeyResource> allPermissions = permissionService.list();
         boolean hasPermission = false;
         for (BigInteger resourcePermission : resourcePermissionsId) {
-            for (SysApiKeyResourcePermission allPermission : allPermissions) {
+            for (SysApiKeyResource allPermission : allPermissions) {
                 if (resourcePermission.equals(allPermission.getId()) && allPermission.getRequestInterface().equals(requestURI)) {
                     hasPermission = true;
                     break;
