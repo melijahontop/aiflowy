@@ -5,7 +5,7 @@ import dev.tinyflow.core.chain.repository.ChainDefinitionRepository;
 import dev.tinyflow.core.parser.ChainParser;
 import org.springframework.stereotype.Component;
 import tech.aiflowy.ai.entity.Workflow;
-import tech.aiflowy.ai.service.AiWorkflowService;
+import tech.aiflowy.ai.service.WorkflowService;
 
 import javax.annotation.Resource;
 
@@ -13,13 +13,13 @@ import javax.annotation.Resource;
 public class ChainDefinitionRepositoryImpl implements ChainDefinitionRepository {
 
     @Resource
-    private AiWorkflowService aiWorkflowService;
+    private WorkflowService workflowService;
     @Resource
     private ChainParser chainParser;
 
     @Override
     public ChainDefinition getChainDefinitionById(String id) {
-        Workflow workflow = aiWorkflowService.getById(id);
+        Workflow workflow = workflowService.getById(id);
         String json = workflow.getContent();
         ChainDefinition chainDefinition = chainParser.parse(json);
         chainDefinition.setId(workflow.getId().toString());

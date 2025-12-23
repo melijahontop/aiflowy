@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import tech.aiflowy.ai.entity.Model;
-import tech.aiflowy.ai.service.AiLlmService;
+import tech.aiflowy.ai.service.ModelService;
 
 import javax.annotation.Resource;
 import java.math.BigInteger;
@@ -17,11 +17,11 @@ public class LlmProviderImpl implements LlmProvider {
 
     private static final Logger log = LoggerFactory.getLogger(LlmProviderImpl.class);
     @Resource
-    private AiLlmService aiLlmService;
+    private ModelService modelService;
 
     @Override
     public Llm getChatModel(Object modelId) {
-        Model model = aiLlmService.getLlmInstance(new BigInteger(modelId.toString()));
+        Model model = modelService.getLlmInstance(new BigInteger(modelId.toString()));
         if (model == null) {
             log.error("LlmProviderImpl.getChatModel: modelId not found: {}", modelId);
             return null;

@@ -5,10 +5,10 @@ import com.agentsflex.core.document.Document;
 import com.mybatisflex.core.query.QueryWrapper;
 import org.springframework.util.StringUtils;
 import tech.aiflowy.ai.entity.DocumentCollection;
-import tech.aiflowy.ai.service.AiBotKnowledgeService;
-import tech.aiflowy.ai.service.AiDocumentChunkService;
-import tech.aiflowy.ai.service.AiKnowledgeService;
-import tech.aiflowy.ai.service.AiLlmService;
+import tech.aiflowy.ai.service.BotDocumentCollectionService;
+import tech.aiflowy.ai.service.DocumentChunkService;
+import tech.aiflowy.ai.service.DocumentCollectionService;
+import tech.aiflowy.ai.service.ModelService;
 import tech.aiflowy.common.domain.Result;
 import tech.aiflowy.common.web.controller.BaseCurdController;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,15 +33,15 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/api/v1/aiKnowledge")
-public class AiKnowledgeController extends BaseCurdController<AiKnowledgeService, DocumentCollection> {
+public class AiKnowledgeController extends BaseCurdController<DocumentCollectionService, DocumentCollection> {
 
-    private final AiDocumentChunkService chunkService;
-    private final AiLlmService llmService;
+    private final DocumentChunkService chunkService;
+    private final ModelService llmService;
 
     @Resource
-    private AiBotKnowledgeService aiBotKnowledgeService;
+    private BotDocumentCollectionService botDocumentCollectionService;
 
-    public AiKnowledgeController(AiKnowledgeService service, AiDocumentChunkService chunkService, AiLlmService llmService) {
+    public AiKnowledgeController(DocumentCollectionService service, DocumentChunkService chunkService, ModelService llmService) {
         super(service);
         this.chunkService = chunkService;
         this.llmService = llmService;
@@ -91,7 +91,7 @@ public class AiKnowledgeController extends BaseCurdController<AiKnowledgeService
         QueryWrapper queryWrapper = QueryWrapper.create();
         queryWrapper.in("knowledge_id", ids);
 
-        boolean exists = aiBotKnowledgeService.exists(queryWrapper);
+        boolean exists = botDocumentCollectionService.exists(queryWrapper);
         if (exists){
             throw new BusinessException("此知识库还关联着bot，请先取消关联！");
         }

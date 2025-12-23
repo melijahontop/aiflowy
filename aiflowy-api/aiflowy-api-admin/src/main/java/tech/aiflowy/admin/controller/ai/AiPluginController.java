@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import tech.aiflowy.ai.entity.Plugin;
 import tech.aiflowy.common.domain.Result;
 import tech.aiflowy.common.web.controller.BaseCurdController;
-import tech.aiflowy.ai.service.AiPluginService;
+import tech.aiflowy.ai.service.PluginService;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import tech.aiflowy.common.web.jsonbody.JsonBody;
@@ -25,13 +25,13 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/v1/aiPlugin")
-public class AiPluginController extends BaseCurdController<AiPluginService, Plugin> {
-    public AiPluginController(AiPluginService service) {
+public class AiPluginController extends BaseCurdController<PluginService, Plugin> {
+    public AiPluginController(PluginService service) {
         super(service);
     }
 
     @Resource
-    AiPluginService aiPluginService;
+    PluginService pluginService;
 
     @Override
     protected Result<?> onSaveOrUpdateBefore(Plugin entity, boolean isSave) {
@@ -42,27 +42,27 @@ public class AiPluginController extends BaseCurdController<AiPluginService, Plug
     @SaCheckPermission("/api/v1/aiPlugin/save")
     public Result<Boolean> savePlugin(@JsonBody Plugin plugin){
 
-        return Result.ok(aiPluginService.savePlugin(plugin));
+        return Result.ok(pluginService.savePlugin(plugin));
     }
 
     @PostMapping("/plugin/remove")
     @SaCheckPermission("/api/v1/aiPlugin/remove")
     public Result<Boolean> removePlugin(@JsonBody(value = "id", required = true) String id){
 
-        return Result.ok(aiPluginService.removePlugin(id));
+        return Result.ok(pluginService.removePlugin(id));
     }
 
     @PostMapping("/plugin/update")
     @SaCheckPermission("/api/v1/aiPlugin/save")
     public Result<Boolean> updatePlugin(@JsonBody Plugin plugin){
 
-        return Result.ok(aiPluginService.updatePlugin(plugin));
+        return Result.ok(pluginService.updatePlugin(plugin));
     }
 
     @PostMapping("/getList")
     @SaCheckPermission("/api/v1/aiPlugin/query")
     public Result<List<Plugin>> getList(){
-        return Result.ok(aiPluginService.getList());
+        return Result.ok(pluginService.getList());
     }
 
     @GetMapping("/pageByCategory")
@@ -79,7 +79,7 @@ public class AiPluginController extends BaseCurdController<AiPluginService, Plug
             queryWrapper.orderBy(buildOrderBy(sortKey, sortType, getDefaultOrderBy()));
             return Result.ok(queryPage(new Page<>(pageNumber, pageSize), queryWrapper));
         } else {
-            return aiPluginService.pageByCategory(pageNumber, pageSize, category);
+            return pluginService.pageByCategory(pageNumber, pageSize, category);
         }
     }
 

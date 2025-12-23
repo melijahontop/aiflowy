@@ -14,10 +14,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import tech.aiflowy.ai.entity.Document;
 import tech.aiflowy.ai.entity.DocumentCollection;
-import tech.aiflowy.ai.service.AiDocumentChunkService;
-import tech.aiflowy.ai.service.AiDocumentService;
-import tech.aiflowy.ai.service.AiKnowledgeService;
-import tech.aiflowy.ai.service.AiLlmService;
+import tech.aiflowy.ai.service.DocumentChunkService;
+import tech.aiflowy.ai.service.DocumentService;
+import tech.aiflowy.ai.service.DocumentCollectionService;
+import tech.aiflowy.ai.service.ModelService;
 import tech.aiflowy.common.annotation.UsePermission;
 import tech.aiflowy.common.domain.Result;
 import tech.aiflowy.common.tree.Tree;
@@ -43,22 +43,22 @@ import java.util.*;
 @RestController
 @RequestMapping("/api/v1/aiDocument")
 @UsePermission(moduleName = "/api/v1/aiKnowledge")
-public class AiDocumentController extends BaseCurdController<AiDocumentService, Document> {
+public class AiDocumentController extends BaseCurdController<DocumentService, Document> {
 
-    private final AiKnowledgeService knowledgeService;
+    private final DocumentCollectionService knowledgeService;
 
 
     @Autowired
-    private AiDocumentService aiDocumentService;
+    private DocumentService documentService;
 
 
     @Value("${aiflowy.storage.local.root}")
     private  String fileUploadPath;
 
 
-    public AiDocumentController(AiDocumentService service,
-                                AiKnowledgeService knowledgeService,
-                                AiDocumentChunkService documentChunkService, AiLlmService aiLlmService) {
+    public AiDocumentController(DocumentService service,
+                                DocumentCollectionService knowledgeService,
+                                DocumentChunkService documentChunkService, ModelService modelService) {
         super(service);
         this.knowledgeService = knowledgeService;
     }
@@ -69,7 +69,7 @@ public class AiDocumentController extends BaseCurdController<AiDocumentService, 
         List<Serializable> ids = Collections.singletonList(id);
         Result<?> result = onRemoveBefore(ids);
         if (result != null) return result;
-        boolean isSuccess = aiDocumentService.removeDoc(id);
+        boolean isSuccess = documentService.removeDoc(id);
         if (!isSuccess){
             return Result.ok(false);
         }
@@ -120,7 +120,7 @@ public class AiDocumentController extends BaseCurdController<AiDocumentService, 
         if (StringUtil.noText(kbSlug)) {
             throw new BusinessException("知识库id不能为空");
         }
-        Page<Document> documentList = aiDocumentService.getDocumentList(kbSlug, pageSize, pageNumber,fileName);
+        Page<Document> documentList = documentService.getDocumentList(kbSlug, pageSize, pageNumber,fileName);
         return Result.ok(documentList);
     }
 
@@ -179,7 +179,7 @@ public class AiDocumentController extends BaseCurdController<AiDocumentService, 
         if (rowsPerChunk == null){
             rowsPerChunk = 1;
         }
-        return aiDocumentService.textSplit(pageNumber, pageSize, operation, knowledgeId, filePath, fileOriginName,  splitterName, chunkSize, overlapSize, regex, rowsPerChunk);
+        return documentService.textSplit(pageNumber, pageSize, operation, knowledgeId, filePath, fileOriginName,  splitterName, chunkSize, overlapSize, regex, rowsPerChunk);
 
     }
 

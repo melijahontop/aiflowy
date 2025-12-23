@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import tech.aiflowy.ai.entity.Workflow;
-import tech.aiflowy.ai.service.AiWorkflowService;
+import tech.aiflowy.ai.service.WorkflowService;
 import tech.aiflowy.common.domain.Result;
 import tech.aiflowy.common.web.exceptions.BusinessException;
 
@@ -26,7 +26,7 @@ import java.util.List;
 public class WorkFlowNodeController {
 
     @Resource
-    private AiWorkflowService aiWorkflowService;
+    private WorkflowService workflowService;
     @Resource
     private ChainParser chainParser;
 
@@ -36,7 +36,7 @@ public class WorkFlowNodeController {
             throw new BusinessException("工作流不能作为自身子节点");
         }
         JSONObject nodeData = new JSONObject();
-        Workflow workflow = aiWorkflowService.getById(workflowId);
+        Workflow workflow = workflowService.getById(workflowId);
         if (workflow == null) {
             throw new BusinessException("工作流不存在: " + workflowId);
         }

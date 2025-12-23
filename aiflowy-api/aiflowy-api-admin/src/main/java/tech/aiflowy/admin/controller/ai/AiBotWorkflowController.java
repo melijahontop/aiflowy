@@ -2,7 +2,7 @@ package tech.aiflowy.admin.controller.ai;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import tech.aiflowy.ai.entity.BotWorkflow;
-import tech.aiflowy.ai.service.AiBotWorkflowService;
+import tech.aiflowy.ai.service.BotWorkflowService;
 import tech.aiflowy.common.annotation.UsePermission;
 import tech.aiflowy.common.domain.Result;
 import tech.aiflowy.common.tree.Tree;
@@ -25,8 +25,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/aiBotWorkflow")
 @UsePermission(moduleName = "/api/v1/aiBot")
-public class AiBotWorkflowController extends BaseCurdController<AiBotWorkflowService, BotWorkflow> {
-    public AiBotWorkflowController(AiBotWorkflowService service) {
+public class AiBotWorkflowController extends BaseCurdController<BotWorkflowService, BotWorkflow> {
+    public AiBotWorkflowController(BotWorkflowService service) {
         super(service);
     }
 

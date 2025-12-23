@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import tech.aiflowy.ai.entity.BotMessage;
-import tech.aiflowy.ai.service.AiBotMessageService;
+import tech.aiflowy.ai.service.BotMessageService;
 import tech.aiflowy.ai.vo.ChatMessageVO;
 import tech.aiflowy.common.annotation.UsePermission;
 import tech.aiflowy.common.domain.Result;
@@ -27,12 +27,12 @@ import java.util.List;
 @RestController
 @RequestMapping("/userCenter/aiBotMessage")
 @UsePermission(moduleName = "/api/v1/aiBot")
-public class UcAiBotMessageController extends BaseCurdController<AiBotMessageService, BotMessage> {
-    private final AiBotMessageService aiBotMessageService;
+public class UcAiBotMessageController extends BaseCurdController<BotMessageService, BotMessage> {
+    private final BotMessageService botMessageService;
 
-    public UcAiBotMessageController(AiBotMessageService service, AiBotMessageService aiBotMessageService) {
+    public UcAiBotMessageController(BotMessageService service, BotMessageService botMessageService) {
         super(service);
-        this.aiBotMessageService = aiBotMessageService;
+        this.botMessageService = botMessageService;
     }
 
     @GetMapping("/getMessages")
@@ -42,7 +42,7 @@ public class UcAiBotMessageController extends BaseCurdController<AiBotMessageSer
         w.eq(BotMessage::getBotId, botId);
         w.eq(BotMessage::getSessionId, sessionId);
         w.eq(BotMessage::getAccountId, SaTokenUtil.getLoginAccount().getId());
-        List<BotMessage> list = aiBotMessageService.list(w);
+        List<BotMessage> list = botMessageService.list(w);
         if (CollectionUtil.isNotEmpty(list)) {
             for (BotMessage message : list) {
                 ChatMessageVO vo = new ChatMessageVO();

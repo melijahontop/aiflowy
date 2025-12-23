@@ -3,7 +3,7 @@ package tech.aiflowy.ai.entity;
 import com.agentsflex.core.memory.ChatMemory;
 import com.agentsflex.core.message.Message;
 import com.mybatisflex.core.query.QueryWrapper;
-import tech.aiflowy.ai.service.AiBotMessageService;
+import tech.aiflowy.ai.service.BotMessageService;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -14,10 +14,10 @@ public class BotMessageMemory implements ChatMemory {
     private final BigInteger botId;
     private final BigInteger accountId;
     private final String sessionId;
-    private final AiBotMessageService messageService;
+    private final BotMessageService messageService;
     
     public BotMessageMemory(BigInteger botId, BigInteger accountId, String sessionId,
-                            AiBotMessageService messageService) {
+                            BotMessageService messageService) {
         this.botId = botId;
         this.accountId = accountId;
         this.sessionId = sessionId;

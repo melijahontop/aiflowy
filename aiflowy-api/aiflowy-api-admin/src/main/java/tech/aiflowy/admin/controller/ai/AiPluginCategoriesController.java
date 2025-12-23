@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import tech.aiflowy.ai.entity.PluginCategory;
-import tech.aiflowy.ai.service.AiPluginCategoriesService;
+import tech.aiflowy.ai.service.PluginCategoryService;
 import tech.aiflowy.common.annotation.UsePermission;
 import tech.aiflowy.common.domain.Result;
 import tech.aiflowy.common.web.controller.BaseCurdController;
@@ -22,18 +22,18 @@ import javax.annotation.Resource;
 @RestController
 @RequestMapping("/api/v1/aiPluginCategories")
 @UsePermission(moduleName = "/api/v1/aiPlugin")
-public class AiPluginCategoriesController extends BaseCurdController<AiPluginCategoriesService, PluginCategory> {
-    public AiPluginCategoriesController(AiPluginCategoriesService service) {
+public class AiPluginCategoriesController extends BaseCurdController<PluginCategoryService, PluginCategory> {
+    public AiPluginCategoriesController(PluginCategoryService service) {
         super(service);
     }
 
     @Resource
-    private AiPluginCategoriesService aiPluginCategoriesService;
+    private PluginCategoryService pluginCategoryService;
 
     @GetMapping("/doRemoveCategory")
     @SaCheckPermission("/api/v1/aiPlugin/remove")
     public Result<Boolean> doRemoveCategory(@RequestParam("id") Integer id){
 
-        return Result.ok(aiPluginCategoriesService.doRemoveCategory(id));
+        return Result.ok(pluginCategoryService.doRemoveCategory(id));
     }
 }

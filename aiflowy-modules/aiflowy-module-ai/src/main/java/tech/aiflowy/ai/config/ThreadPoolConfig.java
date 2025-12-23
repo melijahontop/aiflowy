@@ -5,10 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import tech.aiflowy.ai.service.impl.AiBotServiceImpl;
 import tech.aiflowy.common.web.exceptions.BusinessException;
-
-import java.util.concurrent.ThreadPoolExecutor;
 
 @Configuration
 public class ThreadPoolConfig {

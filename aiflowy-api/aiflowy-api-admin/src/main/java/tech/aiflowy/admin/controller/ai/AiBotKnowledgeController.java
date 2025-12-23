@@ -2,7 +2,7 @@ package tech.aiflowy.admin.controller.ai;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import tech.aiflowy.ai.entity.BotDocumentCollection;
-import tech.aiflowy.ai.service.AiBotKnowledgeService;
+import tech.aiflowy.ai.service.BotDocumentCollectionService;
 import tech.aiflowy.common.annotation.UsePermission;
 import tech.aiflowy.common.domain.Result;
 import tech.aiflowy.common.web.controller.BaseCurdController;
@@ -24,8 +24,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/aiBotKnowledge")
 @UsePermission(moduleName = "/api/v1/aiBot")
-public class AiBotKnowledgeController extends BaseCurdController<AiBotKnowledgeService, BotDocumentCollection> {
-    public AiBotKnowledgeController(AiBotKnowledgeService service) {
+public class AiBotKnowledgeController extends BaseCurdController<BotDocumentCollectionService, BotDocumentCollection> {
+    public AiBotKnowledgeController(BotDocumentCollectionService service) {
         super(service);
     }
 

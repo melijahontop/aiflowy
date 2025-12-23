@@ -5,8 +5,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import tech.aiflowy.ai.entity.BotConversation;
-import tech.aiflowy.ai.service.AiBotConversationMessageService;
-import tech.aiflowy.ai.service.AiBotMessageService;
+import tech.aiflowy.ai.service.BotConversationService;
+import tech.aiflowy.ai.service.BotMessageService;
 import tech.aiflowy.common.domain.Result;
 import tech.aiflowy.common.entity.LoginAccount;
 import tech.aiflowy.common.satoken.util.SaTokenUtil;
@@ -19,14 +19,14 @@ import java.util.List;
 @RestController
 @RequestMapping("/userCenter/conversation")
 @SaIgnore
-public class UcAIBotConversationMessageController extends BaseCurdController<AiBotConversationMessageService, BotConversation> {
+public class UcAIBotConversationMessageController extends BaseCurdController<BotConversationService, BotConversation> {
 
     @Resource
-    private AiBotConversationMessageService conversationMessageService;
+    private BotConversationService conversationMessageService;
     @Resource
-    private AiBotMessageService aiBotMessageService;
+    private BotMessageService botMessageService;
 
-    public UcAIBotConversationMessageController(AiBotConversationMessageService service) {
+    public UcAIBotConversationMessageController(BotConversationService service) {
         super(service);
     }
 

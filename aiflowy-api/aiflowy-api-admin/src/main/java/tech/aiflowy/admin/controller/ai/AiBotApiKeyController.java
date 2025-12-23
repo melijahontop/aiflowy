@@ -2,7 +2,7 @@ package tech.aiflowy.admin.controller.ai;
 
 import tech.aiflowy.common.web.controller.BaseCurdController;
 import tech.aiflowy.ai.entity.BotApiKey;
-import tech.aiflowy.ai.service.AiBotApiKeyService;
+import tech.aiflowy.ai.service.BotApiKeyService;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,8 +26,8 @@ import cn.dev33.satoken.annotation.SaCheckPermission;
 @RestController
 @RequestMapping("/api/v1/aiBotApiKey")
 @UsePermission(moduleName = "/api/v1/aiBot")
-public class AiBotApiKeyController extends BaseCurdController<AiBotApiKeyService, BotApiKey> {
-    public AiBotApiKeyController(AiBotApiKeyService service) {
+public class AiBotApiKeyController extends BaseCurdController<BotApiKeyService, BotApiKey> {
+    public AiBotApiKeyController(BotApiKeyService service) {
         super(service);
     }
 

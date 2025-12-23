@@ -3,7 +3,7 @@ package tech.aiflowy.ai.entity;
 import com.agentsflex.core.document.Document;
 import com.agentsflex.core.model.chat.tool.BaseTool;
 import com.agentsflex.core.model.chat.tool.Parameter;
-import tech.aiflowy.ai.service.AiKnowledgeService;
+import tech.aiflowy.ai.service.DocumentCollectionService;
 import tech.aiflowy.common.util.SpringContextUtil;
 
 import java.math.BigInteger;
@@ -49,7 +49,7 @@ public class DocumentCollectionTool extends BaseTool {
     @Override
     public Object invoke(Map<String, Object> argsMap) {
 
-        AiKnowledgeService knowledgeService = SpringContextUtil.getBean(AiKnowledgeService.class);
+        DocumentCollectionService knowledgeService = SpringContextUtil.getBean(DocumentCollectionService.class);
         List<Document> documents = knowledgeService.search(this.knowledgeId, (String) argsMap.get("input"));
 
         StringBuilder sb = new StringBuilder();

@@ -3,7 +3,7 @@ package tech.aiflowy.usercenter.controller.ai;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import tech.aiflowy.ai.entity.WorkflowCategory;
-import tech.aiflowy.ai.service.AiWorkflowCategoryService;
+import tech.aiflowy.ai.service.WorkflowCategoryService;
 import tech.aiflowy.common.annotation.UsePermission;
 import tech.aiflowy.common.domain.Result;
 import tech.aiflowy.common.web.controller.BaseCurdController;
@@ -20,9 +20,9 @@ import java.util.Collection;
 @RestController
 @RequestMapping("/userCenter/aiWorkflowCategory")
 @UsePermission(moduleName = "/api/v1/aiWorkflow")
-public class UcAiWorkflowCategoryController extends BaseCurdController<AiWorkflowCategoryService, WorkflowCategory> {
+public class UcAiWorkflowCategoryController extends BaseCurdController<WorkflowCategoryService, WorkflowCategory> {
 
-    public UcAiWorkflowCategoryController(AiWorkflowCategoryService service) {
+    public UcAiWorkflowCategoryController(WorkflowCategoryService service) {
         super(service);
     }
 

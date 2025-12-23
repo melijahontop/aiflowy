@@ -4,7 +4,7 @@ import dev.tinyflow.core.chain.Chain;
 import dev.tinyflow.core.chain.runtime.ChainExecutor;
 import dev.tinyflow.core.node.BaseNode;
 import tech.aiflowy.ai.entity.Workflow;
-import tech.aiflowy.ai.service.AiWorkflowService;
+import tech.aiflowy.ai.service.WorkflowService;
 import tech.aiflowy.common.util.SpringContextUtil;
 
 import java.util.Map;
@@ -24,7 +24,7 @@ public class WorkflowNode extends BaseNode {
     public Map<String, Object> execute(Chain chain) {
 
         Map<String, Object> params = chain.getState().resolveParameters(this);
-        AiWorkflowService service = SpringContextUtil.getBean(AiWorkflowService.class);
+        WorkflowService service = SpringContextUtil.getBean(WorkflowService.class);
         Workflow workflow = service.getById(workflowId);
         if (workflow == null) {
             throw new RuntimeException("工作流不存在：" + workflowId);

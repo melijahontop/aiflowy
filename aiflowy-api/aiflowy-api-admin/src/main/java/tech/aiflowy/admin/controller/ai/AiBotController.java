@@ -47,20 +47,20 @@ import java.util.*;
  */
 @RestController
 @RequestMapping("/api/v1/aiBot")
-public class AiBotController extends BaseCurdController<AiBotService, Bot> {
+public class AiBotController extends BaseCurdController<BotService, Bot> {
 
-    private final AiLlmService aiLlmService;
-    private final AiBotWorkflowService aiBotWorkflowService;
-    private final AiBotKnowledgeService aiBotKnowledgeService;
-    private final AiBotMessageService aiBotMessageService;
+    private final ModelService modelService;
+    private final BotWorkflowService botWorkflowService;
+    private final BotDocumentCollectionService botDocumentCollectionService;
+    private final BotMessageService botMessageService;
     @Resource
     private SysApiKeyMapper aiBotApiKeyMapper;
     @Resource
-    private AiBotConversationMessageService aiBotConversationMessageService;
+    private BotConversationService botConversationService;
     @Resource
     private BotConversationMapper botConversationMapper;
     @Resource
-    private AiBotService aiBotService;
+    private BotService botService;
     @Autowired
     @Qualifier("defaultCache") // 指定 Bean 名称
     private Cache<String, Object> cache;
@@ -69,19 +69,19 @@ public class AiBotController extends BaseCurdController<AiBotService, Bot> {
 
     private static final Logger logger = LoggerFactory.getLogger(AiBotController.class);
 
-    public AiBotController(AiBotService service, AiLlmService aiLlmService, AiBotWorkflowService aiBotWorkflowService,
-                           AiBotKnowledgeService aiBotKnowledgeService, AiBotMessageService aiBotMessageService) {
+    public AiBotController(BotService service, ModelService modelService, BotWorkflowService botWorkflowService,
+                           BotDocumentCollectionService botDocumentCollectionService, BotMessageService botMessageService) {
         super(service);
-        this.aiLlmService = aiLlmService;
-        this.aiBotWorkflowService = aiBotWorkflowService;
-        this.aiBotKnowledgeService = aiBotKnowledgeService;
-        this.aiBotMessageService = aiBotMessageService;
+        this.modelService = modelService;
+        this.botWorkflowService = botWorkflowService;
+        this.botDocumentCollectionService = botDocumentCollectionService;
+        this.botMessageService = botMessageService;
     }
 
     @Resource
-    private AiBotPluginsService aiBotPluginsService;
+    private BotPluginService botPluginService;
     @Resource
-    private AiPluginToolService aiPluginToolService;
+    private PluginItemService pluginItemService;
 
     @PostMapping("updateOptions")
     @SaCheckPermission("/api/v1/aiBot/save")
@@ -170,7 +170,7 @@ public class AiBotController extends BaseCurdController<AiBotService, Bot> {
         Map<String, Object> llmOptions = aiBot.getLlmOptions();
         String systemPrompt = MapUtil.getString(llmOptions, "systemPrompt");
 
-        Model model = aiLlmService.getLlmInstance(aiBot.getLlmId());
+        Model model = modelService.getLlmInstance(aiBot.getLlmId());
         if (model == null) {
             return SSEUtil.sseEmitterForContent( "LLM不存在");
         }
@@ -192,14 +192,14 @@ public class AiBotController extends BaseCurdController<AiBotService, Bot> {
 
         if (StpUtil.isLogin()) {
             BotMessageMemory memory = new BotMessageMemory(botId, SaTokenUtil.getLoginAccount().getId(), sessionId,
-                    aiBotMessageService);
+                    botMessageService);
             memoryPrompt.setMemory(memory);
         }
         UserMessage userMessage = new UserMessage(prompt);
         userMessage.addTools(buildFunctionList(Maps.of("botId", botId).set("needEnglishName", false)));
         memoryPrompt.addMessage(userMessage);
         ChatOptions chatOptions = getChatOptions(llmOptions);
-        return aiBotService.startChat(botId, chatModel, prompt, memoryPrompt, chatOptions, sessionId, messages);
+        return botService.startChat(botId, chatModel, prompt, memoryPrompt, chatOptions, sessionId, messages);
 
     }
 
@@ -214,13 +214,13 @@ public class AiBotController extends BaseCurdController<AiBotService, Bot> {
     @GetMapping("getDetail")
     @SaIgnore
     public Result<Bot> getDetail(String id) {
-        return Result.ok(aiBotService.getDetail(id));
+        return Result.ok(botService.getDetail(id));
     }
 
     @Override
     @SaIgnore
     public Result<Bot> detail(String id) {
-        Bot data = aiBotService.getDetail(id);
+        Bot data = botService.getDetail(id);
         if (data == null) {
             return Result.ok(data);
         }
@@ -235,7 +235,7 @@ public class AiBotController extends BaseCurdController<AiBotService, Bot> {
         }
 
         BigInteger llmId = data.getLlmId();
-        Model llm = aiLlmService.getById(llmId);
+        Model llm = modelService.getById(llmId);
 
         if (llm == null) {
             data.setLlmId(null);
@@ -331,11 +331,11 @@ public class AiBotController extends BaseCurdController<AiBotService, Bot> {
     @Override
     protected Result<?> onRemoveBefore(Collection<Serializable> ids) {
         QueryWrapper queryWrapperKnowledge = QueryWrapper.create().in(BotDocumentCollection::getBotId, ids);
-        aiBotKnowledgeService.remove(queryWrapperKnowledge);
+        botDocumentCollectionService.remove(queryWrapperKnowledge);
         QueryWrapper queryWrapperBotWorkflow = QueryWrapper.create().in(BotWorkflow::getBotId, ids);
-        aiBotWorkflowService.remove(queryWrapperBotWorkflow);
+        botWorkflowService.remove(queryWrapperBotWorkflow);
         QueryWrapper queryWrapperBotPlugins = QueryWrapper.create().in(BotPlugin::getBotId, ids);
-        aiBotPluginsService.remove(queryWrapperBotPlugins);
+        botPluginService.remove(queryWrapperBotPlugins);
         return super.onRemoveBefore(ids);
     }
 
@@ -360,7 +360,7 @@ public class AiBotController extends BaseCurdController<AiBotService, Bot> {
 
         // 工作流 function 集合
         queryWrapper.eq(BotWorkflow::getBotId, botId);
-        List<BotWorkflow> botWorkflows = aiBotWorkflowService.getMapper()
+        List<BotWorkflow> botWorkflows = botWorkflowService.getMapper()
                 .selectListWithRelationsByQuery(queryWrapper);
         if (botWorkflows != null && !botWorkflows.isEmpty()) {
             for (BotWorkflow botWorkflow : botWorkflows) {
@@ -372,7 +372,7 @@ public class AiBotController extends BaseCurdController<AiBotService, Bot> {
         // 知识库 function 集合
         queryWrapper = QueryWrapper.create();
         queryWrapper.eq(BotDocumentCollection::getBotId, botId);
-        List<BotDocumentCollection> botDocumentCollections = aiBotKnowledgeService.getMapper()
+        List<BotDocumentCollection> botDocumentCollections = botDocumentCollectionService.getMapper()
                 .selectListWithRelationsByQuery(queryWrapper);
         if (botDocumentCollections != null && !botDocumentCollections.isEmpty()) {
             for (BotDocumentCollection botDocumentCollection : botDocumentCollections) {
@@ -384,14 +384,14 @@ public class AiBotController extends BaseCurdController<AiBotService, Bot> {
         // 插件 function 集合
         queryWrapper = QueryWrapper.create();
         queryWrapper.select("plugin_tool_id").eq(BotPlugin::getBotId, botId);
-        List<BigInteger> pluginToolIds = aiBotPluginsService.getMapper()
+        List<BigInteger> pluginToolIds = botPluginService.getMapper()
                 .selectListWithRelationsByQueryAs(queryWrapper, BigInteger.class);
         if (pluginToolIds != null && !pluginToolIds.isEmpty()) {
             QueryWrapper queryTool = QueryWrapper.create()
                     .select("*")
                     .from("tb_plugin_item")
                     .in("id", pluginToolIds);
-            List<PluginItem> pluginItems = aiPluginToolService.getMapper().selectListWithRelationsByQuery(queryTool);
+            List<PluginItem> pluginItems = pluginItemService.getMapper().selectListWithRelationsByQuery(queryTool);
             if (pluginItems != null && !pluginItems.isEmpty()) {
                 for (PluginItem pluginItem : pluginItems) {
                     functionList.add(pluginItem.toFunction());

@@ -7,7 +7,7 @@ import dev.tinyflow.core.chain.runtime.ChainExecutor;
 import dev.tinyflow.core.parser.ChainParser;
 import org.springframework.web.bind.annotation.*;
 import tech.aiflowy.ai.entity.Workflow;
-import tech.aiflowy.ai.service.AiWorkflowService;
+import tech.aiflowy.ai.service.WorkflowService;
 import tech.aiflowy.ai.tinyflow.entity.ChainInfo;
 import tech.aiflowy.ai.tinyflow.entity.NodeInfo;
 import tech.aiflowy.ai.tinyflow.service.TinyFlowService;
@@ -29,7 +29,7 @@ import java.util.*;
 @RestController
 @RequestMapping("/userCenter/aiWorkflow")
 @UsePermission(moduleName = "/api/v1/aiWorkflow")
-public class UcAiWorkflowController extends BaseCurdController<AiWorkflowService, Workflow> {
+public class UcAiWorkflowController extends BaseCurdController<WorkflowService, Workflow> {
 
     @Resource
     private ChainExecutor chainExecutor;
@@ -38,7 +38,7 @@ public class UcAiWorkflowController extends BaseCurdController<AiWorkflowService
     @Resource
     private TinyFlowService tinyFlowService;
 
-    public UcAiWorkflowController(AiWorkflowService service) {
+    public UcAiWorkflowController(WorkflowService service) {
         super(service);
     }
 

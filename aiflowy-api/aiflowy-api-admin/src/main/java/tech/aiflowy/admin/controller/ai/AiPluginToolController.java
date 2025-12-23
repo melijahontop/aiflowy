@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import tech.aiflowy.ai.entity.PluginItem;
-import tech.aiflowy.ai.service.AiBotPluginsService;
-import tech.aiflowy.ai.service.AiPluginToolService;
+import tech.aiflowy.ai.service.BotPluginService;
+import tech.aiflowy.ai.service.PluginItemService;
 import tech.aiflowy.common.annotation.UsePermission;
 import tech.aiflowy.common.domain.Result;
 import tech.aiflowy.common.web.controller.BaseCurdController;
@@ -34,55 +34,55 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/aiPluginTool")
 @UsePermission(moduleName = "/api/v1/aiPlugin")
-public class AiPluginToolController extends BaseCurdController<AiPluginToolService, PluginItem> {
-    public AiPluginToolController(AiPluginToolService service) {
+public class AiPluginToolController extends BaseCurdController<PluginItemService, PluginItem> {
+    public AiPluginToolController(PluginItemService service) {
         super(service);
     }
 
     @Resource
-    private AiPluginToolService aiPluginToolService;
+    private PluginItemService pluginItemService;
 
     @Resource
-    private AiBotPluginsService aiBotPluginsService;
+    private BotPluginService botPluginService;
 
     @PostMapping("/tool/save")
     @SaCheckPermission("/api/v1/aiPlugin/save")
     public Result<Boolean> savePlugin(@JsonBody PluginItem pluginItem){
 
-        return Result.ok(aiPluginToolService.savePluginTool(pluginItem));
+        return Result.ok(pluginItemService.savePluginTool(pluginItem));
     }
 
     // 插件工具修改页面查询
     @PostMapping("/tool/search")
     @SaCheckPermission("/api/v1/aiPlugin/query")
     public Result<?> searchPlugin(@JsonBody(value = "aiPluginToolId", required = true) BigInteger aiPluginToolId){
-        return aiPluginToolService.searchPlugin(aiPluginToolId);
+        return pluginItemService.searchPlugin(aiPluginToolId);
     }
 
     @PostMapping("/toolsList")
     @SaCheckPermission("/api/v1/aiPlugin/query")
     public Result<List<PluginItem>> searchPluginToolByPluginId(@JsonBody(value = "pluginId", required = true) BigInteger pluginId,
                                                                @JsonBody(value = "botId", required = false) BigInteger botId){
-        return Result.ok(aiPluginToolService.searchPluginToolByPluginId(pluginId, botId));
+        return Result.ok(pluginItemService.searchPluginToolByPluginId(pluginId, botId));
     }
 
     @PostMapping("/tool/update")
     @SaCheckPermission("/api/v1/aiPlugin/save")
     public Result<Boolean> updatePlugin(@JsonBody PluginItem pluginItem){
-        return Result.ok(aiPluginToolService.updatePlugin(pluginItem));
+        return Result.ok(pluginItemService.updatePlugin(pluginItem));
     }
 
     @PostMapping("/tool/list")
     @SaCheckPermission("/api/v1/aiPlugin/query")
     public Result<List<PluginItem>> getPluginToolList(@JsonBody(value = "botId", required = true) BigInteger botId){
-        return Result.ok(aiPluginToolService.getPluginToolList(botId));
+        return Result.ok(pluginItemService.getPluginToolList(botId));
     }
 
     @GetMapping("/getTinyFlowData")
     @SaCheckPermission("/api/v1/aiPlugin/query")
     public Result<?> getTinyFlowData(BigInteger id) {
         JSONObject nodeData = new JSONObject();
-        PluginItem record = aiPluginToolService.getById(id);
+        PluginItem record = pluginItemService.getById(id);
         if (record == null) {
             return Result.ok(nodeData);
         }
@@ -115,7 +115,7 @@ public class AiPluginToolController extends BaseCurdController<AiPluginToolServi
     @PostMapping("/test")
     public Result<?> pluginToolTest(@JsonBody(value = "inputData", required = true) String inputData,
                                  @JsonBody(value = "pluginToolId", required = true) BigInteger pluginToolId){
-        return aiPluginToolService.pluginToolTest(inputData, pluginToolId);
+        return pluginItemService.pluginToolTest(inputData, pluginToolId);
     }
 
     private void handleArray(JSONArray array) {
@@ -139,7 +139,7 @@ public class AiPluginToolController extends BaseCurdController<AiPluginToolServi
         QueryWrapper queryWrapper = QueryWrapper.create();
         queryWrapper.in("plugin_tool_id", ids);
 
-        boolean exists = aiBotPluginsService.exists(queryWrapper);
+        boolean exists = botPluginService.exists(queryWrapper);
         if (exists){
             return Result.fail(1, "此工具还关联着bot，请先取消关联！");
         }

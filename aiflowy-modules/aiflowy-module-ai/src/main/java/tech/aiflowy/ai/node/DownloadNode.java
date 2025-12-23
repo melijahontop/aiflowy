@@ -8,7 +8,7 @@ import dev.tinyflow.core.chain.Chain;
 import dev.tinyflow.core.chain.Parameter;
 import dev.tinyflow.core.node.BaseNode;
 import tech.aiflowy.ai.entity.Resource;
-import tech.aiflowy.ai.service.AiResourceService;
+import tech.aiflowy.ai.service.ResourceService;
 import tech.aiflowy.ai.utils.DocUtil;
 import tech.aiflowy.ai.utils.WorkFlowUtil;
 import tech.aiflowy.common.constant.enums.EnumResourceOriginType;
@@ -73,7 +73,7 @@ public class DownloadNode extends BaseNode {
         resource.setFileSize(BigInteger.valueOf(bytes.length));
         try {
             TenantManager.ignoreTenantCondition();
-            AiResourceService service = SpringContextUtil.getBean(AiResourceService.class);
+            ResourceService service = SpringContextUtil.getBean(ResourceService.class);
             service.save(resource);
         } finally {
             TenantManager.restoreTenantCondition();

@@ -8,7 +8,7 @@ import com.agentsflex.core.util.StringUtil;
 import com.mybatisflex.core.query.QueryWrapper;
 import org.springframework.web.bind.annotation.*;
 import tech.aiflowy.ai.entity.BotMessage;
-import tech.aiflowy.ai.service.AiBotMessageService;
+import tech.aiflowy.ai.service.BotMessageService;
 import tech.aiflowy.common.annotation.UsePermission;
 import tech.aiflowy.common.domain.Result;
 import tech.aiflowy.common.satoken.util.SaTokenUtil;
@@ -28,12 +28,12 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/aiBotMessage")
 @UsePermission(moduleName = "/api/v1/aiBot")
-public class AiBotMessageController extends BaseCurdController<AiBotMessageService, BotMessage> {
-    private final AiBotMessageService aiBotMessageService;
+public class AiBotMessageController extends BaseCurdController<BotMessageService, BotMessage> {
+    private final BotMessageService botMessageService;
 
-    public AiBotMessageController(AiBotMessageService service, AiBotMessageService aiBotMessageService) {
+    public AiBotMessageController(BotMessageService service, BotMessageService botMessageService) {
         super(service);
-        this.aiBotMessageService = aiBotMessageService;
+        this.botMessageService = botMessageService;
     }
 
 
@@ -93,7 +93,7 @@ public class AiBotMessageController extends BaseCurdController<AiBotMessageServi
                               @RequestParam(value = "tempUserSession", required = false) String tempUserSessionId
     ) {
 
-        return aiBotMessageService.messageList(botId, sessionId,  tempUserId, tempUserSessionId);
+        return botMessageService.messageList(botId, sessionId,  tempUserId, tempUserSessionId);
     }
 
     @PostMapping("removeMsg")
@@ -101,7 +101,7 @@ public class AiBotMessageController extends BaseCurdController<AiBotMessageServi
                                      @JsonBody(value = "sessionId", required = true) String sessionId
     ) {
 
-        return Result.ok(aiBotMessageService.removeMsg(botId, sessionId));
+        return Result.ok(botMessageService.removeMsg(botId, sessionId));
     }
 
 

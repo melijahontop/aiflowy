@@ -12,9 +12,9 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import tech.aiflowy.ai.entity.Workflow;
-import tech.aiflowy.ai.service.AiBotWorkflowService;
-import tech.aiflowy.ai.service.AiLlmService;
-import tech.aiflowy.ai.service.AiWorkflowService;
+import tech.aiflowy.ai.service.BotWorkflowService;
+import tech.aiflowy.ai.service.ModelService;
+import tech.aiflowy.ai.service.WorkflowService;
 import tech.aiflowy.ai.tinyflow.entity.ChainInfo;
 import tech.aiflowy.ai.tinyflow.entity.NodeInfo;
 import tech.aiflowy.ai.tinyflow.service.TinyFlowService;
@@ -42,13 +42,13 @@ import java.util.*;
  */
 @RestController
 @RequestMapping("/api/v1/aiWorkflow")
-public class AiWorkflowController extends BaseCurdController<AiWorkflowService, Workflow> {
-    private final AiLlmService aiLlmService;
+public class AiWorkflowController extends BaseCurdController<WorkflowService, Workflow> {
+    private final ModelService modelService;
 
     @Resource
     private SysApiKeyService apiKeyService;
     @Resource
-    private AiBotWorkflowService aiBotWorkflowService;
+    private BotWorkflowService botWorkflowService;
     @Resource
     private ChainExecutor chainExecutor;
     @Resource
@@ -56,9 +56,9 @@ public class AiWorkflowController extends BaseCurdController<AiWorkflowService, 
     @Resource
     private TinyFlowService tinyFlowService;
 
-    public AiWorkflowController(AiWorkflowService service, AiLlmService aiLlmService) {
+    public AiWorkflowController(WorkflowService service, ModelService modelService) {
         super(service);
-        this.aiLlmService = aiLlmService;
+        this.modelService = modelService;
     }
 
     /**
@@ -202,7 +202,7 @@ public class AiWorkflowController extends BaseCurdController<AiWorkflowService, 
     protected Result onRemoveBefore(Collection<Serializable> ids) {
         QueryWrapper queryWrapper = QueryWrapper.create();
         queryWrapper.in("workflow_id", ids);
-        boolean exists = aiBotWorkflowService.exists(queryWrapper);
+        boolean exists = botWorkflowService.exists(queryWrapper);
         if (exists) {
             return Result.fail(1, "此工作流还关联有bot，请先取消关联后再删除！");
         }

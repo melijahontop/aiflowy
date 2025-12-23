@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import tech.aiflowy.ai.entity.WorkflowExecResult;
 import tech.aiflowy.ai.entity.WorkflowExecStep;
-import tech.aiflowy.ai.service.AiWorkflowExecRecordService;
-import tech.aiflowy.ai.service.AiWorkflowRecordStepService;
+import tech.aiflowy.ai.service.WorkflowExecResultService;
+import tech.aiflowy.ai.service.WorkflowExecStepService;
 import tech.aiflowy.ai.utils.WorkFlowUtil;
 import tech.aiflowy.common.annotation.UsePermission;
 import tech.aiflowy.common.domain.Result;
@@ -27,12 +27,12 @@ import java.math.BigInteger;
 @RestController
 @RequestMapping("/api/v1/aiWorkflowExecRecord")
 @UsePermission(moduleName = "/api/v1/aiWorkflow")
-public class AiWorkflowExecRecordController extends BaseCurdController<AiWorkflowExecRecordService, WorkflowExecResult> {
+public class AiWorkflowExecRecordController extends BaseCurdController<WorkflowExecResultService, WorkflowExecResult> {
 
     @Resource
-    private AiWorkflowRecordStepService recordStepService;
+    private WorkflowExecStepService recordStepService;
 
-    public AiWorkflowExecRecordController(AiWorkflowExecRecordService service) {
+    public AiWorkflowExecRecordController(WorkflowExecResultService service) {
         super(service);
     }
 

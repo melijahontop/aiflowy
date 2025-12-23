@@ -5,9 +5,9 @@ import com.agentsflex.core.model.embedding.EmbeddingModel;
 import tech.aiflowy.ai.entity.DocumentChunk;
 import tech.aiflowy.ai.entity.DocumentCollection;
 import tech.aiflowy.ai.entity.Model;
-import tech.aiflowy.ai.service.AiDocumentChunkService;
-import tech.aiflowy.ai.service.AiKnowledgeService;
-import tech.aiflowy.ai.service.AiLlmService;
+import tech.aiflowy.ai.service.DocumentChunkService;
+import tech.aiflowy.ai.service.DocumentCollectionService;
+import tech.aiflowy.ai.service.ModelService;
 import tech.aiflowy.common.annotation.UsePermission;
 import tech.aiflowy.common.domain.Result;
 import tech.aiflowy.common.web.controller.BaseCurdController;
@@ -36,18 +36,18 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1/aiDocumentChunk")
 @UsePermission(moduleName = "/api/v1/aiKnowledge")
-public class AiDocumentChunkController extends BaseCurdController<AiDocumentChunkService, DocumentChunk> {
+public class AiDocumentChunkController extends BaseCurdController<DocumentChunkService, DocumentChunk> {
 
     @Resource
-    AiKnowledgeService aiKnowledgeService;
+    DocumentCollectionService documentCollectionService;
 
     @Resource
-    AiLlmService aiLlmService;
+    ModelService modelService;
 
     @Resource
-    AiDocumentChunkService aiDocumentChunkService;
+    DocumentChunkService documentChunkService;
 
-    public AiDocumentChunkController(AiDocumentChunkService service) {
+    public AiDocumentChunkController(DocumentChunkService service) {
         super(service);
     }
 
@@ -56,8 +56,8 @@ public class AiDocumentChunkController extends BaseCurdController<AiDocumentChun
     public Result<?> update(@JsonBody DocumentChunk documentChunk) {
         boolean success = service.updateById(documentChunk);
         if (success){
-            DocumentChunk documentChunk1 = aiDocumentChunkService.getById(documentChunk.getId());
-            DocumentCollection knowledge = aiKnowledgeService.getById(documentChunk1.getKnowledgeId());
+            DocumentChunk documentChunk1 = documentChunkService.getById(documentChunk.getId());
+            DocumentCollection knowledge = documentCollectionService.getById(documentChunk1.getKnowledgeId());
             if (knowledge == null) {
                 return Result.fail(1, "知识库不存在");
             }
@@ -66,7 +66,7 @@ public class AiDocumentChunkController extends BaseCurdController<AiDocumentChun
                 return Result.fail(2, "知识库没有配置向量库");
             }
             // 设置向量模型
-            Model model = aiLlmService.getById(knowledge.getVectorEmbedLlmId());
+            Model model = modelService.getById(knowledge.getVectorEmbedLlmId());
             if (model == null) {
                 return Result.fail(3, "知识库没有配置向量模型");
             }
@@ -88,11 +88,11 @@ public class AiDocumentChunkController extends BaseCurdController<AiDocumentChun
     @PostMapping("removeChunk")
     @SaCheckPermission("/api/v1/aiKnowledge/remove")
     public Result<?> remove(@JsonBody(value = "id", required = true) BigInteger chunkId) {
-        DocumentChunk docChunk =  aiDocumentChunkService.getById(chunkId);
+        DocumentChunk docChunk =  documentChunkService.getById(chunkId);
         if (docChunk == null) {
             return Result.fail(1, "记录不存在");
         }
-        DocumentCollection knowledge = aiKnowledgeService.getById(docChunk.getKnowledgeId());
+        DocumentCollection knowledge = documentCollectionService.getById(docChunk.getKnowledgeId());
         if (knowledge == null) {
             return Result.fail(2, "知识库不存在");
         }
@@ -101,7 +101,7 @@ public class AiDocumentChunkController extends BaseCurdController<AiDocumentChun
             return Result.fail(3, "知识库没有配置向量库");
         }
         // 设置向量模型
-        Model model = aiLlmService.getById(knowledge.getVectorEmbedLlmId());
+        Model model = modelService.getById(knowledge.getVectorEmbedLlmId());
         if (model == null) {
             return Result.fail(4, "知识库没有配置向量模型");
         }
@@ -111,7 +111,7 @@ public class AiDocumentChunkController extends BaseCurdController<AiDocumentChun
         List<BigInteger> deleteList = new ArrayList<>();
         deleteList.add(chunkId);
         documentStore.delete(deleteList, options);
-        aiDocumentChunkService.removeChunk(knowledge, chunkId);
+        documentChunkService.removeChunk(knowledge, chunkId);
 
         return super.remove(chunkId);
     }

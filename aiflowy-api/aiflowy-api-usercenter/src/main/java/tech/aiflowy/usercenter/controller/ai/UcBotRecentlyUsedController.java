@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import tech.aiflowy.ai.entity.Bot;
 import tech.aiflowy.ai.entity.BotRecentlyUsed;
-import tech.aiflowy.ai.service.AiBotRecentlyUsedService;
-import tech.aiflowy.ai.service.AiBotService;
+import tech.aiflowy.ai.service.BotRecentlyUsedService;
+import tech.aiflowy.ai.service.BotService;
 import tech.aiflowy.common.annotation.UsePermission;
 import tech.aiflowy.common.domain.Result;
 import tech.aiflowy.common.entity.LoginAccount;
@@ -31,12 +31,12 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/userCenter/aiBotRecentlyUsed")
 @UsePermission(moduleName = "/api/v1/aiBot")
-public class UcBotRecentlyUsedController extends BaseCurdController<AiBotRecentlyUsedService, BotRecentlyUsed> {
+public class UcBotRecentlyUsedController extends BaseCurdController<BotRecentlyUsedService, BotRecentlyUsed> {
 
     @Resource
-    private AiBotService aiBotService;
+    private BotService botService;
 
-    public UcBotRecentlyUsedController(AiBotRecentlyUsedService service) {
+    public UcBotRecentlyUsedController(BotRecentlyUsedService service) {
         super(service);
     }
 
@@ -50,7 +50,7 @@ public class UcBotRecentlyUsedController extends BaseCurdController<AiBotRecentl
             List<BigInteger> botIds = list.stream().map(BotRecentlyUsed::getBotId).collect(Collectors.toList());
             QueryWrapper botQw = QueryWrapper.create();
             botQw.in(Bot::getId,botIds);
-            return Result.ok(aiBotService.list(botQw));
+            return Result.ok(botService.list(botQw));
         }
         return Result.ok(new ArrayList<>());
     }

@@ -5,7 +5,7 @@ import cn.hutool.http.HttpUtil;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import tech.aiflowy.ai.entity.Resource;
-import tech.aiflowy.ai.service.AiResourceService;
+import tech.aiflowy.ai.service.ResourceService;
 import tech.aiflowy.common.domain.Result;
 import tech.aiflowy.common.entity.LoginAccount;
 import tech.aiflowy.common.satoken.util.SaTokenUtil;
@@ -23,8 +23,8 @@ import java.util.Date;
  */
 @RestController
 @RequestMapping("/api/v1/aiResource")
-public class AiResourceController extends BaseCurdController<AiResourceService, Resource> {
-    public AiResourceController(AiResourceService service) {
+public class AiResourceController extends BaseCurdController<ResourceService, Resource> {
+    public AiResourceController(ResourceService service) {
         super(service);
     }
 

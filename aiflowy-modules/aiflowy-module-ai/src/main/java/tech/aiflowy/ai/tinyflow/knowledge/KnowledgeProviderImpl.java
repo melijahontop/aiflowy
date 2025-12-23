@@ -7,7 +7,7 @@ import dev.tinyflow.core.knowledge.Knowledge;
 import dev.tinyflow.core.knowledge.KnowledgeProvider;
 import dev.tinyflow.core.node.KnowledgeNode;
 import org.springframework.stereotype.Component;
-import tech.aiflowy.ai.service.AiKnowledgeService;
+import tech.aiflowy.ai.service.DocumentCollectionService;
 
 import javax.annotation.Resource;
 import java.math.BigInteger;
@@ -19,7 +19,7 @@ import java.util.Map;
 public class KnowledgeProviderImpl implements KnowledgeProvider {
 
     @Resource
-    private AiKnowledgeService aiKnowledgeService;
+    private DocumentCollectionService documentCollectionService;
 
     /**
      * 获取知识库
@@ -30,7 +30,7 @@ public class KnowledgeProviderImpl implements KnowledgeProvider {
         return new Knowledge() {
             @Override
             public List<Map<String, Object>> search(String keyword, int limit, KnowledgeNode knowledgeNode, Chain chain) {
-                List<Document> documents = aiKnowledgeService.search(new BigInteger(id.toString()), keyword);
+                List<Document> documents = documentCollectionService.search(new BigInteger(id.toString()), keyword);
                 List<Map<String, Object>> res = new ArrayList<>();
                 for (Document document : documents) {
                     res.add(JSONObject.from(document));

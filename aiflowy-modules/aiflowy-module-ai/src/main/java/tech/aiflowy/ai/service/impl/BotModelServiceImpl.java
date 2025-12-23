@@ -1,0 +1,18 @@
+package tech.aiflowy.ai.service.impl;
+
+import tech.aiflowy.ai.entity.BotModel;
+import tech.aiflowy.ai.mapper.BotModelMapper;
+import tech.aiflowy.ai.service.BotModelService;
+import com.mybatisflex.spring.service.impl.ServiceImpl;
+import org.springframework.stereotype.Service;
+
+/**
+ *  服务层实现。
+ *
+ * @author michael
+ * @since 2024-08-28
+ */
+@Service
+public class BotModelServiceImpl extends ServiceImpl<BotModelMapper, BotModel> implements BotModelService {
+
+}

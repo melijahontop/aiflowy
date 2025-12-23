@@ -3,23 +3,21 @@ package tech.aiflowy.admin.controller.ai;
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.mybatisflex.core.BaseMapper;
 import com.mybatisflex.core.query.QueryWrapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import tech.aiflowy.ai.entity.Model;
 import tech.aiflowy.ai.mapper.ModelMapper;
-import tech.aiflowy.ai.service.AiLlmService;
+import tech.aiflowy.ai.service.ModelService;
 import tech.aiflowy.common.domain.Result;
 import tech.aiflowy.common.entity.LoginAccount;
+import tech.aiflowy.common.satoken.util.SaTokenUtil;
 import tech.aiflowy.common.tree.Tree;
 import tech.aiflowy.common.web.controller.BaseCurdController;
-import tech.aiflowy.common.satoken.util.SaTokenUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import javax.annotation.Resource;
-
-import org.springframework.util.StringUtils;
 import tech.aiflowy.common.web.jsonbody.JsonBody;
 
+import javax.annotation.Resource;
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.Collections;
@@ -35,14 +33,14 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping("/api/v1/aiLlm")
-public class AiLlmController extends BaseCurdController<AiLlmService, Model> {
+public class AiLlmController extends BaseCurdController<ModelService, Model> {
 
-    public AiLlmController(AiLlmService service) {
+    public AiLlmController(ModelService service) {
         super(service);
     }
 
     @Autowired
-    AiLlmService aiLlmService;
+    ModelService modelService;
 
     @Resource
     ModelMapper modelMapper;
@@ -62,7 +60,7 @@ public class AiLlmController extends BaseCurdController<AiLlmService, Model> {
     @GetMapping("getList")
     @SaCheckPermission("/api/v1/aiLlm/query")
     public Result<Map<String, Map<String, List<Model>>>> getList(Model entity) {
-        return Result.ok(aiLlmService.getList(entity));
+        return Result.ok(modelService.getList(entity));
     }
 
     @PostMapping("/addAiLlm")
@@ -70,7 +68,7 @@ public class AiLlmController extends BaseCurdController<AiLlmService, Model> {
     public Result<Boolean> addAiLlm(Model entity) {
         LoginAccount account = SaTokenUtil.getLoginAccount();
         commonFiled(entity, account.getId(), account.getTenantId(), account.getDeptId());
-        return Result.ok(aiLlmService.addAiLlm(entity));
+        return Result.ok(modelService.addAiLlm(entity));
     }
 
 
@@ -86,7 +84,7 @@ public class AiLlmController extends BaseCurdController<AiLlmService, Model> {
     @PostMapping("/removeByEntity")
     @SaCheckPermission("/api/v1/aiLlm/remove")
     public Result<?> removeByEntity(@RequestBody Model entity) {
-        aiLlmService.removeByEntity(entity);
+        modelService.removeByEntity(entity);
         return Result.ok();
     }
 

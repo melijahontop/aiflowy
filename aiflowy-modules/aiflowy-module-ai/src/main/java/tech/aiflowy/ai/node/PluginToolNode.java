@@ -5,7 +5,7 @@ import com.alibaba.fastjson.JSON;
 import dev.tinyflow.core.chain.Chain;
 import dev.tinyflow.core.node.BaseNode;
 import tech.aiflowy.ai.entity.PluginItem;
-import tech.aiflowy.ai.service.AiPluginToolService;
+import tech.aiflowy.ai.service.PluginItemService;
 import tech.aiflowy.common.util.SpringContextUtil;
 
 import java.math.BigInteger;
@@ -27,7 +27,7 @@ public class PluginToolNode extends BaseNode {
     @Override
     public Map<String, Object> execute(Chain chain) {
         Map<String, Object> map = chain.getState().resolveParameters(this);
-        AiPluginToolService bean = SpringContextUtil.getBean(AiPluginToolService.class);
+        PluginItemService bean = SpringContextUtil.getBean(PluginItemService.class);
         PluginItem tool = bean.getById(pluginId);
         if (tool == null) {
             return Collections.emptyMap();

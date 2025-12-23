@@ -12,7 +12,7 @@ import com.mybatisflex.core.query.QueryWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tech.aiflowy.ai.mapper.PluginMapper;
-import tech.aiflowy.ai.service.AiPluginToolService;
+import tech.aiflowy.ai.service.PluginItemService;
 import tech.aiflowy.common.ai.plugin.NestedParamConverter;
 import tech.aiflowy.common.ai.plugin.PluginHttpClient;
 import tech.aiflowy.common.ai.plugin.PluginParam;
@@ -77,7 +77,7 @@ public class PluginTool extends BaseTool {
     }
 
     private Parameter[] getDefaultParameters(String inputData) {
-        AiPluginToolService pluginToolService = SpringContextUtil.getBean(AiPluginToolService.class);
+        PluginItemService pluginToolService = SpringContextUtil.getBean(PluginItemService.class);
         QueryWrapper queryAiPluginToolWrapper = QueryWrapper.create()
                 .select("*")
                 .from("tb_plugin_item")
@@ -144,7 +144,7 @@ public class PluginTool extends BaseTool {
     }
 
     public Object runPluginTool(Map<String, Object> argsMap, String inputData, BigInteger pluginId){
-        AiPluginToolService pluginToolService = SpringContextUtil.getBean(AiPluginToolService.class);
+        PluginItemService pluginToolService = SpringContextUtil.getBean(PluginItemService.class);
         QueryWrapper queryAiPluginToolWrapper = QueryWrapper.create()
                 .select("*")
                 .from("tb_plugin_item")
