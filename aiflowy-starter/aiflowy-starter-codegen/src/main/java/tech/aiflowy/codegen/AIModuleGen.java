@@ -7,7 +7,7 @@ import com.mybatisflex.codegen.dialect.JdbcTypeMapping;
 import com.mybatisflex.core.handler.CommaSplitTypeHandler;
 import com.zaxxer.hikari.HikariDataSource;
 
-public class CodeGen {
+public class AIModuleGen {
     public static void main(String[] args) {
         //配置数据源
         HikariDataSource dataSource = new HikariDataSource();
@@ -22,32 +22,19 @@ public class CodeGen {
 
 
         //生成 framework-modules/aiflowy-module-ai 下的代码
-        GlobalConfig aiModuleGlobalConfig = createAiTablesConfig();
-        Generator aiModuleGenerator = new Generator(dataSource, aiModuleGlobalConfig);
-        aiModuleGenerator.generate();
-
-
-        //生成 framework-modules/aiflowy-module-datacenter 下的代码
-        GlobalConfig dcModuleGlobalConfig = createDataCenterTablesConfig();
-        Generator dcModuleGenerator = new Generator(dataSource, dcModuleGlobalConfig);
-        dcModuleGenerator.generate();
-
-
-        //生成 framework-modules/aiflowy-module-system 下的代码
-        GlobalConfig sysGlobalConfig = createSysTablesConfig();
-        Generator sysGenerator = new Generator(dataSource, sysGlobalConfig);
-        sysGenerator.generate();
+        GlobalConfig globalConfig = createGlobalConfig();
+        Generator moduleGenerator = new Generator(dataSource, globalConfig);
+        moduleGenerator.generate();
     }
 
 
-    public static GlobalConfig createAiTablesConfig() {
+    public static GlobalConfig createGlobalConfig() {
 
         String optionsColumns = "options,vector_store_options,llm_options";
 
         //创建配置内容
         GlobalConfig globalConfig = Util.createBaseConfig(optionsColumns);
         globalConfig.setBasePackage("tech.aiflowy.ai");
-
 
 
         globalConfig.setGenerateTable("tb_bot"
@@ -76,46 +63,6 @@ public class CodeGen {
         validRolesColumnConfig.setTypeHandler(CommaSplitTypeHandler.class);
         validRolesColumnConfig.setColumnName("valid_roles");
         globalConfig.setColumnConfig("tb_dev_table_field", validRolesColumnConfig);
-
-        return globalConfig;
-    }
-
-
-    public static GlobalConfig createDataCenterTablesConfig() {
-
-        String optionsColumns = "options,vector_store_options,llm_options";
-
-        //创建配置内容
-        GlobalConfig globalConfig = Util.createBaseConfig(optionsColumns);
-        globalConfig.setBasePackage("tech.aiflowy.datacenter");
-
-
-        globalConfig.setGenerateTable("tb_datacenter_table", "tb_datacenter_table_field");
-        String sourceDir = System.getProperty("user.dir") + "/aiflowy-modules/aiflowy-module-datacenter/src/main/java";
-        globalConfig.setSourceDir(sourceDir);
-
-        return globalConfig;
-    }
-
-
-
-
-    public static GlobalConfig createSysTablesConfig() {
-
-        String optionsColumns = "options,vector_store_options,llm_options";
-
-        //创建配置内容
-        GlobalConfig globalConfig = Util.createBaseConfig(optionsColumns);
-        globalConfig.setBasePackage("tech.aiflowy.system");
-
-
-        globalConfig.setGenerateTable("tb_sys_account", "tb_sys_account_position", "tb_sys_account_role"
-                , "tb_sys_api_key", "tb_sys_api_key_resource", "tb_sys_api_key_resource_mapping"
-                , "tb_sys_dept", "tb_sys_dict", "tb_sys_dict_item", "tb_sys_job", "tb_sys_job_log", "tb_sys_log", "tb_sys_menu", "tb_sys_option"
-                , "tb_sys_position", "tb_sys_role", "tb_sys_role_menu"
-        );
-        String sourceDir = System.getProperty("user.dir") + "/aiflowy-modules/aiflowy-module-system/src/main/java";
-        globalConfig.setSourceDir(sourceDir);
 
         return globalConfig;
     }
