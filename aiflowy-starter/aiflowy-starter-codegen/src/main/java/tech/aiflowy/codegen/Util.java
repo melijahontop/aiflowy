@@ -30,6 +30,7 @@ public class Util {
         globalConfig.setEntityGenerateEnable(true);
 
         globalConfig.getEntityConfig().setWithBaseClassEnable(true);
+        globalConfig.getEntityConfig().setBaseOverwriteEnable(true);
         globalConfig.getEntityConfig().setColumnCommentEnable(true);
 
 
@@ -40,7 +41,7 @@ public class Util {
 
         // 设置 entity 父类
         globalConfig.setEntitySuperClassFactory(table -> {
-            if (table.containsColumn("id", "pid")) {
+            if (table.containsColumn("id", "pid") || table.containsColumn("id","parent_id")) {
                 if (table.containsColumn("created", "modified")) {
                     return DateTreeEntity.class;
                 } else {
@@ -67,7 +68,19 @@ public class Util {
         pkColumnConfig.setKeyType(KeyType.Generator);
         pkColumnConfig.setKeyValue(KeyGenerators.snowFlakeId);
         pkColumnConfig.setColumnName("id");
+
+
+        ColumnConfig tenantColumnConfig = new ColumnConfig();
+        tenantColumnConfig.setTenantId(true);
+        tenantColumnConfig.setColumnName("tenant_id");
+
+        ColumnConfig logicDeleteColumnConfig = new ColumnConfig();
+        logicDeleteColumnConfig.setLogicDelete(true);
+        logicDeleteColumnConfig.setColumnName("is_deleted");
+
         globalConfig.setColumnConfig(pkColumnConfig);
+        globalConfig.setColumnConfig(tenantColumnConfig);
+        globalConfig.setColumnConfig(logicDeleteColumnConfig);
 
 
         String[] optionsColumnArray = optionsColumns.split(",");

@@ -31,11 +31,12 @@ public class JobModuleGen {
 
     public static GlobalConfig createGlobalConfig() {
 
-        String optionsColumns = "options,vector_store_options,llm_options";
+        String optionsColumns = "options,job_params";
 
         //创建配置内容
         GlobalConfig globalConfig = Util.createBaseConfig(optionsColumns);
         globalConfig.setBasePackage("tech.aiflowy.job");
+
 
 
         globalConfig.setGenerateTable("tb_sys_job", "tb_sys_job_log");
