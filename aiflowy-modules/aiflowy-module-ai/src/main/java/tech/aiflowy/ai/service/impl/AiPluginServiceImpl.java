@@ -9,8 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 import tech.aiflowy.ai.entity.Plugin;
 import tech.aiflowy.ai.entity.PluginCategoryMapping;
 import tech.aiflowy.ai.entity.PluginItem;
-import tech.aiflowy.ai.mapper.AiPluginCategoryRelationMapper;
-import tech.aiflowy.ai.mapper.AiPluginMapper;
+import tech.aiflowy.ai.mapper.PluginCategoryMappingMapper;
+import tech.aiflowy.ai.mapper.PluginMapper;
 import tech.aiflowy.ai.service.AiBotPluginsService;
 import tech.aiflowy.ai.service.AiPluginService;
 import org.springframework.stereotype.Service;
@@ -33,15 +33,15 @@ import java.util.stream.Collectors;
  * @since 2025-04-25
  */
 @Service
-public class AiPluginServiceImpl extends ServiceImpl<AiPluginMapper, Plugin> implements AiPluginService {
+public class AiPluginServiceImpl extends ServiceImpl<PluginMapper, Plugin> implements AiPluginService {
 
     private static final Logger log = LoggerFactory.getLogger(AiPluginServiceImpl.class);
 
     @Resource
-    AiPluginMapper aiPluginMapper;
+    PluginMapper pluginMapper;
 
     @Resource
-    AiPluginCategoryRelationMapper aiPluginCategoryRelationMapper;
+    PluginCategoryMappingMapper pluginCategoryMappingMapper;
 
     @Resource
     private AiBotPluginsService aiBotPluginsService;
@@ -52,7 +52,7 @@ public class AiPluginServiceImpl extends ServiceImpl<AiPluginMapper, Plugin> imp
     @Override
     public boolean savePlugin(Plugin plugin) {
         plugin.setCreated(new Date());
-        int insert = aiPluginMapper.insert(plugin);
+        int insert = pluginMapper.insert(plugin);
         if (insert <= 0) {
             throw new BusinessException("保存失败");
         }
@@ -89,7 +89,7 @@ public class AiPluginServiceImpl extends ServiceImpl<AiPluginMapper, Plugin> imp
         }
 
 
-        int remove = aiPluginMapper.deleteById(id);
+        int remove = pluginMapper.deleteById(id);
         if (remove <= 0) {
             log.error("删除插件结果为0");
             throw new BusinessException("删除失败，请稍后重试！");
@@ -104,7 +104,7 @@ public class AiPluginServiceImpl extends ServiceImpl<AiPluginMapper, Plugin> imp
         QueryWrapper queryWrapper = QueryWrapper.create().select("id")
                 .from("tb_plugin")
                 .where("id = ?", plugin.getId());
-        int update = aiPluginMapper.updateByQuery(plugin, queryWrapper);
+        int update = pluginMapper.updateByQuery(plugin, queryWrapper);
         if (update <= 0) {
             throw new BusinessException("修改失败");
         }
@@ -115,7 +115,7 @@ public class AiPluginServiceImpl extends ServiceImpl<AiPluginMapper, Plugin> imp
     public List<Plugin> getList() {
         QueryWrapper queryWrapper = QueryWrapper.create().select("id, name, description, icon")
                 .from("tb_plugin");
-        List<Plugin> plugins = aiPluginMapper.selectListByQueryAs(queryWrapper, Plugin.class);
+        List<Plugin> plugins = pluginMapper.selectListByQueryAs(queryWrapper, Plugin.class);
         return plugins;
     }
 
@@ -126,8 +126,8 @@ public class AiPluginServiceImpl extends ServiceImpl<AiPluginMapper, Plugin> imp
                 .from("tb_plugin_category_mapping")
                 .where("category_id = ? ", category);
         // 分页查询该分类中的插件
-        Page<BigInteger> pagePluginIds = aiPluginCategoryRelationMapper.paginateAs(new Page<>(pageNumber, pageSize), queryWrapper, BigInteger.class);
-        Page<PluginCategoryMapping> paginateCategories = aiPluginCategoryRelationMapper.paginate(pageNumber, pageSize, queryWrapper);
+        Page<BigInteger> pagePluginIds = pluginCategoryMappingMapper.paginateAs(new Page<>(pageNumber, pageSize), queryWrapper, BigInteger.class);
+        Page<PluginCategoryMapping> paginateCategories = pluginCategoryMappingMapper.paginate(pageNumber, pageSize, queryWrapper);
         List<Plugin> plugins = Collections.emptyList();
         if (paginateCategories.getRecords().isEmpty()) {
             return Result.ok(new Page<>(plugins, pageNumber, pageSize, paginateCategories.getTotalRow()));
@@ -137,7 +137,7 @@ public class AiPluginServiceImpl extends ServiceImpl<AiPluginMapper, Plugin> imp
         QueryWrapper queryPluginWrapper = QueryWrapper.create().select("*")
                 .from("tb_plugin")
                 .in("id", pluginIds);
-        plugins = aiPluginMapper.selectListByQuery(queryPluginWrapper);
+        plugins = pluginMapper.selectListByQuery(queryPluginWrapper);
         Page<Plugin> aiPluginPage = new Page<>(plugins, pageNumber, pageSize, paginateCategories.getTotalRow());
         return Result.ok(aiPluginPage);
     }

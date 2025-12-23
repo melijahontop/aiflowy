@@ -15,8 +15,8 @@ import tech.aiflowy.ai.config.SearcherFactory;
 import tech.aiflowy.ai.entity.DocumentChunk;
 import tech.aiflowy.ai.entity.DocumentCollection;
 import tech.aiflowy.ai.entity.Model;
-import tech.aiflowy.ai.mapper.AiDocumentChunkMapper;
-import tech.aiflowy.ai.mapper.AiKnowledgeMapper;
+import tech.aiflowy.ai.mapper.DocumentChunkMapper;
+import tech.aiflowy.ai.mapper.DocumentCollectionMapper;
 import tech.aiflowy.ai.service.AiDocumentChunkService;
 import tech.aiflowy.ai.service.AiKnowledgeService;
 import tech.aiflowy.ai.service.AiLlmService;
@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
  * @since 2024-08-23
  */
 @Service
-public class AiKnowledgeServiceImpl extends ServiceImpl<AiKnowledgeMapper, DocumentCollection> implements AiKnowledgeService {
+public class AiKnowledgeServiceImpl extends ServiceImpl<DocumentCollectionMapper, DocumentCollection> implements AiKnowledgeService {
 
     @Resource
     private AiLlmService llmService;
@@ -54,7 +54,7 @@ public class AiKnowledgeServiceImpl extends ServiceImpl<AiKnowledgeMapper, Docum
     private SearcherFactory searcherFactory;
 
     @Autowired
-    private AiDocumentChunkMapper aiDocumentChunkMapper;
+    private DocumentChunkMapper documentChunkMapper;
 
 
     @Override
@@ -113,7 +113,7 @@ public class AiKnowledgeServiceImpl extends ServiceImpl<AiKnowledgeMapper, Docum
             List<Document> needRerankDocuments = new ArrayList<>(uniqueDocs.values());
             needRerankDocuments.sort((doc1, doc2) -> Double.compare(doc2.getScore(), doc1.getScore()));
             needRerankDocuments.forEach(item ->{
-                DocumentChunk documentChunk = aiDocumentChunkMapper.selectOneById((Serializable) item.getId());
+                DocumentChunk documentChunk = documentChunkMapper.selectOneById((Serializable) item.getId());
                 if (documentChunk != null && !StringUtil.noText(documentChunk.getContent())){
                     item.setContent(documentChunk.getContent());
                 }

@@ -1,7 +1,7 @@
 package tech.aiflowy.ai.service.impl;
 
 import tech.aiflowy.ai.entity.BotWorkflow;
-import tech.aiflowy.ai.mapper.AiBotWorkflowMapper;
+import tech.aiflowy.ai.mapper.BotWorkflowMapper;
 import tech.aiflowy.ai.service.AiBotWorkflowService;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
@@ -18,7 +18,7 @@ import com.mybatisflex.core.query.QueryWrapper;
  * @since 2024-08-28
  */
 @Service
-public class AiBotWorkflowServiceImpl extends ServiceImpl<AiBotWorkflowMapper, BotWorkflow> implements AiBotWorkflowService {
+public class AiBotWorkflowServiceImpl extends ServiceImpl<BotWorkflowMapper, BotWorkflow> implements AiBotWorkflowService {
 
     @Override
     public List<BotWorkflow> listByBotId(BigInteger botId) {

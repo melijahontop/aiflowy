@@ -4,7 +4,7 @@ import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import tech.aiflowy.ai.entity.WorkflowExecStep;
-import tech.aiflowy.ai.mapper.AiWorkflowRecordStepMapper;
+import tech.aiflowy.ai.mapper.WorkflowExecStepMapper;
 import tech.aiflowy.ai.service.AiWorkflowRecordStepService;
 
 /**
@@ -14,7 +14,7 @@ import tech.aiflowy.ai.service.AiWorkflowRecordStepService;
  * @since 2025-05-28
  */
 @Service
-public class AiWorkflowRecordStepServiceImpl extends ServiceImpl<AiWorkflowRecordStepMapper, WorkflowExecStep>  implements AiWorkflowRecordStepService{
+public class AiWorkflowRecordStepServiceImpl extends ServiceImpl<WorkflowExecStepMapper, WorkflowExecStep>  implements AiWorkflowRecordStepService{
 
     @Override
     public WorkflowExecStep getByExecKey(String execKey) {

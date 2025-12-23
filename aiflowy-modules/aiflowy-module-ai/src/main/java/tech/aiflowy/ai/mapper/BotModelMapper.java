@@ -9,6 +9,6 @@ import com.mybatisflex.core.BaseMapper;
  * @author michael
  * @since 2024-08-28
  */
-public interface AiBotLlmMapper extends BaseMapper<BotModel> {
+public interface BotModelMapper extends BaseMapper<BotModel> {
 
 }

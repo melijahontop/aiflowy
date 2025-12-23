@@ -9,6 +9,6 @@ import tech.aiflowy.ai.entity.WorkflowExecStep;
  * @author ArkLight
  * @since 2025-05-28
  */
-public interface AiWorkflowRecordStepMapper extends BaseMapper<WorkflowExecStep> {
+public interface WorkflowExecStepMapper extends BaseMapper<WorkflowExecStep> {
 
 }

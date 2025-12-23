@@ -9,6 +9,6 @@ import tech.aiflowy.ai.entity.BotPlugin;
  * @author michael
  * @since 2025-04-07
  */
-public interface AiBotPluginsMapper extends BaseMapper<BotPlugin> {
+public interface BotPluginMapper extends BaseMapper<BotPlugin> {
 
 }

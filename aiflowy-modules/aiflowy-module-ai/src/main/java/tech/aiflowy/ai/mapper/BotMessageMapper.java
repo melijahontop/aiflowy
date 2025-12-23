@@ -9,6 +9,6 @@ import com.mybatisflex.core.BaseMapper;
  * @author michael
  * @since 2024-11-04
  */
-public interface AiBotMessageMapper extends BaseMapper<BotMessage> {
+public interface BotMessageMapper extends BaseMapper<BotMessage> {
 
 }

@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import tech.aiflowy.ai.entity.Model;
 import tech.aiflowy.ai.entity.ModelProvider;
-import tech.aiflowy.ai.mapper.AiLlmMapper;
+import tech.aiflowy.ai.mapper.ModelMapper;
 import tech.aiflowy.ai.service.AiLlmProviderService;
 import tech.aiflowy.ai.service.AiLlmService;
 import tech.aiflowy.common.web.exceptions.BusinessException;
@@ -34,10 +34,10 @@ import java.util.stream.Collectors;
  * @since 2024-08-23
  */
 @Service
-public class AiLlmServiceImpl extends ServiceImpl<AiLlmMapper, Model> implements AiLlmService {
+public class AiLlmServiceImpl extends ServiceImpl<ModelMapper, Model> implements AiLlmService {
 
     @Autowired
-    AiLlmMapper aiLlmMapper;
+    ModelMapper modelMapper;
 
     @Autowired
     AiLlmProviderService llmProviderService;
@@ -48,7 +48,7 @@ public class AiLlmServiceImpl extends ServiceImpl<AiLlmMapper, Model> implements
 
     @Override
     public boolean addAiLlm(Model entity) {
-        int insert = aiLlmMapper.insert(entity);
+        int insert = modelMapper.insert(entity);
         if (insert <= 0) {
             return false;
         }
@@ -93,7 +93,7 @@ public class AiLlmServiceImpl extends ServiceImpl<AiLlmMapper, Model> implements
         QueryWrapper queryWrapper = new QueryWrapper()
                 .eq(Model::getProviderId, entity.getProviderId());
         queryWrapper.eq(Model::getAdded, entity.getAdded());
-        List<Model> totalList = aiLlmMapper.selectListWithRelationsByQuery(queryWrapper);
+        List<Model> totalList = modelMapper.selectListWithRelationsByQuery(queryWrapper);
         for (String modelType : llmModelTypes) {
             Map<String, List<Model>> groupMap = groupLlmByGroupName(totalList, modelType);
             if (!CollectionUtils.isEmpty(groupMap)) {
@@ -184,7 +184,7 @@ public class AiLlmServiceImpl extends ServiceImpl<AiLlmMapper, Model> implements
     @Override
     public void removeByEntity(Model entity) {
         QueryWrapper queryWrapper = QueryWrapper.create().eq(Model::getProviderId, entity.getProviderId()).eq(Model::getGroupName, entity.getGroupName());
-        aiLlmMapper.deleteByQuery(queryWrapper);
+        modelMapper.deleteByQuery(queryWrapper);
     }
 
     @Override

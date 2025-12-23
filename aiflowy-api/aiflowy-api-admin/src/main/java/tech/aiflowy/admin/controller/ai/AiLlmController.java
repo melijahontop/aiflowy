@@ -6,7 +6,7 @@ import com.mybatisflex.core.query.QueryWrapper;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import tech.aiflowy.ai.entity.Model;
-import tech.aiflowy.ai.mapper.AiLlmMapper;
+import tech.aiflowy.ai.mapper.ModelMapper;
 import tech.aiflowy.ai.service.AiLlmService;
 import tech.aiflowy.common.domain.Result;
 import tech.aiflowy.common.entity.LoginAccount;
@@ -45,14 +45,14 @@ public class AiLlmController extends BaseCurdController<AiLlmService, Model> {
     AiLlmService aiLlmService;
 
     @Resource
-    AiLlmMapper aiLlmMapper;
+    ModelMapper modelMapper;
 
     @GetMapping("list")
     @SaCheckPermission("/api/v1/aiLlm/query")
     public Result<List<Model>> list(Model entity, Boolean asTree, String sortKey, String sortType) {
         QueryWrapper queryWrapper = QueryWrapper.create(entity, buildOperators(entity));
         queryWrapper.orderBy(buildOrderBy(sortKey, sortType, getDefaultOrderBy()));
-        List<Model> list = Tree.tryToTree(aiLlmMapper.selectListWithRelationsByQuery(queryWrapper), asTree);
+        List<Model> list = Tree.tryToTree(modelMapper.selectListWithRelationsByQuery(queryWrapper), asTree);
         list.forEach(item -> {
             item.setTitle(item.getAiLlmProvider().getProviderName()  + "/" + item.getTitle());
         });
@@ -137,7 +137,7 @@ public class AiLlmController extends BaseCurdController<AiLlmService, Model> {
     public Result<List<Model>> selectLlmList(Model entity, Boolean asTree, String sortKey, String sortType) {
         QueryWrapper queryWrapper = QueryWrapper.create(entity, buildOperators(entity));
         queryWrapper.orderBy(buildOrderBy(sortKey, sortType, getDefaultOrderBy()));
-        List<Model> totalList = Tree.tryToTree(aiLlmMapper.selectListWithRelationsByQuery(queryWrapper), asTree);
+        List<Model> totalList = Tree.tryToTree(modelMapper.selectListWithRelationsByQuery(queryWrapper), asTree);
         totalList.forEach(aiLlm -> {
             aiLlm.setTitle(aiLlm.getAiLlmProvider().getProviderName() + "/" + aiLlm.getTitle());
         });

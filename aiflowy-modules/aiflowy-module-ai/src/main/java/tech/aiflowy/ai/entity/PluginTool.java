@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mybatisflex.core.query.QueryWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import tech.aiflowy.ai.mapper.AiPluginMapper;
+import tech.aiflowy.ai.mapper.PluginMapper;
 import tech.aiflowy.ai.service.AiPluginToolService;
 import tech.aiflowy.common.ai.plugin.NestedParamConverter;
 import tech.aiflowy.common.ai.plugin.PluginHttpClient;
@@ -71,8 +71,8 @@ public class PluginTool extends BaseTool {
                 .select("*")
                 .from("tb_plugin")
                 .where("id = ?", pluginId);
-        AiPluginMapper aiPluginMapper = SpringContextUtil.getBean(AiPluginMapper.class);
-        Plugin plugin1 = aiPluginMapper.selectOneByQuery(queryWrapper);
+        PluginMapper pluginMapper = SpringContextUtil.getBean(PluginMapper.class);
+        Plugin plugin1 = pluginMapper.selectOneByQuery(queryWrapper);
         return plugin1;
     }
 

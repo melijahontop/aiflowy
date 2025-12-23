@@ -3,8 +3,8 @@ package tech.aiflowy.ai.service.impl;
 import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import tech.aiflowy.ai.entity.PluginCategory;
-import tech.aiflowy.ai.mapper.AiPluginCategoriesMapper;
-import tech.aiflowy.ai.mapper.AiPluginCategoryRelationMapper;
+import tech.aiflowy.ai.mapper.PluginCategoryMapper;
+import tech.aiflowy.ai.mapper.PluginCategoryMappingMapper;
 import tech.aiflowy.ai.service.AiPluginCategoriesService;
 import org.springframework.stereotype.Service;
 import tech.aiflowy.common.web.exceptions.BusinessException;
@@ -18,13 +18,13 @@ import javax.annotation.Resource;
  * @since 2025-05-21
  */
 @Service
-public class AiPluginCategoriesServiceImpl extends ServiceImpl<AiPluginCategoriesMapper, PluginCategory>  implements AiPluginCategoriesService{
+public class AiPluginCategoriesServiceImpl extends ServiceImpl<PluginCategoryMapper, PluginCategory>  implements AiPluginCategoriesService{
 
     @Resource
-    private AiPluginCategoryRelationMapper relationMapper;
+    private PluginCategoryMappingMapper relationMapper;
 
     @Resource
-    private AiPluginCategoriesMapper aiPluginCategoriesMapper;
+    private PluginCategoryMapper pluginCategoryMapper;
 
     @Override
     public boolean doRemoveCategory(Integer id) {
@@ -38,7 +38,7 @@ public class AiPluginCategoriesServiceImpl extends ServiceImpl<AiPluginCategorie
             }
         }
 
-        int deleteCategory = aiPluginCategoriesMapper.deleteById(id);
+        int deleteCategory = pluginCategoryMapper.deleteById(id);
         if (deleteCategory <= 0){
             throw new BusinessException("删除失败");
         }

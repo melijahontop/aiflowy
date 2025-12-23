@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import tech.aiflowy.ai.entity.BotConversation;
 import tech.aiflowy.ai.entity.BotMessage;
 import tech.aiflowy.ai.enums.BotMessageTypeEnum;
-import tech.aiflowy.ai.mapper.AiBotMessageMapper;
+import tech.aiflowy.ai.mapper.BotMessageMapper;
 import tech.aiflowy.ai.service.AiBotMessageService;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
@@ -29,10 +29,10 @@ import java.util.concurrent.atomic.AtomicReference;
  * @since 2024-11-04
  */
 @Service
-public class AiBotMessageServiceImpl extends ServiceImpl<AiBotMessageMapper, BotMessage> implements AiBotMessageService {
+public class AiBotMessageServiceImpl extends ServiceImpl<BotMessageMapper, BotMessage> implements AiBotMessageService {
 
     @Resource
-    private AiBotMessageMapper aiBotMessageMapper;
+    private BotMessageMapper botMessageMapper;
 
     @Autowired
     @Qualifier("defaultCache") // 指定 Bean 名称
@@ -54,7 +54,7 @@ public class AiBotMessageServiceImpl extends ServiceImpl<AiBotMessageMapper, Bot
                     .where("bot_id = ? ", botId)
                     .where("session_id = ? ", sessionId)
                     .where("account_id = ? ", SaTokenUtil.getLoginAccount().getId());
-            List<BotMessage> messages = aiBotMessageMapper.selectListByQueryAs(queryConversation, BotMessage.class);
+            List<BotMessage> messages = botMessageMapper.selectListByQueryAs(queryConversation, BotMessage.class);
             List<Maps> finalMessages = new ArrayList<>();
             for (BotMessage message : messages){
                 Map<String, Object> options = message.getOptions();
@@ -131,7 +131,7 @@ public class AiBotMessageServiceImpl extends ServiceImpl<AiBotMessageMapper, Bot
                  .where("bot_id = ? ", botId)
                  .where("session_id = ? ", sessionId);
 
-        aiBotMessageMapper.deleteByQuery(queryWrapper);
+        botMessageMapper.deleteByQuery(queryWrapper);
         return true;
     }
 

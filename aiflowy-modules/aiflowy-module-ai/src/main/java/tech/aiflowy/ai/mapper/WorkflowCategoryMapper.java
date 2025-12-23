@@ -9,6 +9,6 @@ import tech.aiflowy.ai.entity.WorkflowCategory;
  * @author ArkLight
  * @since 2025-12-11
  */
-public interface AiWorkflowCategoryMapper extends BaseMapper<WorkflowCategory> {
+public interface WorkflowCategoryMapper extends BaseMapper<WorkflowCategory> {
 
 }

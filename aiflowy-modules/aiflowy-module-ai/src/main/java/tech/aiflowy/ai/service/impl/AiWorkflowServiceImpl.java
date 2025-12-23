@@ -2,7 +2,7 @@
 package tech.aiflowy.ai.service.impl;
 
 import tech.aiflowy.ai.entity.Workflow;
-import tech.aiflowy.ai.mapper.AiWorkflowMapper;
+import tech.aiflowy.ai.mapper.WorkflowMapper;
 import tech.aiflowy.ai.service.AiWorkflowService;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
@@ -18,7 +18,7 @@ import tech.aiflowy.ai.utils.CustomBeanUtils;
  * @since 2024-08-23
  */
 @Service
-public class AiWorkflowServiceImpl extends ServiceImpl<AiWorkflowMapper, Workflow> implements AiWorkflowService {
+public class AiWorkflowServiceImpl extends ServiceImpl<WorkflowMapper, Workflow> implements AiWorkflowService {
 
     /**
      * 根据别名或 id 查询详情

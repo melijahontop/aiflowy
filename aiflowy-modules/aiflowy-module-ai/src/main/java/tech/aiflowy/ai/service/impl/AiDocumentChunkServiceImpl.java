@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import tech.aiflowy.ai.config.SearcherFactory;
 import tech.aiflowy.ai.entity.DocumentChunk;
 import tech.aiflowy.ai.entity.DocumentCollection;
-import tech.aiflowy.ai.mapper.AiDocumentChunkMapper;
+import tech.aiflowy.ai.mapper.DocumentChunkMapper;
 import tech.aiflowy.ai.service.AiDocumentChunkService;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
@@ -19,7 +19,7 @@ import java.math.BigInteger;
  * @since 2024-08-23
  */
 @Service
-public class AiDocumentChunkServiceImpl extends ServiceImpl<AiDocumentChunkMapper, DocumentChunk> implements AiDocumentChunkService {
+public class AiDocumentChunkServiceImpl extends ServiceImpl<DocumentChunkMapper, DocumentChunk> implements AiDocumentChunkService {
 
     @Autowired
     private SearcherFactory searcherFactory;

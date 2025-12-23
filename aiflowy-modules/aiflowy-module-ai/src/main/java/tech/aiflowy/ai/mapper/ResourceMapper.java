@@ -9,6 +9,6 @@ import tech.aiflowy.ai.entity.Resource;
  * @author ArkLight
  * @since 2025-06-27
  */
-public interface AiResourceMapper extends BaseMapper<Resource> {
+public interface ResourceMapper extends BaseMapper<Resource> {
 
 }

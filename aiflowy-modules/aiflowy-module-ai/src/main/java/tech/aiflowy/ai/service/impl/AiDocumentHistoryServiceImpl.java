@@ -1,7 +1,7 @@
 package tech.aiflowy.ai.service.impl;
 
 import tech.aiflowy.ai.entity.DocumentHistory;
-import tech.aiflowy.ai.mapper.AiDocumentHistoryMapper;
+import tech.aiflowy.ai.mapper.DocumentHistoryMapper;
 import tech.aiflowy.ai.service.AiDocumentHistoryService;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
@@ -13,6 +13,6 @@ import org.springframework.stereotype.Service;
  * @since 2024-08-23
  */
 @Service
-public class AiDocumentHistoryServiceImpl extends ServiceImpl<AiDocumentHistoryMapper, DocumentHistory> implements AiDocumentHistoryService {
+public class AiDocumentHistoryServiceImpl extends ServiceImpl<DocumentHistoryMapper, DocumentHistory> implements AiDocumentHistoryService {
 
 }

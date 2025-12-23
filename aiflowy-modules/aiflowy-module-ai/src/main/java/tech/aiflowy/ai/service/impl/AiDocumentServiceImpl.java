@@ -26,8 +26,8 @@ import tech.aiflowy.ai.entity.Document;
 import tech.aiflowy.ai.entity.DocumentChunk;
 import tech.aiflowy.ai.entity.DocumentCollection;
 import tech.aiflowy.ai.entity.Model;
-import tech.aiflowy.ai.mapper.AiDocumentChunkMapper;
-import tech.aiflowy.ai.mapper.AiDocumentMapper;
+import tech.aiflowy.ai.mapper.DocumentChunkMapper;
+import tech.aiflowy.ai.mapper.DocumentMapper;
 import tech.aiflowy.ai.service.AiDocumentChunkService;
 import tech.aiflowy.ai.service.AiDocumentService;
 import tech.aiflowy.ai.service.AiKnowledgeService;
@@ -53,14 +53,14 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @since 2024-08-23
  */
 @Service("AiService")
-public class AiDocumentServiceImpl extends ServiceImpl<AiDocumentMapper, Document> implements AiDocumentService {
+public class AiDocumentServiceImpl extends ServiceImpl<DocumentMapper, Document> implements AiDocumentService {
     protected Logger Log = LoggerFactory.getLogger(AiDocumentServiceImpl.class);
 
     @Resource
-    private AiDocumentMapper aiDocumentMapper;
+    private DocumentMapper documentMapper;
 
     @Resource
-    private AiDocumentChunkMapper aiDocumentChunkMapper;
+    private DocumentChunkMapper documentChunkMapper;
 
     @Resource
     private AiKnowledgeService knowledgeService;
@@ -93,7 +93,7 @@ public class AiDocumentServiceImpl extends ServiceImpl<AiDocumentMapper, Documen
         }
         // 分组
         queryWrapper.groupBy("dt.id");
-        Page<Document> documentVoPage = aiDocumentMapper.paginateAs(pageNum, pageSize, queryWrapper, Document.class);
+        Page<Document> documentVoPage = documentMapper.paginateAs(pageNum, pageSize, queryWrapper, Document.class);
         return documentVoPage;
     }
 
@@ -108,7 +108,7 @@ public class AiDocumentServiceImpl extends ServiceImpl<AiDocumentMapper, Documen
 //        // 查询该文档对应哪些分割的字段，先删除
         QueryWrapper where = QueryWrapper.create().where("document_id = ? ", id);
         QueryWrapper aiDocumentWapper = QueryWrapper.create().where("id = ? ", id);
-        Document oneByQuery = aiDocumentMapper.selectOneByQuery(aiDocumentWapper);
+        Document oneByQuery = documentMapper.selectOneByQuery(aiDocumentWapper);
         DocumentCollection knowledge = knowledgeService.getById(oneByQuery.getKnowledgeId());
         if (knowledge == null) {
             return false;
@@ -135,20 +135,20 @@ public class AiDocumentServiceImpl extends ServiceImpl<AiDocumentMapper, Documen
         // 查询文本分割表tb_document_chunk中对应的有哪些数据，找出来删除
         QueryWrapper queryWrapper = QueryWrapper.create()
                 .select("id").from("tb_document_chunk").where("document_id = ?", id);
-        List<BigInteger> chunkIds = aiDocumentChunkMapper.selectListByQueryAs(queryWrapper, BigInteger.class);
+        List<BigInteger> chunkIds = documentChunkMapper.selectListByQueryAs(queryWrapper, BigInteger.class);
         documentStore.delete(chunkIds, options);
         // 删除搜索引擎中的数据
         if (searcherFactory.getSearcher() != null) {
             DocumentSearcher searcher = searcherFactory.getSearcher();
             chunkIds.forEach(searcher::deleteDocument);
         }
-        int ck = aiDocumentChunkMapper.deleteByQuery(where);
+        int ck = documentChunkMapper.deleteByQuery(where);
         if (ck < 0) {
             return false;
         }
         // 再删除指定路径下的文件
         QueryWrapper wrapper = QueryWrapper.create().where("id = ?", id);
-        Document document = aiDocumentMapper.selectOneByQuery(wrapper);
+        Document document = documentMapper.selectOneByQuery(wrapper);
         storageService.delete(document.getDocumentPath());
         return true;
     }

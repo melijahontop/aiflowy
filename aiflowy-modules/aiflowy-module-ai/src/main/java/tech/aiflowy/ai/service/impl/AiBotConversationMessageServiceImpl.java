@@ -5,8 +5,8 @@ import com.mybatisflex.spring.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import tech.aiflowy.ai.entity.BotConversation;
 import tech.aiflowy.ai.entity.BotMessage;
-import tech.aiflowy.ai.mapper.AiBotConversationMessageMapper;
-import tech.aiflowy.ai.mapper.AiBotMessageMapper;
+import tech.aiflowy.ai.mapper.BotConversationMapper;
+import tech.aiflowy.ai.mapper.BotMessageMapper;
 import tech.aiflowy.ai.service.AiBotConversationMessageService;
 
 import javax.annotation.Resource;
@@ -19,13 +19,13 @@ import java.math.BigInteger;
  * @since 2025-04-15
  */
 @Service
-public class AiBotConversationMessageServiceImpl extends ServiceImpl<AiBotConversationMessageMapper, BotConversation> implements AiBotConversationMessageService {
+public class AiBotConversationMessageServiceImpl extends ServiceImpl<BotConversationMapper, BotConversation> implements AiBotConversationMessageService {
 
     @Resource
-    private AiBotConversationMessageMapper aiBotConversationMessageMapper;
+    private BotConversationMapper botConversationMapper;
 
     @Resource
-    private AiBotMessageMapper aiBotMessageMapper;
+    private BotMessageMapper botMessageMapper;
 
     /**
      * 删除指定会话
@@ -36,13 +36,13 @@ public class AiBotConversationMessageServiceImpl extends ServiceImpl<AiBotConver
         cqw.eq(BotConversation::getBotId, botId);
         cqw.eq(BotConversation::getSessionId, sessionId);
         cqw.eq(BotConversation::getAccountId, accountId);
-        aiBotConversationMessageMapper.deleteByQuery(cqw);
+        botConversationMapper.deleteByQuery(cqw);
         // 删除消息记录中的数据
         QueryWrapper mqw = QueryWrapper.create();
         mqw.eq(BotMessage::getBotId, botId);
         mqw.eq(BotMessage::getSessionId, sessionId);
         mqw.eq(BotMessage::getAccountId, accountId);
-        aiBotMessageMapper.deleteByQuery(mqw);
+        botMessageMapper.deleteByQuery(mqw);
     }
 
     @Override
@@ -53,6 +53,6 @@ public class AiBotConversationMessageServiceImpl extends ServiceImpl<AiBotConver
         cqw.eq(BotConversation::getAccountId, accountId);
         BotConversation update = new BotConversation();
         update.setTitle(title);
-        aiBotConversationMessageMapper.updateByQuery(update, cqw);
+        botConversationMapper.updateByQuery(update, cqw);
     }
 }

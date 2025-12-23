@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import tech.aiflowy.ai.entity.*;
-import tech.aiflowy.ai.mapper.AiBotConversationMessageMapper;
+import tech.aiflowy.ai.mapper.BotConversationMapper;
 import tech.aiflowy.ai.service.*;
 import tech.aiflowy.common.audio.core.AudioServiceManager;
 import tech.aiflowy.common.domain.Result;
@@ -58,7 +58,7 @@ public class AiBotController extends BaseCurdController<AiBotService, Bot> {
     @Resource
     private AiBotConversationMessageService aiBotConversationMessageService;
     @Resource
-    private AiBotConversationMessageMapper aiBotConversationMessageMapper;
+    private BotConversationMapper botConversationMapper;
     @Resource
     private AiBotService aiBotService;
     @Autowired

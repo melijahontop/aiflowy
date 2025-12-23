@@ -1,6 +1,6 @@
 package tech.aiflowy.ai.mapper;
 
-import tech.aiflowy.ai.entity.DocumentChunk;
+import tech.aiflowy.ai.entity.DocumentCollection;
 import com.mybatisflex.core.BaseMapper;
 
 /**
@@ -9,6 +9,6 @@ import com.mybatisflex.core.BaseMapper;
  * @author michael
  * @since 2024-08-23
  */
-public interface AiDocumentChunkMapper extends BaseMapper<DocumentChunk> {
+public interface DocumentCollectionMapper extends BaseMapper<DocumentCollection> {
 
 }

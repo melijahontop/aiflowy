@@ -1,7 +1,7 @@
 package tech.aiflowy.ai.service.impl;
 
 import tech.aiflowy.ai.entity.BotDocumentCollection;
-import tech.aiflowy.ai.mapper.AiBotKnowledgeMapper;
+import tech.aiflowy.ai.mapper.BotDocumentCollectionMapper;
 import tech.aiflowy.ai.service.AiBotKnowledgeService;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
@@ -18,7 +18,7 @@ import com.mybatisflex.core.query.QueryWrapper;
  * @since 2024-08-28
  */
 @Service
-public class AiBotKnowledgeServiceImpl extends ServiceImpl<AiBotKnowledgeMapper, BotDocumentCollection> implements AiBotKnowledgeService {
+public class AiBotKnowledgeServiceImpl extends ServiceImpl<BotDocumentCollectionMapper, BotDocumentCollection> implements AiBotKnowledgeService {
 
     @Override
     public List<BotDocumentCollection> listByBotId(BigInteger botId) {

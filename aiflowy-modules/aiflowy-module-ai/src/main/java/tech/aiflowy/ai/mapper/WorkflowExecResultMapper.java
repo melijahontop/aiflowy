@@ -9,6 +9,6 @@ import tech.aiflowy.ai.entity.WorkflowExecResult;
  * @author ArkLight
  * @since 2025-05-28
  */
-public interface AiWorkflowExecRecordMapper extends BaseMapper<WorkflowExecResult> {
+public interface WorkflowExecResultMapper extends BaseMapper<WorkflowExecResult> {
 
 }

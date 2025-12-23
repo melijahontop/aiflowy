@@ -6,9 +6,9 @@ import org.springframework.stereotype.Service;
 import tech.aiflowy.ai.entity.Plugin;
 import tech.aiflowy.ai.entity.PluginTool;
 import tech.aiflowy.ai.entity.PluginItem;
-import tech.aiflowy.ai.mapper.AiBotPluginsMapper;
-import tech.aiflowy.ai.mapper.AiPluginMapper;
-import tech.aiflowy.ai.mapper.AiPluginToolMapper;
+import tech.aiflowy.ai.mapper.BotPluginMapper;
+import tech.aiflowy.ai.mapper.PluginMapper;
+import tech.aiflowy.ai.mapper.PluginItemMapper;
 import tech.aiflowy.ai.service.AiPluginToolService;
 import tech.aiflowy.common.domain.Result;
 import tech.aiflowy.common.web.exceptions.BusinessException;
@@ -24,22 +24,22 @@ import java.util.*;
  * @since 2025-04-27
  */
 @Service
-public class AiPluginToolServiceImpl extends ServiceImpl<AiPluginToolMapper, PluginItem> implements AiPluginToolService {
+public class AiPluginToolServiceImpl extends ServiceImpl<PluginItemMapper, PluginItem> implements AiPluginToolService {
 
     @Resource
-    private AiPluginToolMapper aiPluginToolMapper;
+    private PluginItemMapper pluginItemMapper;
 
     @Resource
-    private AiPluginMapper aiPluginMapper;
+    private PluginMapper pluginMapper;
 
     @Resource
-    private AiBotPluginsMapper aiBotPluginsMapper;
+    private BotPluginMapper botPluginMapper;
 
     @Override
     public boolean savePluginTool(PluginItem pluginItem) {
         pluginItem.setCreated(new Date());
         pluginItem.setRequestMethod("Post");
-        int insert = aiPluginToolMapper.insert(pluginItem);
+        int insert = pluginItemMapper.insert(pluginItem);
         if (insert <= 0) {
             throw new BusinessException("保存失败");
         }
@@ -53,13 +53,13 @@ public class AiPluginToolServiceImpl extends ServiceImpl<AiPluginToolMapper, Plu
                 .select("*")
                 .from("tb_plugin_item")
                 .where("id = ? ", aiPluginToolId);
-        PluginItem pluginItem = aiPluginToolMapper.selectOneByQuery(queryAiPluginToolWrapper);
+        PluginItem pluginItem = pluginItemMapper.selectOneByQuery(queryAiPluginToolWrapper);
         // 查询当前的插件信息
         QueryWrapper queryAiPluginWrapper = QueryWrapper.create()
                 .select("*")
                 .from("tb_plugin")
                 .where("id = ?", pluginItem.getPluginId());
-        Plugin plugin = aiPluginMapper.selectOneByQuery(queryAiPluginWrapper);
+        Plugin plugin = pluginMapper.selectOneByQuery(queryAiPluginWrapper);
         Map<String, Object> result = new HashMap<>();
         result.put("data", pluginItem);
         result.put("aiPlugin", plugin);
@@ -68,7 +68,7 @@ public class AiPluginToolServiceImpl extends ServiceImpl<AiPluginToolMapper, Plu
 
     @Override
     public boolean updatePlugin(PluginItem pluginItem) {
-        int update = aiPluginToolMapper.update(pluginItem);
+        int update = pluginItemMapper.update(pluginItem);
         if (update <= 0) {
             throw new BusinessException("修改失败");
         }
@@ -81,13 +81,13 @@ public class AiPluginToolServiceImpl extends ServiceImpl<AiPluginToolMapper, Plu
                 .select("*")
                 .from("tb_plugin_item")
                 .where("plugin_id = ? ", pluginId);
-        List<PluginItem> pluginItems = aiPluginToolMapper.selectListByQueryAs(queryAiPluginToolWrapper, PluginItem.class);
+        List<PluginItem> pluginItems = pluginItemMapper.selectListByQueryAs(queryAiPluginToolWrapper, PluginItem.class);
         // 查询当前bot有哪些插件工具方法
         QueryWrapper queryBotPluginTools = QueryWrapper.create()
                 .select("plugin_tool_id")
                 .from("tb_bot_plugin")
                 .where("bot_id = ? ", botId);
-        List<BigInteger> aiBotPluginToolIds = aiBotPluginsMapper.selectListWithRelationsByQueryAs(queryBotPluginTools, BigInteger.class);
+        List<BigInteger> aiBotPluginToolIds = botPluginMapper.selectListWithRelationsByQueryAs(queryBotPluginTools, BigInteger.class);
         aiBotPluginToolIds.forEach(botPluginTooId -> {
             pluginItems.forEach(item -> {
                 if (Objects.equals(botPluginTooId, item.getId())) {
@@ -104,12 +104,12 @@ public class AiPluginToolServiceImpl extends ServiceImpl<AiPluginToolMapper, Plu
                 .select("plugin_tool_id")
                 .from("tb_bot_plugin")
                 .where("bot_id = ? ", botId);
-        List<BigInteger> pluginToolIds = aiBotPluginsMapper.selectListByQueryAs(queryAiPluginToolWrapper, BigInteger.class);
+        List<BigInteger> pluginToolIds = botPluginMapper.selectListByQueryAs(queryAiPluginToolWrapper, BigInteger.class);
         if (pluginToolIds == null || pluginToolIds.isEmpty()) {
             return Collections.emptyList();
         }
         // 查询当前bots对应的有哪些pluginTool
-        List<PluginItem> pluginItems = aiPluginToolMapper.selectListByIds(pluginToolIds);
+        List<PluginItem> pluginItems = pluginItemMapper.selectListByIds(pluginToolIds);
         return pluginItems;
     }
 

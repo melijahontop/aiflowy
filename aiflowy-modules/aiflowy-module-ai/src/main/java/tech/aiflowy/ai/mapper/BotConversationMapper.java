@@ -9,6 +9,6 @@ import tech.aiflowy.ai.entity.BotConversation;
  * @author Administrator
  * @since 2025-04-15
  */
-public interface AiBotConversationMessageMapper extends BaseMapper<BotConversation> {
+public interface BotConversationMapper extends BaseMapper<BotConversation> {
 
 }

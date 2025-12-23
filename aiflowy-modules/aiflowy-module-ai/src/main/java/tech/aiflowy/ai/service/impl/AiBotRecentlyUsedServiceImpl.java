@@ -3,7 +3,7 @@ package tech.aiflowy.ai.service.impl;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import tech.aiflowy.ai.entity.BotRecentlyUsed;
-import tech.aiflowy.ai.mapper.AiBotRecentlyUsedMapper;
+import tech.aiflowy.ai.mapper.BotRecentlyUsedMapper;
 import tech.aiflowy.ai.service.AiBotRecentlyUsedService;
 
 /**
@@ -13,6 +13,6 @@ import tech.aiflowy.ai.service.AiBotRecentlyUsedService;
  * @since 2025-12-18
  */
 @Service
-public class AiBotRecentlyUsedServiceImpl extends ServiceImpl<AiBotRecentlyUsedMapper, BotRecentlyUsed>  implements AiBotRecentlyUsedService {
+public class AiBotRecentlyUsedServiceImpl extends ServiceImpl<BotRecentlyUsedMapper, BotRecentlyUsed>  implements AiBotRecentlyUsedService {
 
 }

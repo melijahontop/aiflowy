@@ -9,6 +9,6 @@ import tech.aiflowy.ai.entity.BotCategory;
  * @author ArkLight
  * @since 2025-12-18
  */
-public interface AiBotCategoryMapper extends BaseMapper<BotCategory> {
+public interface BotCategoryMapper extends BaseMapper<BotCategory> {
 
 }

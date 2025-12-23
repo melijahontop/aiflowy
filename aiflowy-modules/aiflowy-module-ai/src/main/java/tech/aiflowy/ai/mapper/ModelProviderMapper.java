@@ -9,6 +9,6 @@ import tech.aiflowy.ai.entity.ModelProvider;
  * @author 12076
  * @since 2025-12-16
  */
-public interface AiLlmProviderMapper extends BaseMapper<ModelProvider> {
+public interface ModelProviderMapper extends BaseMapper<ModelProvider> {
 
 }

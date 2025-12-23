@@ -4,8 +4,8 @@ import com.mybatisflex.core.query.QueryWrapper;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import tech.aiflowy.ai.entity.PluginCategory;
 import tech.aiflowy.ai.entity.PluginCategoryMapping;
-import tech.aiflowy.ai.mapper.AiPluginCategoriesMapper;
-import tech.aiflowy.ai.mapper.AiPluginCategoryRelationMapper;
+import tech.aiflowy.ai.mapper.PluginCategoryMapper;
+import tech.aiflowy.ai.mapper.PluginCategoryMappingMapper;
 import tech.aiflowy.ai.service.AiPluginCategoryRelationService;
 import org.springframework.stereotype.Service;
 import tech.aiflowy.common.web.exceptions.BusinessException;
@@ -22,13 +22,13 @@ import java.util.List;
  * @since 2025-05-21
  */
 @Service
-public class AiPluginCategoryRelationServiceImpl extends ServiceImpl<AiPluginCategoryRelationMapper, PluginCategoryMapping>  implements AiPluginCategoryRelationService{
+public class AiPluginCategoryRelationServiceImpl extends ServiceImpl<PluginCategoryMappingMapper, PluginCategoryMapping>  implements AiPluginCategoryRelationService{
 
     @Resource
-    private AiPluginCategoryRelationMapper relationMapper;
+    private PluginCategoryMappingMapper relationMapper;
 
     @Resource
-    private AiPluginCategoriesMapper aiPluginCategoriesMapper;
+    private PluginCategoryMapper pluginCategoryMapper;
 
     @Override
     public boolean updateRelation(long pluginId, ArrayList<Integer> categoryIds) {
@@ -87,7 +87,7 @@ public class AiPluginCategoryRelationServiceImpl extends ServiceImpl<AiPluginCat
         QueryWrapper categoryQuery =  QueryWrapper.create().select("id, name")
                 .from("tb_plugin_category")
                 .in("id", categoryIdList);
-        pluginCategories = aiPluginCategoriesMapper.selectListByQuery(categoryQuery);
+        pluginCategories = pluginCategoryMapper.selectListByQuery(categoryQuery);
         return pluginCategories;
     }
 }

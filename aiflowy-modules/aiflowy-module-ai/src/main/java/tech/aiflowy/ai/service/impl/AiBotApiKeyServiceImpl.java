@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import tech.aiflowy.ai.entity.Bot;
 import tech.aiflowy.ai.entity.BotApiKey;
-import tech.aiflowy.ai.mapper.AiBotApiKeyMapperMapper;
+import tech.aiflowy.ai.mapper.BotApiKeyMapperMapper;
 import tech.aiflowy.ai.service.AiBotApiKeyService;
 import tech.aiflowy.ai.service.AiBotService;
 import tech.aiflowy.common.web.exceptions.BusinessException;
@@ -31,7 +31,7 @@ import java.util.Base64;
  * @since 2025-07-18
  */
 @Service
-public class AiBotApiKeyServiceImpl extends ServiceImpl<AiBotApiKeyMapperMapper, BotApiKey>  implements AiBotApiKeyService {
+public class AiBotApiKeyServiceImpl extends ServiceImpl<BotApiKeyMapperMapper, BotApiKey>  implements AiBotApiKeyService {
 
     private static final Logger log = LoggerFactory.getLogger(AiBotApiKeyServiceImpl.class);
 

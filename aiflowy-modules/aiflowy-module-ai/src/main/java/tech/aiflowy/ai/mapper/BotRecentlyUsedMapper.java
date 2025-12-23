@@ -9,6 +9,6 @@ import tech.aiflowy.ai.entity.BotRecentlyUsed;
  * @author ArkLight
  * @since 2025-12-18
  */
-public interface AiBotRecentlyUsedMapper extends BaseMapper<BotRecentlyUsed> {
+public interface BotRecentlyUsedMapper extends BaseMapper<BotRecentlyUsed> {
 
 }

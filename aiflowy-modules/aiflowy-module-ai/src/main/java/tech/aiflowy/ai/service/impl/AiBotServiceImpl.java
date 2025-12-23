@@ -21,7 +21,7 @@ import tech.aiflowy.ai.entity.Bot;
 import tech.aiflowy.ai.entity.BotMessage;
 import tech.aiflowy.ai.entity.DefaultBotMessageMemory;
 import tech.aiflowy.ai.entity.BotMessageMemory;
-import tech.aiflowy.ai.mapper.AiBotMapper;
+import tech.aiflowy.ai.mapper.BotMapper;
 import tech.aiflowy.ai.service.AiBotMessageService;
 import tech.aiflowy.ai.service.AiBotService;
 import tech.aiflowy.ai.service.ChatStreamListener;
@@ -45,7 +45,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 2024-08-23
  */
 @Service
-public class AiBotServiceImpl extends ServiceImpl<AiBotMapper, Bot> implements AiBotService {
+public class AiBotServiceImpl extends ServiceImpl<BotMapper, Bot> implements AiBotService {
 
     private static final Logger log = LoggerFactory.getLogger(AiBotServiceImpl.class);
 
