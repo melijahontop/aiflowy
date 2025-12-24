@@ -13,6 +13,9 @@ export const overridesPreferences = defineOverridesPreferences({
     defaultHomePath: '/workflow',
     enablePreferences: false,
   },
+  breadcrumb: {
+    showIcon: false,
+  },
   widget: {
     timezone: false,
     globalSearch: false,

@@ -1,14 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <svg width="18px" height="18px" viewBox="0 0 18 18" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <title>执行记录备份 3</title>
+    <title>编组 15备份 3</title>
     <g id="页面-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <g id="画板" transform="translate(-249, -230)">
-            <g id="执行记录备份-3" transform="translate(248, 229)">
-                <rect id="矩形" x="0" y="0" width="20" height="20"></rect>
-                <g id="编组-14" transform="translate(1, 1)">
-                    <path d="M14,0 C16.209139,0 18,1.790861 18,4 L18,14 C18,16.209139 16.209139,18 14,18 L4,18 C1.790861,18 0,16.209139 0,14 L0,4 C0,1.790861 1.790861,0 4,0 L14,0 Z M14,1 L4,1 C2.34314575,1 1,2.34314575 1,4 L1,14 C1,15.6568542 2.34314575,17 4,17 L14,17 C15.6568542,17 17,15.6568542 17,14 L17,4 C17,2.34314575 15.6568542,1 14,1 Z" id="形状结合" fill="currentColor" fill-rule="nonzero"></path>
-                    <rect id="矩形" fill="currentColor" x="4" y="6" width="9" height="1" rx="0.5"></rect>
-                    <rect id="矩形备份-4" fill="currentColor" x="4" y="11" width="4" height="1" rx="0.5"></rect>
-                    <g id="编组-13" transform="translate(7.4, 2.6)"></g>
+        <g id="聊天助理备份-11" transform="translate(-29, -339)">
+            <g id="编组-22" transform="translate(12, 324)">
+                <g id="编组-15备份-3" transform="translate(16, 14)">
+                    <rect id="矩形" x="0" y="0" width="20" height="20"></rect>
+                    <g id="编组-14" transform="translate(1, 1)">
+                        <rect id="形状结合" stroke="currentColor" stroke-width="1.6" x="0.8" y="0.8" width="16.4" height="16.4" rx="4"></rect>
+                        <rect id="矩形" stroke="currentColor" stroke-width="0.8" x="4.4" y="6.4" width="8.2" height="1" rx="0.5"></rect>
+                        <rect id="矩形备份-4" stroke="currentColor" stroke-width="0.8" x="4.4" y="11.4" width="3.2" height="1" rx="0.5"></rect>
+                        <g id="编组-13" transform="translate(7.4, 2.6)"></g>
+                    </g>
                 </g>
             </g>
         </g>

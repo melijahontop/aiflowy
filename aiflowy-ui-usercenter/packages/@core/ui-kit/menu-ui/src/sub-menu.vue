@@ -3,11 +3,14 @@ import type { MenuRecordRaw } from '@aiflowy-core/typings';
 
 import { computed } from 'vue';
 
-import { MenuBadge, MenuItem, SubMenu as SubMenuComp } from './components';
+import { cn } from '@aiflowy-core/shared/utils';
+
+import { MenuItem } from './components';
 // eslint-disable-next-line import/no-self-import
 import SubMenu from './sub-menu.vue';
 
 interface Props {
+  collapse?: boolean;
   /**
    * 菜单项
    */
@@ -18,7 +21,9 @@ defineOptions({
   name: 'SubMenuUi',
 });
 
-const props = withDefaults(defineProps<Props>(), {});
+const props = withDefaults(defineProps<Props>(), {
+  collapse: false,
+});
 
 /**
  * 判断是否有子节点，动态渲染 menu-item/sub-menu-item
@@ -46,7 +51,20 @@ const hasChildren = computed(() => {
       <span>{{ menu.name }}</span>
     </template>
   </MenuItem>
-  <SubMenuComp
+  <!-- 扁平化菜单 -->
+  <div v-else :class="cn('flex flex-col gap-3', collapse && 'm-0')">
+    <span :class="cn('mt-4 pl-4 text-sm text-[#C7C7C7]', collapse && 'hidden')">
+      {{ menu.name }}
+    </span>
+    <div>
+      <template v-for="childItem in menu.children || []" :key="childItem.path">
+        <SubMenu :menu="childItem" :collapse="collapse" />
+      </template>
+    </div>
+  </div>
+
+  <!-- 收缩菜单 -->
+  <!-- <SubMenuComp
     v-else
     :key="`${menu.path}_sub`"
     :active-icon="menu.activeIcon"
@@ -67,5 +85,5 @@ const hasChildren = computed(() => {
     <template v-for="childItem in menu.children || []" :key="childItem.path">
       <SubMenu :menu="childItem" />
     </template>
-  </SubMenuComp>
+  </SubMenuComp> -->
 </template>
