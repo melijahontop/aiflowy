@@ -299,7 +299,7 @@ const getSideList = async () => {
         :footer-button="footerButton"
         @change="changeCategory"
       />
-      <div class="h-full flex-1 overflow-auto">
+      <div class="bg-background h-full flex-1 overflow-auto rounded-lg p-5">
         <PageData
           ref="pageDataRef"
           page-url="/api/v1/resource/page"

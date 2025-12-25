@@ -667,7 +667,6 @@ const handleOpenRunModal = () => {
   margin: 0;
   font-size: 1.1rem;
   font-weight: 500;
-  color: var(--el-text-color-secondary);
   padding-left: 12px;
 }
 
@@ -679,7 +678,6 @@ const handleOpenRunModal = () => {
 
 .accordion-icon--rotated {
   transform: rotate(180deg);
-  color: #3498db;
 }
 
 .accordion-content {
