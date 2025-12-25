@@ -7,20 +7,20 @@ import { $t } from '@aiflowy/locales';
 import {
   ArrowLeft,
   Delete,
-  Edit,
+  MoreFilled,
   Plus,
   Refresh,
   Upload,
 } from '@element-plus/icons-vue';
 import {
   ElButton,
-  ElCol,
+  ElDropdown,
+  ElDropdownItem,
+  ElDropdownMenu,
   ElIcon,
-  ElMenu,
-  ElMenuItem,
+  ElImage,
   ElMessage,
   ElMessageBox,
-  ElRow,
   ElTable,
   ElTableColumn,
 } from 'element-plus';
@@ -28,6 +28,7 @@ import {
 import { api } from '#/api/request';
 import tableIcon from '#/assets/datacenter/table2x.png';
 import PageData from '#/components/page/PageData.vue';
+import PageSide from '#/components/page/PageSide.vue';
 import { router } from '#/router';
 import { useDictStore } from '#/store';
 import BatchImportModal from '#/views/datacenter/BatchImportModal.vue';
@@ -48,6 +49,10 @@ const activeMenu = ref('1');
 const recordModal = ref();
 const batchImportModal = ref();
 const dictStore = useDictStore();
+const categoryData = [
+  { key: '1', name: $t('documentCollection.documentList') },
+  { key: '2', name: $t('documentCollection.knowledgeRetrieval') },
+];
 function initDict() {
   dictStore.fetchDictionary('fieldType');
   dictStore.fetchDictionary('yesOrNo');
@@ -111,7 +116,7 @@ function openImportModal() {
 </script>
 
 <template>
-  <div class="page-container">
+  <div class="bg-background-deep flex h-full flex-col gap-6 p-6">
     <BatchImportModal
       :table-id="tableId"
       :title="$t('button.batchImport')"
@@ -124,46 +129,49 @@ function openImportModal() {
       :table-id="tableId"
       @reload="refresh"
     />
-    <ElRow>
-      <ElCol :span="24" class="border-b">
-        <div class="mb-2.5 flex items-center justify-between">
-          <div class="flex items-center gap-2.5">
-            <ElIcon class="cursor-pointer" @click="router.back()">
-              <ArrowLeft />
-            </ElIcon>
-            <img :src="tableIcon" class="h-10 w-10" />
-            <div class="flex flex-col justify-center">
-              <div class="text-sm font-bold">{{ detailInfo.tableName }}</div>
-              <div class="desc text-xs">{{ detailInfo.tableDesc }}</div>
-            </div>
-          </div>
-          <div class="flex items-center" v-if="activeMenu === '2'">
-            <ElButton type="primary" @click="showDialog({})">
-              <ElIcon class="mr-1">
-                <Plus />
-              </ElIcon>
-              {{ $t('button.addLine') }}
-            </ElButton>
-            <ElButton type="primary" @click="openImportModal">
-              <ElIcon class="mr-1">
-                <Upload />
-              </ElIcon>
-              {{ $t('button.batchImport') }}
-            </ElButton>
+
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <ElIcon class="cursor-pointer" @click="router.back()">
+          <ArrowLeft />
+        </ElIcon>
+        <div class="flex items-center gap-3">
+          <ElImage :src="tableIcon" class="h-9 w-9 rounded-full" />
+          <div class="flex flex-col gap-1.5">
+            <div class="text-base font-medium">{{ detailInfo.tableName }}</div>
+            <div class="desc text-sm">{{ detailInfo.tableDesc }}</div>
           </div>
         </div>
-      </ElCol>
-      <ElCol :span="4" class="border-r">
-        <ElMenu default-active="1" @select="(index) => (activeMenu = index)">
-          <ElMenuItem index="1">
-            {{ $t('datacenterTable.structure') }}
-          </ElMenuItem>
-          <ElMenuItem index="2">
-            {{ $t('datacenterTable.data') }}
-          </ElMenuItem>
-        </ElMenu>
-      </ElCol>
-      <ElCol :span="20" class="p-2.5">
+      </div>
+
+      <div class="flex items-center" v-if="activeMenu === '2'">
+        <ElButton type="primary" @click="showDialog({})">
+          <ElIcon class="mr-1">
+            <Plus />
+          </ElIcon>
+          {{ $t('button.addLine') }}
+        </ElButton>
+        <ElButton type="primary" @click="openImportModal">
+          <ElIcon class="mr-1">
+            <Upload />
+          </ElIcon>
+          {{ $t('button.batchImport') }}
+        </ElButton>
+      </div>
+    </div>
+
+    <div class="flex h-full max-h-[calc(100vh-191px)] gap-3">
+      <PageSide
+        label-key="name"
+        value-key="key"
+        :menus="categoryData"
+        default-selected="1"
+        @change="(category) => (activeMenu = category.key)"
+      />
+
+      <div
+        class="bg-background border-border flex-1 overflow-auto rounded-lg border p-5"
+      >
         <ElTable v-show="activeMenu === '1'" :data="fieldList">
           <ElTableColumn
             prop="fieldName"
@@ -220,32 +228,43 @@ function openImportModal() {
                   <div v-else>{{ row[item.key] }}</div>
                 </template>
               </ElTableColumn>
-              <ElTableColumn :label="$t('common.handle')" width="150">
+              <ElTableColumn
+                :label="$t('common.handle')"
+                width="90"
+                align="right"
+              >
                 <template #default="{ row }">
-                  <ElButton @click="showDialog(row)" link type="primary">
-                    <ElIcon class="mr-1">
-                      <Edit />
-                    </ElIcon>
-                    {{ $t('button.edit') }}
-                  </ElButton>
-                  <ElButton @click="remove(row)" link type="danger">
-                    <ElIcon class="mr-1">
-                      <Delete />
-                    </ElIcon>
-                    {{ $t('button.delete') }}
-                  </ElButton>
+                  <div class="flex items-center gap-3">
+                    <ElButton link type="primary" @click="showDialog(row)">
+                      {{ $t('button.edit') }}
+                    </ElButton>
+
+                    <ElDropdown>
+                      <ElButton link :icon="MoreFilled" />
+
+                      <template #dropdown>
+                        <ElDropdownMenu>
+                          <ElDropdownItem @click="remove(row)">
+                            <ElButton link :icon="Delete" type="danger">
+                              {{ $t('button.delete') }}
+                            </ElButton>
+                          </ElDropdownItem>
+                        </ElDropdownMenu>
+                      </template>
+                    </ElDropdown>
+                  </div>
                 </template>
               </ElTableColumn>
             </ElTable>
           </template>
         </PageData>
-      </ElCol>
-    </ElRow>
+      </div>
+    </div>
   </div>
 </template>
 
 <style scoped>
 .desc {
-  color: #969799;
+  color: #75808d;
 }
 </style>

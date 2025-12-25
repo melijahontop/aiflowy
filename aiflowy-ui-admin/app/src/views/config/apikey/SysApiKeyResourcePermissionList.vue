@@ -3,9 +3,12 @@ import type { FormInstance } from 'element-plus';
 
 import { ref } from 'vue';
 
-import { Delete, Edit, Plus } from '@element-plus/icons-vue';
+import { Delete, MoreFilled, Plus } from '@element-plus/icons-vue';
 import {
   ElButton,
+  ElDropdown,
+  ElDropdownItem,
+  ElDropdownMenu,
   ElForm,
   ElFormItem,
   ElInput,
@@ -71,11 +74,11 @@ function remove(row: any) {
 </script>
 
 <template>
-  <div class="page-container !m-0">
+  <div class="page-container !m-0 !pl-0">
     <SysApiKeyResourcePermissionModal ref="saveDialog" @reload="reset" />
     <div class="flex items-center justify-between">
       <ElForm ref="formRef" :inline="true" :model="formInline">
-        <ElFormItem prop="title">
+        <ElFormItem prop="title" class="!mr-3">
           <ElInput
             v-model="formInline.title"
             :placeholder="$t('sysApiKeyResourcePermission.title')"
@@ -122,20 +125,27 @@ function remove(row: any) {
               {{ row.title }}
             </template>
           </ElTableColumn>
-          <ElTableColumn :label="$t('common.handle')" width="150">
+          <ElTableColumn :label="$t('common.handle')" width="90" align="right">
             <template #default="{ row }">
-              <ElButton @click="showDialog(row)" link type="primary">
-                <ElIcon class="mr-1">
-                  <Edit />
-                </ElIcon>
-                {{ $t('button.edit') }}
-              </ElButton>
-              <ElButton @click="remove(row)" link type="danger">
-                <ElIcon class="mr-1">
-                  <Delete />
-                </ElIcon>
-                {{ $t('button.delete') }}
-              </ElButton>
+              <div class="flex items-center gap-3">
+                <ElButton link type="primary" @click="showDialog(row)">
+                  {{ $t('button.edit') }}
+                </ElButton>
+
+                <ElDropdown>
+                  <ElButton link :icon="MoreFilled" />
+
+                  <template #dropdown>
+                    <ElDropdownMenu>
+                      <ElDropdownItem @click="remove(row)">
+                        <ElButton link :icon="Delete" type="danger">
+                          {{ $t('button.delete') }}
+                        </ElButton>
+                      </ElDropdownItem>
+                    </ElDropdownMenu>
+                  </template>
+                </ElDropdown>
+              </div>
             </template>
           </ElTableColumn>
         </ElTable>

@@ -55,7 +55,7 @@ const pluginToolRef = ref();
       @button-click="handleButtonClick"
     />
 
-    <div class="bg-background flex-1 rounded-lg p-5">
+    <div class="bg-background border-border flex-1 rounded-lg border p-5">
       <PluginToolTable :plugin-id="pluginId" ref="pluginToolRef" />
     </div>
   </div>

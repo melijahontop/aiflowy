@@ -103,7 +103,7 @@ function getTree() {
     <SysDeptModal ref="saveDialog" @reload="reset" />
     <div class="flex items-center justify-between">
       <ElForm ref="formRef" :inline="true" :model="formInline">
-        <ElFormItem prop="deptName">
+        <ElFormItem prop="deptName" class="!mr-3">
           <ElInput
             class="search-input"
             v-model="formInline.deptName"
@@ -160,7 +160,7 @@ function getTree() {
             {{ row.remark }}
           </template>
         </ElTableColumn>
-        <ElTableColumn :label="$t('common.handle')" width="100" align="center">
+        <ElTableColumn :label="$t('common.handle')" width="90" align="right">
           <template #default="{ row }">
             <div class="flex items-center gap-3">
               <ElButton link type="primary" @click="showDialog(row)">

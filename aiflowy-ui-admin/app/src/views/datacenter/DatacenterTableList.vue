@@ -135,8 +135,8 @@ function toDetailPage(row: any) {
             </ElTableColumn>
             <ElTableColumn
               :label="$t('common.handle')"
-              width="150"
-              align="center"
+              width="140"
+              align="right"
             >
               <template #default="{ row }">
                 <div class="flex items-center gap-3">

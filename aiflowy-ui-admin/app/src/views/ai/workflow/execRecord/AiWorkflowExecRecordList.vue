@@ -4,12 +4,7 @@ import type { FormInstance } from 'element-plus';
 import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-import {
-  ArrowLeft,
-  DeleteFilled,
-  MoreFilled,
-  Operation,
-} from '@element-plus/icons-vue';
+import { ArrowLeft, DeleteFilled, MoreFilled } from '@element-plus/icons-vue';
 import {
   ElButton,
   ElDropdown,
@@ -17,7 +12,6 @@ import {
   ElDropdownMenu,
   ElForm,
   ElFormItem,
-  ElIcon,
   ElInput,
   ElMessage,
   ElMessageBox,
@@ -116,14 +110,14 @@ function getTagType(row: any) {
 </script>
 
 <template>
-  <div class="page-container">
+  <div class="page-container border-border border">
     <div class="mb-3">
       <ElButton :icon="ArrowLeft" @click="router.back()">
         {{ $t('button.back') }}
       </ElButton>
     </div>
     <ElForm ref="formRef" :inline="true" :model="formInline">
-      <ElFormItem :label="$t('aiWorkflowExecRecord.execKey')" prop="execKey">
+      <ElFormItem class="w-full max-w-[300px]" prop="execKey">
         <ElInput
           v-model="formInline.execKey"
           :placeholder="$t('aiWorkflowExecRecord.execKey')"
@@ -216,33 +210,29 @@ function getTagType(row: any) {
               {{ row.errorInfo }}
             </template>
           </ElTableColumn>
-          <ElTableColumn :label="$t('common.handle')" width="80" align="center">
+          <ElTableColumn :label="$t('common.handle')" width="110" align="right">
             <template #default="{ row }">
-              <ElDropdown>
-                <ElButton link>
-                  <ElIcon>
-                    <MoreFilled />
-                  </ElIcon>
+              <div class="flex items-center gap-1">
+                <ElButton link type="primary" @click="toStepPage(row)">
+                  {{ $t('aiWorkflowRecordStep.moduleName') }}
                 </ElButton>
-                <template #dropdown>
-                  <ElDropdownMenu>
-                    <div v-access:code="'/api/v1/workflow/save'">
-                      <ElDropdownItem @click="toStepPage(row)">
-                        <ElButton :icon="Operation" link>
-                          {{ $t('aiWorkflowRecordStep.moduleName') }}
-                        </ElButton>
-                      </ElDropdownItem>
-                    </div>
-                    <div v-access:code="'/api/v1/workflow/save'">
-                      <ElDropdownItem @click="remove(row)">
-                        <ElButton type="danger" :icon="DeleteFilled" link>
-                          {{ $t('button.delete') }}
-                        </ElButton>
-                      </ElDropdownItem>
-                    </div>
-                  </ElDropdownMenu>
-                </template>
-              </ElDropdown>
+
+                <ElDropdown>
+                  <ElButton :icon="MoreFilled" link />
+
+                  <template #dropdown>
+                    <ElDropdownMenu>
+                      <div v-access:code="'/api/v1/workflow/save'">
+                        <ElDropdownItem @click="remove(row)">
+                          <ElButton type="danger" :icon="DeleteFilled" link>
+                            {{ $t('button.delete') }}
+                          </ElButton>
+                        </ElDropdownItem>
+                      </div>
+                    </ElDropdownMenu>
+                  </template>
+                </ElDropdown>
+              </div>
             </template>
           </ElTableColumn>
         </ElTable>

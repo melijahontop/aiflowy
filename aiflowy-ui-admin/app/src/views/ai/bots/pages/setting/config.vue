@@ -671,7 +671,7 @@ const handleUpdatePublishWx = () => {
             </div>
           </ElCollapseItem>
           <ElCollapseItem title="欢迎语">
-            <div>
+            <div class="bg-[#f5f5f5] p-2.5">
               <ElInput
                 v-model="dialogueSettings.welcomeMessage"
                 placeholder="请输入欢迎语"

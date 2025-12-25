@@ -253,15 +253,15 @@ const getSideList = async () => {
     <PreviewModal ref="previewDialog" />
     <AiResourceModal ref="saveDialog" @reload="reset" />
     <div class="flex items-center justify-between">
-      <ElForm ref="formRef" :inline="true" :model="formInline">
-        <ElFormItem prop="resourceType">
+      <ElForm ref="formRef" inline :model="formInline">
+        <ElFormItem prop="resourceType" class="!mr-3">
           <DictSelect
             v-model="formInline.resourceType"
             dict-code="resourceType"
             :placeholder="$t('aiResource.resourceType')"
           />
         </ElFormItem>
-        <ElFormItem prop="resourceName">
+        <ElFormItem prop="resourceName" class="!mr-3">
           <ElInput
             v-model="formInline.resourceName"
             :placeholder="$t('aiResource.resourceName')"
@@ -385,9 +385,9 @@ const getSideList = async () => {
                 </template>
               </ElTableColumn>
               <ElTableColumn
-                align="center"
                 :label="$t('common.handle')"
-                width="150"
+                width="140"
+                align="right"
               >
                 <template #default="{ row }">
                   <div class="flex items-center gap-3">

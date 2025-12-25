@@ -105,7 +105,7 @@ const handleDelete = (row: any) => {
             </div>
           </template>
         </ElTableColumn>
-        <ElTableColumn :label="$t('common.handle')" width="100" align="center">
+        <ElTableColumn :label="$t('common.handle')" width="100" align="right">
           <template #default="{ row }">
             <div class="flex items-center gap-3">
               <ElButton link type="primary" @click="handleView(row)">

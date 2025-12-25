@@ -13,7 +13,6 @@ import {
   ElDropdownItem,
   ElDropdownMenu,
   ElIcon,
-  ElTooltip,
 } from 'element-plus';
 
 export interface ActionButton {
@@ -66,15 +65,11 @@ const hiddenActions = computed(() => {
       <div class="flex flex-col gap-3">
         <div class="flex items-center gap-3">
           <ElAvatar :src="item[iconField] || defaultIcon" :size="36" />
-          <ElTooltip :content="item[titleField]" placement="top">
-            <span class="text-base font-medium">{{ item[titleField] }}</span>
-          </ElTooltip>
+          <span class="text-base font-medium">{{ item[titleField] }}</span>
         </div>
-        <ElTooltip :content="item[descField]" placement="top">
-          <div class="item-desc">
-            {{ item[descField] }}
-          </div>
-        </ElTooltip>
+        <div class="item-desc line-clamp-2" :title="item[descField]">
+          {{ item[descField] }}
+        </div>
       </div>
       <template #footer>
         <div :class="visibleActions.length > 2 ? 'footer-div' : ''">
@@ -161,11 +156,9 @@ const hiddenActions = computed(() => {
 
 .item-desc {
   font-size: clamp(8px, 1vw, 14px);
+  line-height: 16px;
+  height: 32px;
   color: #75808d;
-  height: 20px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 /* 响应式调整 */

@@ -92,7 +92,7 @@ const pluginToolReload = () => {
           fixed="right"
           :label="$t('common.handle')"
           width="100"
-          align="center"
+          align="right"
         >
           <template #default="scope">
             <div class="flex items-center gap-3">

@@ -641,11 +641,10 @@ const handleOpenRunModal = () => {
 }
 
 .accordion-item {
-  border: 1px solid #e1e5e9;
+  border: 1px solid hsl(var(--border));
   border-radius: 8px;
   overflow: hidden;
-  background: var(--el-bg-color);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  background: hsl(var(--background));
   transition: all 0.3s ease;
 }
 
@@ -658,7 +657,7 @@ const handleOpenRunModal = () => {
   justify-content: space-between;
   align-items: center;
   padding: 16px 20px;
-  background: var(--el-bg-color);
+  background: hsl(var(--background));
   cursor: pointer;
   transition: background-color 0.3s ease;
   user-select: none;
@@ -687,7 +686,7 @@ const handleOpenRunModal = () => {
   max-height: 0;
   overflow: hidden;
   transition: max-height 0.4s ease;
-  background: var(--el-bg-color);
+  background: hsl(var(--background));
 }
 
 .accordion-content--open {
@@ -696,7 +695,7 @@ const handleOpenRunModal = () => {
 
 .accordion-content-inner {
   padding: 20px;
-  border-top: 1px solid #e1e5e9;
+  border-top: 1px solid hsl(var(--border));
 }
 
 .accordion-content-inner p {

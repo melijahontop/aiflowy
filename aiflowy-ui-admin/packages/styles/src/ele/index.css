@@ -86,3 +86,11 @@ html .el-loading-mask {
 .el-button {
   --el-color-primary: hsl(var(--primary))
 }
+
+.el-tooltip {
+  max-width: 50vw;
+}
+
+.el-table .el-button.is-link>span {
+  font-weight: 400;
+}

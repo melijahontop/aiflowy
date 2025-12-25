@@ -177,8 +177,8 @@ function isAdmin(data: any) {
             </ElTableColumn>
             <ElTableColumn
               :label="$t('common.handle')"
-              width="100"
-              align="center"
+              width="90"
+              align="right"
             >
               <template #default="{ row }">
                 <div class="flex items-center gap-3" v-if="!isAdmin(row)">

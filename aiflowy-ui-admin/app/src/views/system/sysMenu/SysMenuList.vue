@@ -149,7 +149,7 @@ function getTree() {
             {{ row.created }}
           </template>
         </ElTableColumn>
-        <ElTableColumn :label="$t('common.handle')" width="100" align="center">
+        <ElTableColumn :label="$t('common.handle')" width="90" align="right">
           <template #default="{ row }">
             <div class="flex items-center gap-3">
               <ElButton link type="primary" @click="showDialog(row)">

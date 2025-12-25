@@ -69,14 +69,14 @@ function getTagType(row: any) {
 </script>
 
 <template>
-  <div class="page-container">
+  <div class="page-container border-border border">
     <div class="mb-3">
       <ElButton :icon="ArrowLeft" @click="router.back()">
         {{ $t('button.back') }}
       </ElButton>
     </div>
     <ElForm ref="formRef" :inline="true" :model="formInline">
-      <ElFormItem :label="$t('aiWorkflowRecordStep.nodeName')" prop="nodeName">
+      <ElFormItem class="w-full max-w-[300px]" prop="nodeName">
         <ElInput
           v-model="formInline.nodeName"
           :placeholder="$t('aiWorkflowRecordStep.nodeName')"
