@@ -1,7 +1,6 @@
 
 package tech.aiflowy.ai.entity;
 
-import cn.hutool.core.util.StrUtil;
 import com.agentsflex.core.model.chat.ChatModel;
 import com.agentsflex.core.model.embedding.EmbeddingModel;
 import com.agentsflex.core.model.rerank.RerankModel;
@@ -21,12 +20,8 @@ import com.agentsflex.rerank.gitee.GiteeRerankModel;
 import com.agentsflex.rerank.gitee.GiteeRerankModelConfig;
 import com.mybatisflex.annotation.RelationManyToOne;
 import com.mybatisflex.annotation.Table;
-import org.springframework.util.StringUtils;
 import tech.aiflowy.ai.entity.base.ModelBase;
 import tech.aiflowy.common.util.StringUtil;
-import tech.aiflowy.common.web.exceptions.BusinessException;
-
-import java.util.Map;
 
 /**
  * 实体类。
@@ -40,14 +35,6 @@ public class Model extends ModelBase {
 
     @RelationManyToOne(selfField = "providerId", targetField = "id")
     private ModelProvider modelProvider;
-
-    /**
-     * model 请求地址
-     */
-    public final static String LLM_ENDPOINT = "llmEndpoint";
-    public final static String CHAT_PATH = "chatPath";
-    public final static String EMBED_PATH = "embedPath";
-    public final static String RERANK_PATH = "rerankPath";
 
     /**
      * 模型类型
@@ -80,9 +67,9 @@ public class Model extends ModelBase {
 
     private ChatModel ollamaLlm() {
         OllamaChatConfig ollamaChatConfig = new OllamaChatConfig();
-        ollamaChatConfig.setEndpoint(getEndpointNotNull());
+        ollamaChatConfig.setEndpoint(getEndpoint());
         ollamaChatConfig.setApiKey(getApiKey());
-        ollamaChatConfig.setModel(getModelNameNotNull());
+        ollamaChatConfig.setModel(getModelName());
         return new OllamaChatModel(ollamaChatConfig);
     }
 
@@ -99,10 +86,10 @@ public class Model extends ModelBase {
     private ChatModel openaiLLm() {
         OpenAIChatConfig openAIChatConfig = new OpenAIChatConfig();
         openAIChatConfig.setProvider(getModelProvider().getProviderType());
-        openAIChatConfig.setEndpoint(getEndpointNotNull());
-        openAIChatConfig.setApiKey(getApiKeyNotNull());
-        openAIChatConfig.setModel(getModelNameNotNull());
-        openAIChatConfig.setRequestPath(getRequestPathNotNull());
+        openAIChatConfig.setEndpoint(getEndpoint());
+        openAIChatConfig.setApiKey(getApiKey());
+        openAIChatConfig.setModel(getModelName());
+        openAIChatConfig.setRequestPath(getRequestPath());
         return new OpenAIChatModel(openAIChatConfig);
     }
 
@@ -110,17 +97,17 @@ public class Model extends ModelBase {
         switch (modelProvider.getProviderType().toLowerCase()) {
             case "gitee":
                 GiteeRerankModelConfig giteeRerankModelConfig = new GiteeRerankModelConfig();
-                giteeRerankModelConfig.setApiKey(getApiKeyNotNull());
-                giteeRerankModelConfig.setEndpoint(getEndpointNotNull());
-                giteeRerankModelConfig.setModel(getModelNameNotNull());
-                giteeRerankModelConfig.setRequestPath(getRequestPathNotNull());
+                giteeRerankModelConfig.setApiKey(getApiKey());
+                giteeRerankModelConfig.setEndpoint(getEndpoint());
+                giteeRerankModelConfig.setModel(getModelName());
+                giteeRerankModelConfig.setRequestPath(getRequestPath());
                 return new GiteeRerankModel(giteeRerankModelConfig);
             default:
                 DefaultRerankModelConfig defaultRerankModelConfig = new DefaultRerankModelConfig();
-                defaultRerankModelConfig.setApiKey(getApiKeyNotNull());
-                defaultRerankModelConfig.setEndpoint(getEndpointNotNull());
-                defaultRerankModelConfig.setRequestPath(getRequestPathNotNull());
-                defaultRerankModelConfig.setModel(getModelNameNotNull());
+                defaultRerankModelConfig.setApiKey(getApiKey());
+                defaultRerankModelConfig.setEndpoint(getEndpoint());
+                defaultRerankModelConfig.setRequestPath(getRequestPath());
+                defaultRerankModelConfig.setModel(getModelName());
                 return new DefaultRerankModel(defaultRerankModelConfig);
         }
     }
@@ -133,47 +120,20 @@ public class Model extends ModelBase {
         switch (providerType.toLowerCase()) {
             case "ollama":
                 OllamaEmbeddingConfig ollamaEmbeddingConfig = new OllamaEmbeddingConfig();
-                ollamaEmbeddingConfig.setEndpoint(getEndpointNotNull());
+                ollamaEmbeddingConfig.setEndpoint(getEndpoint());
                 ollamaEmbeddingConfig.setApiKey(getApiKey());
-                ollamaEmbeddingConfig.setModel(getModelNameNotNull());
-                ollamaEmbeddingConfig.setRequestPath(getRequestPathNotNull());
+                ollamaEmbeddingConfig.setModel(getModelName());
+                ollamaEmbeddingConfig.setRequestPath(getRequestPath());
                 return new OllamaEmbeddingModel(ollamaEmbeddingConfig);
             default:
                 OpenAIEmbeddingConfig openAIEmbeddingConfig = new OpenAIEmbeddingConfig();
-                openAIEmbeddingConfig.setEndpoint(getEndpointNotNull());
-                openAIEmbeddingConfig.setApiKey(getApiKeyNotNull());
-                openAIEmbeddingConfig.setModel(getModelNameNotNull());
-                openAIEmbeddingConfig.setRequestPath(getRequestPathNotNull());
+                openAIEmbeddingConfig.setEndpoint(getEndpoint());
+                openAIEmbeddingConfig.setApiKey(getApiKey());
+                openAIEmbeddingConfig.setModel(getModelName());
+                openAIEmbeddingConfig.setRequestPath(getRequestPath());
                 return new OpenAIEmbeddingModel(openAIEmbeddingConfig);
         }
     }
 
-    public String getRequestPathNotNull() {
-        if (StrUtil.isEmpty(getRequestPath())){
-            throw new BusinessException("请求地址不能为空");
-        }
-        return getRequestPath();
-    }
-
-    public String getApiKeyNotNull() {
-        if (StrUtil.isEmpty(getApiKey())) {
-            throw new BusinessException("API 密钥不能为空");
-        }
-        return getApiKey();
-    }
-
-    public String getEndpointNotNull() {
-        if (StrUtil.isEmpty(getEndpoint())){
-            throw new BusinessException("API 地址不能为空");
-        }
-        return getEndpoint();
-    }
-
-    public String getModelNameNotNull() {
-        if (StrUtil.isEmpty(getModelName())){
-            throw new BusinessException("模型名称不能为空");
-        }
-        return getModelName();
-    }
 
 }
