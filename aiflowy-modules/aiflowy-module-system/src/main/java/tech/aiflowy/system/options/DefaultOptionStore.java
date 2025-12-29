@@ -1,5 +1,6 @@
 package tech.aiflowy.system.options;
 
+import com.mybatisflex.core.query.QueryWrapper;
 import tech.aiflowy.common.entity.LoginAccount;
 import tech.aiflowy.common.options.SysOptionStore;
 import tech.aiflowy.common.satoken.util.SaTokenUtil;
@@ -20,12 +21,12 @@ public class DefaultOptionStore implements SysOptionStore {
     @Override
     public void save(String key, Object value) {
         if (value == null || !StringUtil.hasText(value.toString())) {
-            optionService.removeById(key);
+            optionService.remove(QueryWrapper.create().eq(SysOption::getKey, key));
             return;
         }
 
         String newValue = value.toString().trim();
-        SysOption option = optionService.getById(key);
+        SysOption option = optionService.getByOptionKey(key);
         LoginAccount loginAccount = SaTokenUtil.getLoginAccount();
         if (option == null) {
             option = new SysOption(key, newValue);
@@ -33,7 +34,8 @@ public class DefaultOptionStore implements SysOptionStore {
             optionService.save(option);
         } else {
             option.setValue(newValue);
-            optionService.updateById(option);
+            QueryWrapper queryWrapper = QueryWrapper.create().eq(SysOption::getKey, key);
+            optionService.update(option, queryWrapper);
         }
     }
 

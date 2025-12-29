@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { onMounted, ref } from 'vue';
 
 import { $t } from '@aiflowy/locales';
@@ -15,13 +15,16 @@ import {
 } from 'element-plus';
 
 import { api } from '#/api/request.js';
+import providerList from '#/views/ai/model/modelUtils/providerList.json';
 
+const providerOptions =
+  ref<Array<{ label: string; options: any; value: string }>>(providerList);
 const brands = ref([]);
 const llmOptions = ref([]);
 
 // 获取品牌接口数据
 function getBrands() {
-  api.get('/api/v1/modelBrand/list').then((res) => {
+  api.get('/api/v1/modelProvider/list').then((res) => {
     if (res.errorCode === 0) {
       brands.value = res.data;
       llmOptions.value = formatLlmList(res.data);
@@ -55,8 +58,8 @@ const entity = ref({
 function formatLlmList(data) {
   return data.map((item) => {
     const extra = new Map([
-      ['chatPath', item.options.chatPath],
-      ['llmEndpoint', item.options.llmEndpoint],
+      ['chatPath', item.options?.chatPath],
+      ['llmEndpoint', item.options?.llmEndpoint],
     ]);
     return {
       label: item.title,
@@ -66,9 +69,9 @@ function formatLlmList(data) {
   });
 }
 function handleChangeModel(value) {
-  const extra = llmOptions.value.find((item) => item.value === value)?.extra;
-  entity.value.chatgpt_chatPath = extra.get('chatPath');
-  entity.value.chatgpt_endpoint = extra.get('llmEndpoint');
+  const extra = providerList.find((item) => item.value === value);
+  entity.value.chatgpt_chatPath = extra.options.chatPath;
+  entity.value.chatgpt_endpoint = extra.options.llmEndpoint;
 }
 function handleSave() {
   api.post('/api/v1/sysOption/save', entity.value).then((res) => {
@@ -96,7 +99,7 @@ function handleSave() {
             @change="handleChangeModel"
           >
             <ElOption
-              v-for="item in llmOptions"
+              v-for="item in providerOptions"
               :key="item.value"
               :label="item.label"
               :value="item.value"
