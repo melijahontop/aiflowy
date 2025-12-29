@@ -36,5 +36,7 @@
   "create": "创建",
   "update": "更新",
   "oneClickOptimization": "一键优化",
-  "replace": "替换"
+  "replace": "替换",
+  "markAsRead": "标记已查看",
+  "markAsResolved": "标记已处理"
 }

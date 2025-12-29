@@ -1,0 +1,8 @@
+{
+  "feedbackType": "反馈类型",
+  "processingStatus": "处理状态",
+  "category": "问题类型",
+  "description": "问题摘要",
+  "contactInformation": "联系方式",
+  "submittedAt": "提交时间"
+}

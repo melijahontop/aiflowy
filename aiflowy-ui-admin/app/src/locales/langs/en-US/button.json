@@ -36,5 +36,7 @@
   "create": "Create",
   "update": "Update",
   "oneClickOptimization": "One-click optimization",
-  "replace": "Replace"
+  "replace": "Replace",
+  "markAsRead": "MarkAsRead",
+  "markAsResolved": "MarkAsResolved"
 }

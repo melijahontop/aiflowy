@@ -102,6 +102,7 @@ watchDebounced(
         'svg:log',
         'svg:setting',
         'svg:api',
+        'svg:user-feedback',
         ...(await fetchIconsData(prefix)),
       ];
     }

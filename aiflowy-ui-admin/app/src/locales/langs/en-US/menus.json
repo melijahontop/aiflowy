@@ -8,7 +8,8 @@
     "sysPosition": "Position",
     "sysDict": "Dictionary",
     "sysJob": "Job",
-    "sysLog": "Log"
+    "sysLog": "Log",
+    "sysFeedback": "UserFeedback"
   },
   "ai": {
     "bots": "ChatAssistant",

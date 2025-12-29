@@ -1,0 +1,8 @@
+{
+  "feedbackType": "FeedbackType",
+  "processingStatus": "ProcessingStatus",
+  "category": "Category",
+  "description": "Description",
+  "contactInformation": "ContactInformation",
+  "submittedAt": "SubmittedAt"
+}
