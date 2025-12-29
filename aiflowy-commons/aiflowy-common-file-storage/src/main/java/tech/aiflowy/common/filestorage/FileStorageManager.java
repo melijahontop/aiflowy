@@ -38,6 +38,11 @@ public class FileStorageManager implements FileStorageService {
         return getService().readStream(path);
     }
 
+    @Override
+    public long getFileSize(String path) {
+        return 0;
+    }
+
     private FileStorageService getService() {
         String type = StorageConfig.getInstance().getType();
         if (!StringUtils.hasText(type)) {

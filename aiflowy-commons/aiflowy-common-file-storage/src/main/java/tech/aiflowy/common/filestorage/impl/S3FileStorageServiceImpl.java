@@ -11,6 +11,7 @@ import tech.aiflowy.common.filestorage.FileStorageService;
 import tech.aiflowy.common.filestorage.StorageConfig;
 import tech.aiflowy.common.filestorage.s3.S3Client;
 import tech.aiflowy.common.filestorage.s3.S3StorageConfig;
+import tech.aiflowy.common.filestorage.utils.OkHttpFileSizeUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,7 +38,6 @@ public class S3FileStorageServiceImpl implements FileStorageService {
             client = new S3Client();
         }
     }
-
 
     @Override
     public String save(MultipartFile file) {
@@ -100,5 +100,19 @@ public class S3FileStorageServiceImpl implements FileStorageService {
         return client.getObjectContent(path);
     }
 
+    /**
+     * 获取S3中文件的大小（单位：字节）
+     * @param path 文件在S3中的路径（或完整URL）
+     * @return 文件大小（字节）
+     */
+    @Override
+    public long getFileSize(String path) {
+        try {
+            return OkHttpFileSizeUtil.getFileSize(path);
+        } catch (Exception e) {
+            LOG.error("获取文件大小失败", e);
+            throw new RuntimeException(e);
+        }
+    }
 
 }

@@ -1,6 +1,10 @@
 package tech.aiflowy.common.filestorage.utils;
 
+import cn.dev33.satoken.stp.StpUtil;
+import tech.aiflowy.common.util.StringUtil;
+
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 /**
@@ -8,8 +12,23 @@ import java.util.UUID;
  */
 public class PathGeneratorUtil {
 
+    public static String generateUserPath(String fileName) {
+        return "/" + getAccountLoginIdOrCommons() +  PathGeneratorUtil.generatePath(fileName);
+    }
+
+    private static String getAccountLoginIdOrCommons() {
+        try {
+            String loginIdAsString = StpUtil.getLoginIdAsString();
+            return StringUtil.hasText(loginIdAsString) ? loginIdAsString : "commons";
+        } catch (Exception e) {
+            return "commons";
+        }
+    }
+
+
     /**
      * 使用当前日期 + 自动生成UUID + 自定义文件名，生成路径
+     *
      * @param fileName 文件名（含后缀，如 "video.mp4"）
      * @return 示例："/2024/10/15/1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed/video.mp4"
      */
@@ -17,6 +36,17 @@ public class PathGeneratorUtil {
         LocalDate currentDate = LocalDate.now();
         String uuid = UUID.randomUUID().toString();
         return buildPath(currentDate, uuid, fileName);
+    }
+
+    /**
+     * 使用当前日期 - 1天
+     *
+     * @return 示例："yyyy/MM/dd"（如 2024/10/19）
+     */
+    public static String generatePrePath() {
+        LocalDate yesterday = LocalDate.now().minusDays(2);
+        // 自定义格式为 "yyyy/MM/dd"（如 2024/10/19）
+        return yesterday.format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
     }
 
     /**

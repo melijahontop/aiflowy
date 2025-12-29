@@ -29,4 +29,11 @@ public interface FileStorageService {
     }
 
     InputStream readStream(String path) throws IOException;
+
+    /**
+     * 获取文件大小
+     * @param path
+     * @return 文件大小 单位字节
+     */
+    public long getFileSize(String path);
 }

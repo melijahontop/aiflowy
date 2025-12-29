@@ -162,11 +162,7 @@ public class S3Client {
         String name = file.getOriginalFilename();
         String path = generatePath(content, name);
         String baseUrl = properties.getEndpoint() + "/" + properties.getBucketName() + "/";
-
-
-
         if (StringUtils.hasValue(prePath)) {
-
             if (prePath.startsWith("/")){
                 prePath = prePath.substring(1);
             }
@@ -174,8 +170,6 @@ public class S3Client {
             if (prePath.endsWith("/")){
                 prePath = prePath.substring(0, prePath.length() - 1);
             }
-
-
             path = prePath + "/" + path;
         }
 
@@ -300,9 +294,6 @@ public class S3Client {
      */
     public InputStream getObjectContent(String objectPath, Long start, Long end) {
 
-//        if (objectPath.startsWith("http") || objectPath.startsWith("https")) {
-//            objectPath = objectPath.substring(properties.getEndpoint().length() + properties.getBucketName().length() + 1);
-//        }
         objectPath = objectPath.replace(properties.getDomain() + "/", "");
         GetObjectRequest request = new GetObjectRequest(properties.getBucketName(), objectPath);
         if (start != null) {

@@ -63,12 +63,13 @@ aiflowy:
       bucket-name: your-bucket-name
       access-policy: 2
       prefix: attachment
+      domain: https://your-domain
     local:
       # 示例：windows【C:\aiflowy\attachment】 linux【/www/aiflowy/attachment】
       root: 'C:\aiflowy\attachment'
 #      root: /Users/michael/Desktop/test
       # 后端接口地址
-      prefix: 'http://localhost:8080/static'
+      prefix: 'http://localhost:8080/attachment'
 #      prefix: http://aiflowy.s7.tunnelfrp.com/static
   ollama:
     host: http://127.0.0.1:11434
