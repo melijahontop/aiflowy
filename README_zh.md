@@ -45,19 +45,30 @@ AIFlowy 是一个基于 Java 语言构建的**企业级开源 AI 应用（智能
 - [ ] 完善开发者文档与 SDK 生态
 
 
-## 产品截图
+## 后台管理截图
 
 | 模块 | 截图 |
 |------|------|
 | 登录页 | ![login.png](docs/assets/images/login.png) |
-| Bot 列表 | ![bot1.png](docs/assets/images/bot1.png) |
-| Bot 配置 | ![bot2.png](docs/assets/images/bot2.png) |
+| Bot 配置 | ![bot1.png](docs/assets/images/bot1.png) |
 | 插件中心 | ![cj.png](docs/assets/images/cj.png) |
 | 工作流编排 | ![gzl1.png](docs/assets/images/gzl1.png) |
 | 知识库管理 | ![rag.png](docs/assets/images/rag.png) |
 | 素材中心 | ![sck.png](docs/assets/images/sck.png) |
 | 大模型管理 | ![llm.png](docs/assets/images/llm.png) |
 
+
+## 用户中心截图
+
+
+| 模块      | 截图                                                           |
+|---------|--------------------------------------------------------------|
+| 登录页     | ![login.png](docs/assets/images/usercenter/login.png)        |
+| 对话      | ![login.png](docs/assets/images/usercenter/chat.png)         |
+| 应用市场    | ![login.png](docs/assets/images/usercenter/market.png)       |
+| 应用详情    | ![login.png](docs/assets/images/usercenter/market2.png)      |
+| 智能体     | ![login.png](docs/assets/images/usercenter/agent.png)        |
+| 智能体执行记录 | ![login.png](docs/assets/images/usercenter/agent_record.png) |
 
 
 ## 🚀 快速启动
