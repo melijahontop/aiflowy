@@ -123,5 +123,11 @@ public class PluginServiceImpl extends ServiceImpl<PluginMapper, Plugin> impleme
         return Result.ok(aiPluginPage);
     }
 
+    @Override
+    public boolean updatePlugin(Plugin plugin) {
+        pluginMapper.update(plugin);
+        return true;
+    }
+
 
 }

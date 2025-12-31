@@ -21,4 +21,6 @@ public interface PluginService extends IService<Plugin> {
     List<Plugin> getList();
 
     Result pageByCategory(Long pageNumber, Long pageSize, int category);
+
+    boolean updatePlugin(Plugin plugin);
 }
