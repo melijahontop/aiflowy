@@ -40,5 +40,7 @@
   "markAsRead": "MarkAsRead",
   "markAsResolved": "MarkAsResolved",
   "optimizing": "Optimizing",
-  "regenerate": "Regenerate"
+  "regenerate": "Regenerate",
+  "hide": "Hide",
+  "more": "Mode"
 }

@@ -40,5 +40,7 @@
   "markAsRead": "标记已查看",
   "markAsResolved": "标记已处理",
   "optimizing": "正在优化中...",
-  "regenerate": "重新生成"
+  "regenerate": "重新生成",
+  "hide": "隐藏",
+  "more": "更多"
 }

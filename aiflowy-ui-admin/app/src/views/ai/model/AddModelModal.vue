@@ -154,7 +154,7 @@ defineExpose({
         rerankPath: '',
       },
     });
-
+    showMoreFields.value = false;
     // 重置标签状态
     resetModelAbility(modelAbility.value);
     syncTagSelectedStatus();
@@ -190,7 +190,7 @@ defineExpose({
         rerankPath: item.options?.rerankPath || '',
       },
     });
-
+    showMoreFields.value = false;
     // 同步标签状态
     syncTagSelectedStatus();
   },
@@ -270,6 +270,7 @@ const save = async () => {
     btnLoading.value = false;
   }
 };
+const showMoreFields = ref(false);
 </script>
 
 <template>
@@ -295,19 +296,40 @@ const save = async () => {
       <ElFormItem prop="modelName" :label="$t('llm.llmModel')">
         <ElInput v-model.trim="formData.modelName" />
       </ElFormItem>
-      <ElFormItem prop="apiKey" :label="$t('llmProvider.apiKey')">
-        <ElInput v-model.trim="formData.apiKey" />
-      </ElFormItem>
-      <ElFormItem prop="endpoint" :label="$t('llmProvider.endpoint')">
-        <ElInput v-model.trim="formData.endpoint" />
-      </ElFormItem>
-      <ElFormItem prop="requestPath" :label="$t('llm.requestPath')">
-        <ElInput v-model.trim="formData.requestPath" />
-      </ElFormItem>
       <ElFormItem prop="groupName" :label="$t('llm.groupName')">
         <ElInput v-model.trim="formData.groupName" />
       </ElFormItem>
-      <ElFormItem prop="ability" :label="$t('llm.ability')">
+      <ElFormItem label=" " v-if="!showMoreFields">
+        <ElButton @click="showMoreFields = !showMoreFields" type="primary">
+          {{ showMoreFields ? $t('button.hide') : $t('button.more') }}
+        </ElButton>
+      </ElFormItem>
+      <ElFormItem
+        prop="apiKey"
+        :label="$t('llmProvider.apiKey')"
+        v-show="showMoreFields"
+      >
+        <ElInput v-model.trim="formData.apiKey" />
+      </ElFormItem>
+      <ElFormItem
+        prop="endpoint"
+        :label="$t('llmProvider.endpoint')"
+        v-show="showMoreFields"
+      >
+        <ElInput v-model.trim="formData.endpoint" />
+      </ElFormItem>
+      <ElFormItem
+        prop="requestPath"
+        :label="$t('llm.requestPath')"
+        v-show="showMoreFields"
+      >
+        <ElInput v-model.trim="formData.requestPath" />
+      </ElFormItem>
+      <ElFormItem
+        prop="ability"
+        :label="$t('llm.ability')"
+        v-show="showMoreFields"
+      >
         <div class="model-ability">
           <ElTag
             class="model-ability-tag"

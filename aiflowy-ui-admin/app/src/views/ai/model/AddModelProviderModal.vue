@@ -137,7 +137,7 @@ const handleChangeProvider = (val: string) => {
       <ElFormItem prop="providerName" :label="$t('llmProvider.providerName')">
         <ElInput v-model.trim="formData.providerName" />
       </ElFormItem>
-      <ElFormItem prop="provider" :label="$t('llmProvider.provider')">
+      <ElFormItem prop="provider" :label="$t('llmProvider.apiType')">
         <ElSelect v-model="formData.provider" @change="handleChangeProvider">
           <ElOption
             v-for="item in providerOptions"
